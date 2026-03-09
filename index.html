@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acre Insights</title>
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #1d1d1f;
+    --gray-1: #424245;
+    --gray-2: #6e6e73;
+    --gray-3: #86868b;
+    --gray-4: #d2d2d7;
+    --gray-5: #f5f5f7;
+    --white: #ffffff;
+    --blue: #0071e3;
+    --blue-hover: #0077ED;
+    --green: #2d8a4e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif;
+    color: var(--black);
+    background: var(--white);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    height: 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 clamp(1.5rem, 4vw, 3rem);
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .n-logo {
+    font-size: 1.05rem; font-weight: 700; color: var(--black);
+    text-decoration: none; letter-spacing: -0.02em;
+  }
+  .n-links { display: flex; gap: 1.75rem; list-style: none; }
+  .n-links a {
+    font-size: 0.75rem; font-weight: 400; color: var(--gray-2);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .n-links a:hover { color: var(--black); }
+  .n-cta {
+    font-size: 0.75rem; font-weight: 400; color: var(--blue);
+    text-decoration: none; transition: color 0.15s;
+  }
+  .n-cta:hover { text-decoration: underline; }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+  }
+  .hero-eyebrow {
+    font-size: 1.05rem; font-weight: 500; color: var(--green);
+    letter-spacing: -0.01em; margin-bottom: 1rem;
+    opacity: 0; animation: fadeUp 0.8s ease 0.1s forwards;
+  }
+  .hero h1 {
+    font-size: clamp(3rem, 7.5vw, 5.5rem);
+    font-weight: 700; line-height: 1.05;
+    letter-spacing: -0.04em; color: var(--black);
+    max-width: 900px;
+    opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+  .hero-sub {
+    font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+    font-weight: 400; line-height: 1.5;
+    color: var(--gray-2);
+    max-width: 520px; margin: 1.5rem auto 2.5rem;
+    opacity: 0; animation: fadeUp 0.8s ease 0.35s forwards;
+  }
+  .hero-actions {
+    display: flex; gap: 1.25rem; align-items: center;
+    opacity: 0; animation: fadeUp 0.8s ease 0.45s forwards;
+  }
+  .btn-blue {
+    display: inline-flex; align-items: center;
+    background: var(--blue); color: var(--white);
+    padding: 0.7rem 1.6rem; border-radius: 980px;
+    font-size: 0.92rem; font-weight: 400; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-blue:hover { background: var(--blue-hover); }
+  .link-arrow {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    color: var(--blue); font-size: 0.92rem; font-weight: 400;
+    text-decoration: none;
+  }
+  .link-arrow:hover { text-decoration: underline; }
+  .link-arrow::after {
+    content: '›'; font-size: 1.15em;
+    transition: transform 0.2s;
+  }
+  .link-arrow:hover::after { transform: translateX(2px); }
+
+  /* ===== SECTION FOUNDATIONS ===== */
+  section { padding: clamp(4rem, 10vh, 8rem) clamp(1.5rem, 4vw, 3rem); }
+  .sec-gray { background: var(--gray-5); }
+
+  .sec-head {
+    text-align: center;
+    max-width: 700px; margin: 0 auto;
+    margin-bottom: clamp(3rem, 6vh, 5rem);
+  }
+  .sec-head h2 {
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-weight: 700; line-height: 1.1;
+    letter-spacing: -0.035em; color: var(--black);
+  }
+  .sec-head p {
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    font-weight: 400; line-height: 1.5; color: var(--gray-2);
+    margin-top: 0.9rem;
+  }
+
+  /* ===== SERVICES ===== */
+  .svc-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; max-width: 900px; margin: 0 auto;
+  }
+  .svc-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: clamp(2rem, 4vw, 2.75rem);
+    transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  .sec-gray .svc-card { background: var(--white); }
+  .svc-card:hover { transform: scale(1.015); }
+
+  .svc-label {
+    font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; margin-bottom: 0.75rem;
+  }
+  .svc-label.green { color: var(--green); }
+  .svc-label.blue { color: var(--blue); }
+  .svc-card h3 {
+    font-size: clamp(1.35rem, 2.5vw, 1.65rem);
+    font-weight: 700; color: var(--black);
+    letter-spacing: -0.025em; line-height: 1.15;
+    margin-bottom: 0.65rem;
+  }
+  .svc-card p {
+    font-size: 0.92rem; font-weight: 400; line-height: 1.55;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .tag {
+    font-size: 0.7rem; font-weight: 500;
+    padding: 0.28rem 0.65rem; border-radius: 980px;
+    background: var(--gray-5); color: var(--gray-2);
+  }
+
+  /* ===== FUNDING ===== */
+  .funding-row {
+    max-width: 680px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .fund-card {
+    background: var(--gray-5);
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+  }
+  .sec-gray .fund-card { background: var(--white); }
+  .fund-top {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+  .fund-badge {
+    font-size: 0.6rem; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 0.2rem 0.5rem; border-radius: 4px;
+  }
+  .fund-badge.eqip { background: #ddf3e4; color: var(--green); }
+  .fund-badge.csp { background: #dbeafe; color: var(--blue); }
+  .fund-card h4 { font-size: 0.92rem; font-weight: 600; color: var(--black); }
+  .fund-card > p { font-size: 0.85rem; font-weight: 400; line-height: 1.55; color: var(--gray-2); }
+
+  /* ===== HOW ===== */
+  .how-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0; max-width: 880px; margin: 0 auto;
+  }
+  .how-step {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    position: relative;
+  }
+  .how-step::after {
+    content: ''; position: absolute;
+    right: 0; top: 25%; bottom: 25%;
+    width: 0.5px; background: var(--gray-4);
+  }
+  .how-step:last-child::after { display: none; }
+  .how-n {
+    font-size: 2.5rem; font-weight: 700; color: var(--gray-4);
+    letter-spacing: -0.03em; line-height: 1;
+    margin-bottom: 0.75rem;
+  }
+  .how-step h4 {
+    font-size: 0.95rem; font-weight: 600; color: var(--black);
+    margin-bottom: 0.35rem;
+  }
+  .how-step p {
+    font-size: 0.82rem; font-weight: 400; line-height: 1.45; color: var(--gray-3);
+  }
+
+  /* ===== APPS ===== */
+  .app-row {
+    display: flex; justify-content: center; gap: 0.6rem;
+    flex-wrap: wrap;
+    max-width: 600px; margin: 0 auto;
+  }
+  .app-pill {
+    display: flex; align-items: center; gap: 0.4rem;
+    background: var(--white); border-radius: 980px;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem; font-weight: 500; color: var(--black);
+  }
+  .sec-gray .app-pill { background: var(--white); }
+  .app-pill .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .dot.live { background: var(--green); }
+  .dot.dev { background: var(--gray-4); }
+  .app-pill .status {
+    font-size: 0.65rem; font-weight: 500; color: var(--gray-3);
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+
+  /* ===== SERVICE AREA ===== */
+  .county-row {
+    display: flex; justify-content: center; gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .county-item {
+    text-align: center;
+  }
+  .county-item span {
+    font-size: 1rem; font-weight: 600; color: var(--black);
+  }
+
+  /* ===== ABOUT ===== */
+  .about-inner {
+    max-width: 660px; margin: 0 auto;
+  }
+  .about-inner p {
+    font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+    font-weight: 400; line-height: 1.7;
+    color: var(--gray-1);
+    margin-bottom: 1.25rem;
+  }
+  .about-inner p:last-of-type { margin-bottom: 0; }
+  .about-sig {
+    margin-top: 2.25rem;
+    font-size: 0.92rem; font-weight: 600; color: var(--black);
+  }
+  .about-sig span {
+    font-weight: 400; color: var(--gray-3);
+  }
+
+  /* ===== CTA ===== */
+  .cta-sec {
+    padding: clamp(5rem, 12vh, 10rem) 2rem;
+    text-align: center;
+  }
+  .cta-sec h2 {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    font-weight: 700; letter-spacing: -0.035em;
+    color: var(--black); line-height: 1.1;
+    margin-bottom: 0.8rem;
+  }
+  .cta-sec p {
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    font-weight: 400; color: var(--gray-2);
+    max-width: 440px; margin: 0 auto 2rem; line-height: 1.5;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    padding: 1.25rem clamp(1.5rem, 4vw, 3rem);
+    border-top: 0.5px solid var(--gray-4);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .f-brand { font-size: 0.75rem; font-weight: 600; color: var(--gray-2); }
+  .f-nav { display: flex; gap: 1.5rem; list-style: none; }
+  .f-nav a { font-size: 0.72rem; font-weight: 400; color: var(--gray-3); text-decoration: none; transition: color 0.2s; }
+  .f-nav a:hover { color: var(--black); }
+  .f-legal { font-size: 0.72rem; color: var(--gray-3); }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1),
+                transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  .reveal.vis {
+    opacity: 1; transform: translateY(0);
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    max-width: 680px; margin: 0 auto;
+    height: 0.5px; background: var(--gray-4);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    nav { height: 44px; }
+    .n-links { display: none; }
+    .hero { min-height: auto; padding: 7rem 1.5rem 4rem; }
+    .hero h1 { font-size: 2.4rem; }
+    .svc-row { grid-template-columns: 1fr; }
+    .how-grid { grid-template-columns: 1fr 1fr; }
+    .how-step::after { display: none; }
+    .hero-actions { flex-direction: column; gap: 0.75rem; }
+    .county-row { gap: 1.5rem; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    .fund-card { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="n-logo">Acre Insights</a>
+  <ul class="n-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#funding">EQIP & CSP</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#area">Service Area</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <a href="#contact" class="n-cta">Get in touch ›</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Soil Monitoring & Weather Intelligence</div>
+  <h1>Know your soil. Manage your water.</h1>
+  <p class="hero-sub">We install and manage soil moisture probes and on-farm weather stations for Nebraska farmers. Real-time data so you can stop guessing.</p>
+  <div class="hero-actions">
+    <a href="#contact" class="btn-blue">Get started</a>
+    <a href="#services" class="link-arrow">Learn more</a>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="sec-gray" id="services">
+  <div class="sec-head reveal">
+    <h2>Monitoring and data management for your operation.</h2>
+    <p>We handle installation, monitoring, maintenance, and data interpretation — so you get answers, not another thing to manage.</p>
+  </div>
+  <div class="svc-row">
+    <div class="svc-card reveal">
+      <div class="svc-label green">Water</div>
+      <h3>Soil Moisture Probes</h3>
+      <p>Multi-depth CropX probes, professionally installed and fully managed. Real-time soil moisture data streamed directly to your phone all season.</p>
+      <div class="tags">
+        <span class="tag">CropX</span>
+        <span class="tag">Multi-Depth</span>
+        <span class="tag">Real-Time</span>
+        <span class="tag">Managed & DIY Service</span>
+        <span class="tag">Seasonal Reporting</span>
+      </div>
+    </div>
+    <div class="svc-card reveal">
+      <div class="svc-label blue">Weather</div>
+      <h3>Weather Stations</h3>
+      <p>On-farm weather data: temperature, humidity, wind, rainfall, and solar radiation for precision irrigation scheduling.</p>
+      <div class="tags">
+        <span class="tag">On-Farm</span>
+        <span class="tag">Solar Radiation</span>
+        <span class="tag">Rainfall</span>
+        <span class="tag">Wind & Temp</span>
+        <span class="tag">Humidity</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDING -->
+<section id="funding">
+  <div class="sec-head reveal">
+    <h2>Approved for NRCS funding? We can provide the hardware and services.</h2>
+    <p>If your operation has been approved through EQIP or CSP for soil moisture monitoring or irrigation water management, we have the equipment and services to meet those requirements.</p>
+  </div>
+  <div class="funding-row">
+    <div class="fund-card reveal">
+      <div class="fund-top">
+        <span class="fund-badge eqip">EQIP</span>
+        <h4>Environmental Quality Incentives Program</h4>
+      </div>
+      <p>Our soil moisture probes and installation services meet EQIP practice standards for irrigation water management. We also provide end-of-season reporting to help fulfill your contract documentation.</p>
+    </div>
+    <div class="fund-card reveal">
+      <div class="fund-top">
+        <span class="fund-badge csp">CSP</span>
+        <h4>Conservation Stewardship Program</h4>
+      </div>
+      <p>Soil moisture monitoring and advanced IWM are eligible CSP enhancements. Our services fit right into those contracts, including the seasonal reporting your commitment requires.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="sec-gray" id="how">
+  <div class="sec-head reveal">
+    <h2>Getting started is simple.</h2>
+    <p>From first conversation to live data — here's what the process looks like.</p>
+  </div>
+  <div class="how-grid">
+    <div class="how-step reveal">
+      <div class="how-n">01</div>
+      <h4>Learn</h4>
+      <p>We learn your fields, your soil types, your irrigation setup, and your goals.</p>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-n">02</div>
+      <h4>Install</h4>
+      <p>Professional probe and/or weather station placement — where they'll matter most.</p>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-n">03</div>
+      <h4>Monitor</h4>
+      <p>Real-time data to your phone. We watch it too, and flag what needs attention.</p>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-n">04</div>
+      <h4>Optimize</h4>
+      <p>Data-driven irrigation timing, records, and season planning — year after year.</p>
+    </div>
+  </div>
+</section>
+
+<!-- APPS -->
+<section>
+  <div class="sec-head reveal">
+    <h2>Custom apps, built in-house.</h2>
+    <p>Simple, reliable tools built for the way farmers actually work. Have an idea? <a href="#contact" class="link-arrow" style="font-size:inherit">Let's talk</a></p>
+  </div>
+  <div class="app-row reveal">
+    <div class="app-pill"><span class="dot live"></span>MeterCalc <span class="status">Live</span></div>
+    <div class="app-pill"><span class="dot live"></span>Acre Ops <span class="status">Live</span></div>
+    <div class="app-pill"><span class="dot dev"></span>SprayMarker <span class="status">In Dev</span></div>
+    <div class="app-pill"><span class="dot dev"></span>AI Soil Analyst <span class="status">Soon</span></div>
+  </div>
+</section>
+
+<!-- SERVICE AREA -->
+<section class="sec-gray" id="area">
+  <div class="sec-head reveal">
+    <h2>Nebraska-based. Owner-operated. In your fields.</h2>
+    <p>We're a local ag consulting business that installs, manages, and interprets the data — so you always have someone who knows your fields and picks up the phone.</p>
+  </div>
+  <div class="county-row reveal">
+    <div class="county-item"><span>Phelps County</span></div>
+    <div class="county-item"><span>Kearney County</span></div>
+    <div class="county-item"><span>Franklin County</span></div>
+    <div class="county-item"><span>Adams County</span></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sec-head">
+    <h2 class="reveal">About</h2>
+  </div>
+  <div class="about-inner">
+    <p class="reveal">I'm passionate about making ag technology accessible to farmers — not just installing equipment, but making sure the data actually gets used. I want to be on the cutting edge of water management, and I love working with growers to get the maximum yield out of every drop of water.</p>
+    <div class="about-sig reveal">Ryan <span>· Owner, Acre Insights</span></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec sec-gray" id="contact">
+  <h2 class="reveal">Ready to see what's<br>below the surface?</h2>
+  <p class="reveal">Whether you're starting with one probe or outfitting a full section — let's build a monitoring plan that fits your operation.</p>
+  <div class="reveal">
+    <a href="mailto:ryan@acreinsights.com" class="btn-blue">Get in touch</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-brand">Acre Insights</div>
+  <ul class="f-nav">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#funding">EQIP & CSP</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#area">Service Area</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="f-legal">© 2026 Acre Insights LLC · Nebraska</div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('vis'); }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
