@@ -77,30 +77,44 @@
       text-align: center;
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 36px;
+      border-radius: 20px;
+      padding: 36px 36px 28px;
       margin-bottom: 24px;
     }
 
-    .temp-date {
-      font-size: 13px;
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .depth-badge {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 12px;
       font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.03em;
+    }
+
+    .card-date {
+      font-size: 13px;
+      font-weight: 500;
       color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 20px;
     }
 
     .temp-avg-row {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 2px;
       margin-bottom: 28px;
     }
 
     .temp-avg-value {
-      font-size: 72px;
+      font-size: 80px;
       font-weight: 700;
       letter-spacing: -0.04em;
       line-height: 1;
@@ -108,51 +122,49 @@
     }
 
     .temp-avg-label {
-      font-size: 16px;
+      font-size: 14px;
       color: var(--text-secondary);
       font-weight: 500;
+      letter-spacing: 0.01em;
     }
 
-    .temp-range {
+    .temp-stats {
       display: flex;
-      gap: 32px;
-      justify-content: center;
+      align-items: stretch;
+      border-top: 1px solid var(--border);
+      margin: 0 -8px;
+      padding-top: 20px;
     }
 
-    .temp-range-item {
+    .temp-stat {
+      flex: 1;
       display: flex;
       flex-direction: column;
+      align-items: center;
       gap: 4px;
+      padding: 0 8px;
     }
 
-    .temp-range-label {
-      font-size: 12px;
+    .temp-stat + .temp-stat {
+      border-left: 1px solid var(--border);
+    }
+
+    .temp-stat-value {
+      font-size: 30px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .temp-stat-value.high { color: var(--warm); }
+    .temp-stat-value.low { color: var(--cool); }
+
+    .temp-stat-label {
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--text-secondary);
-    }
-
-    .temp-range-value {
-      font-size: 28px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-    }
-
-    .temp-range-value.high { color: var(--warm); }
-    .temp-range-value.low { color: var(--cool); }
-    .temp-range-7day { margin-top: 20px; }
-
-    /* Depth label */
-    .depth-badge {
-      display: inline-block;
-      background: var(--accent-light);
-      color: var(--accent);
-      font-size: 13px;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 20px;
-      margin-bottom: 20px;
     }
 
     /* Info section */
@@ -211,10 +223,9 @@
     @media (max-width: 500px) {
       .container { padding: 40px 20px 60px; }
       h1 { font-size: 30px; }
-      .temp-avg-value { font-size: 56px; }
-      .temp-range-value { font-size: 24px; }
-      .temp-card { padding: 24px; }
-      .temp-range { gap: 24px; }
+      .temp-avg-value { font-size: 64px; }
+      .temp-stat-value { font-size: 24px; }
+      .temp-card { padding: 24px 24px 20px; }
     }
   </style>
 </head>
@@ -252,27 +263,26 @@
 
         content.innerHTML = `
           <div class="temp-card fade-in">
-            <div class="depth-badge">4" Depth</div>
-            <div class="temp-date">Yesterday's 4" Soil Temps</div>
-            <div style="font-size: 15px; color: var(--text-secondary); margin-bottom: 20px;">${dateStr}</div>
+            <div class="card-header">
+              <span class="depth-badge">4" Depth</span>
+              <span class="card-date">${dateStr}</span>
+            </div>
             <div class="temp-avg-row">
-              <span class="temp-avg-label">Yesterday's Average</span>
               <span class="temp-avg-value">${Math.round(data.avg)}&deg;</span>
+              <span class="temp-avg-label">Yesterday's Average</span>
             </div>
-            <div class="temp-range">
-              <div class="temp-range-item">
-                <span class="temp-range-label">High</span>
-                <span class="temp-range-value high">${Math.round(data.high)}&deg;</span>
+            <div class="temp-stats">
+              <div class="temp-stat">
+                <span class="temp-stat-value high">${Math.round(data.high)}&deg;</span>
+                <span class="temp-stat-label">High</span>
               </div>
-              <div class="temp-range-item">
-                <span class="temp-range-label">Low</span>
-                <span class="temp-range-value low">${Math.round(data.low)}&deg;</span>
+              <div class="temp-stat">
+                <span class="temp-stat-value low">${Math.round(data.low)}&deg;</span>
+                <span class="temp-stat-label">Low</span>
               </div>
-            </div>
-            <div class="temp-range temp-range-7day">
-              <div class="temp-range-item">
-                <span class="temp-range-label">7-Day Avg</span>
-                <span class="temp-range-value">${data.avg_7day != null ? Math.round(data.avg_7day) + '&deg;' : '--'}</span>
+              <div class="temp-stat">
+                <span class="temp-stat-value">${data.avg_7day != null ? Math.round(data.avg_7day) + '&deg;' : '--'}</span>
+                <span class="temp-stat-label">7-Day Avg</span>
               </div>
             </div>
           </div>
