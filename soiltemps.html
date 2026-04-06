@@ -215,8 +215,8 @@
     </div>
 
     <div class="info-section" id="info" style="display: none;">
-      <p>Readings are collected from a CropX soil moisture probe at the 4" depth. Data updates each morning with the previous day's high, low, and average temperatures.</p>
-      <p>Soil temperature at the 4" depth is a key indicator for corn planting decisions. Most agronomists recommend waiting for a consistent average of 50&deg;F before planting.</p>
+      <p>Readings are collected from a CropX soil moisture probe at the 4" depth. Data updates each morning with the previous day's high, low, and average temperatures, plus a rolling 7-day average.</p>
+      <p>Soil temperature at the 4" depth is a key indicator for corn planting decisions. Most agronomists recommend waiting for a consistent 7-day average of 50&deg;F before planting.</p>
       <p><a href="/">Learn more about Acre Insights &rarr;</a></p>
       <div class="updated-at" id="updated-at"></div>
     </div>
@@ -242,7 +242,7 @@
             <div class="temp-date">${dateStr}</div>
             <div class="temp-avg-row">
               <span class="temp-avg-value">${Math.round(data.avg)}&deg;</span>
-              <span class="temp-avg-label">Average</span>
+              <span class="temp-avg-label">Yesterday's Average</span>
             </div>
             <div class="temp-range">
               <div class="temp-range-item">
@@ -252,6 +252,10 @@
               <div class="temp-range-item">
                 <span class="temp-range-label">Low</span>
                 <span class="temp-range-value low">${Math.round(data.low)}&deg;</span>
+              </div>
+              <div class="temp-range-item">
+                <span class="temp-range-label">7-Day Avg</span>
+                <span class="temp-range-value">${data.avg_7day != null ? Math.round(data.avg_7day) + '&deg;' : '--'}</span>
               </div>
             </div>
           </div>
