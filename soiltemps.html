@@ -208,7 +208,7 @@
     <a href="/" class="back-link">&larr; Acre Insights</a>
 
     <h1>Soil Temps</h1>
-    <p class="page-subtitle">Daily 4" soil temperature readings from 3 miles NW of Axtell, NE. Probe is in soybean stubble.</p>
+    <p class="page-subtitle">Daily 4" soil temperature readings from 3 miles NW of Axtell, NE. Sensor is in soybean stubble. <span id="reading-date"></span></p>
 
     <div id="content">
       <div class="loading">Loading...</div>
@@ -261,6 +261,7 @@
           </div>
         `;
 
+        document.getElementById('reading-date').textContent = 'Readings from ' + dateStr + '.';
         document.getElementById('info').style.display = 'block';
 
         if (data.updated) {
