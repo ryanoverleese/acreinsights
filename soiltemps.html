@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Soil Temps | Acre Insights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --accent: #2d5a27;
+      --accent-light: #e8f0e7;
+      --border: #e5e5e5;
+      --card-bg: #fafafa;
+      --warm: #c44b1a;
+      --cool: #2563eb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    /* Header */
+    .back-link {
+      display: inline-block;
+      font-size: 14px;
+      color: var(--accent);
+      text-decoration: none;
+      margin-bottom: 40px;
+      letter-spacing: 0.01em;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: 38px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 48px;
+    }
+
+    /* Temp display */
+    .temp-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px;
+      margin-bottom: 24px;
+    }
+
+    .temp-date {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
+
+    .temp-avg-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .temp-avg-value {
+      font-size: 72px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .temp-avg-label {
+      font-size: 16px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .temp-range {
+      display: flex;
+      gap: 32px;
+    }
+
+    .temp-range-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .temp-range-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+    }
+
+    .temp-range-value {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .temp-range-value.high { color: var(--warm); }
+    .temp-range-value.low { color: var(--cool); }
+
+    /* Depth label */
+    .depth-badge {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Info section */
+    .info-section {
+      border-top: 1px solid var(--border);
+      padding-top: 32px;
+      margin-top: 8px;
+    }
+
+    .info-section p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .info-section a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .info-section a:hover { text-decoration: underline; }
+
+    .updated-at {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 24px;
+      opacity: 0.6;
+    }
+
+    /* Loading / Error */
+    .loading {
+      text-align: center;
+      padding: 60px 0;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 60px 0;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    /* Fade in */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 500px) {
+      .container { padding: 40px 20px 60px; }
+      h1 { font-size: 30px; }
+      .temp-avg-value { font-size: 56px; }
+      .temp-range-value { font-size: 24px; }
+      .temp-card { padding: 24px; }
+      .temp-range { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; Acre Insights</a>
+
+    <h1>Soil Temps</h1>
+    <p class="page-subtitle">Daily 4" soil temperature readings from south-central Nebraska.</p>
+
+    <div id="content">
+      <div class="loading">Loading...</div>
+    </div>
+
+    <div class="info-section" id="info" style="display: none;">
+      <p>Readings are collected from a CropX soil moisture probe at the 4" depth. Data updates each morning with the previous day's high, low, and average temperatures.</p>
+      <p>Soil temperature at the 4" depth is a key indicator for corn planting decisions. Most agronomists recommend waiting for a consistent average of 50&deg;F before planting.</p>
+      <p><a href="/">Learn more about Acre Insights &rarr;</a></p>
+      <div class="updated-at" id="updated-at"></div>
+    </div>
+  </div>
+
+  <script>
+    async function loadData() {
+      try {
+        const resp = await fetch('soil_temp.json?' + Date.now());
+        if (!resp.ok) throw new Error('No data');
+        const data = await resp.json();
+
+        if (!data.avg && data.avg !== 0) throw new Error('Empty data');
+
+        const content = document.getElementById('content');
+        const dateStr = new Date(data.date + 'T12:00:00').toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        });
+
+        content.innerHTML = `
+          <div class="temp-card fade-in">
+            <div class="depth-badge">4" Depth</div>
+            <div class="temp-date">${dateStr}</div>
+            <div class="temp-avg-row">
+              <span class="temp-avg-value">${Math.round(data.avg)}&deg;</span>
+              <span class="temp-avg-label">Average</span>
+            </div>
+            <div class="temp-range">
+              <div class="temp-range-item">
+                <span class="temp-range-label">High</span>
+                <span class="temp-range-value high">${Math.round(data.high)}&deg;</span>
+              </div>
+              <div class="temp-range-item">
+                <span class="temp-range-label">Low</span>
+                <span class="temp-range-value low">${Math.round(data.low)}&deg;</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('info').style.display = 'block';
+
+        if (data.updated) {
+          const updated = new Date(data.updated);
+          document.getElementById('updated-at').textContent =
+            'Last updated ' + updated.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) +
+            ' at ' + updated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        }
+
+      } catch (e) {
+        document.getElementById('content').innerHTML =
+          '<div class="no-data">No soil temperature data available yet. Check back tomorrow morning.</div>';
+        document.getElementById('info').style.display = 'block';
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
