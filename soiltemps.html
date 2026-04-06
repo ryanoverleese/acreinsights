@@ -93,9 +93,9 @@
 
     .temp-avg-row {
       display: flex;
-      align-items: baseline;
-      justify-content: center;
-      gap: 8px;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
       margin-bottom: 28px;
     }
 
@@ -255,8 +255,8 @@
             <div class="temp-date">Yesterday's 4" Soil Temps</div>
             <div style="font-size: 15px; color: var(--text-secondary); margin-bottom: 20px;">${dateStr}</div>
             <div class="temp-avg-row">
-              <span class="temp-avg-value">${Math.round(data.avg)}&deg;</span>
               <span class="temp-avg-label">Yesterday's Average</span>
+              <span class="temp-avg-value">${Math.round(data.avg)}&deg;</span>
             </div>
             <div class="temp-range">
               <div class="temp-range-item">
