@@ -141,6 +141,7 @@
 
     .temp-range-value.high { color: var(--warm); }
     .temp-range-value.low { color: var(--cool); }
+    .temp-range-7day { margin-top: 20px; }
 
     /* Depth label */
     .depth-badge {
@@ -267,6 +268,8 @@
                 <span class="temp-range-label">Low</span>
                 <span class="temp-range-value low">${Math.round(data.low)}&deg;</span>
               </div>
+            </div>
+            <div class="temp-range temp-range-7day">
               <div class="temp-range-item">
                 <span class="temp-range-label">7-Day Avg</span>
                 <span class="temp-range-value">${data.avg_7day != null ? Math.round(data.avg_7day) + '&deg;' : '--'}</span>
