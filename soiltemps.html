@@ -10,18 +10,25 @@
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:type" content="website" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
+      --black: #1a1a1d;
+      --gray-1: #3a3a3f;
+      --gray-2: #62626a;
+      --gray-3: #8a8a93;
+      --gray-4: #c8c8cf;
+      --gray-5: #f3f3f5;
+      --white: #ffffff;
+      --blue: #1570EF;
+      --blue-hover: #1260cc;
+      --green: #1a7a3a;
       --bg: #ffffff;
-      --text: #1d1d1f;
-      --text-secondary: #6e6e73;
+      --text: #1a1a1d;
+      --text-secondary: #62626a;
       --accent: #2d5a27;
       --accent-light: #e8f0e7;
-      --border: #e5e5e5;
-      --card-bg: #fafafa;
+      --border: #e8e8ed;
+      --card-bg: #f8f8fa;
       --warm: #c44b1a;
       --cool: #2563eb;
     }
@@ -29,11 +36,64 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
+
+    main { flex: 1; }
+
+    /* NAV — matches main site */
+    nav {
+      height: 52px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(1.5rem, 4vw, 3rem);
+      background: var(--white); border-bottom: 1px solid var(--gray-5);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .n-logo { display: flex; align-items: center; text-decoration: none; }
+    .n-logo img { height: 28px; width: auto; }
+    .n-links { display: flex; gap: 0.1rem; list-style: none; }
+    .n-links a {
+      font-size: 0.78rem; font-weight: 500; color: var(--gray-2);
+      text-decoration: none; padding: 0.4rem 0.55rem; border-radius: 6px;
+      transition: color 0.2s, background 0.2s; white-space: nowrap;
+    }
+    .n-links a:hover { color: var(--black); background: var(--gray-5); }
+    .n-links a.active { color: var(--black); font-weight: 600; }
+    .n-cta {
+      font-size: 0.78rem; font-weight: 600; color: var(--white);
+      background: var(--blue); text-decoration: none;
+      padding: 0.42rem 0.9rem; border-radius: 6px;
+      transition: background 0.2s; white-space: nowrap;
+    }
+    .n-cta:hover { background: var(--blue-hover); }
+    .n-mobile-toggle {
+      display: none; background: none; border: none; cursor: pointer;
+      width: 28px; height: 28px; position: relative;
+    }
+    .n-mobile-toggle span {
+      display: block; width: 18px; height: 1.5px; background: var(--black);
+      position: absolute; left: 5px; transition: all 0.2s;
+    }
+    .n-mobile-toggle span:nth-child(1) { top: 9px; }
+    .n-mobile-toggle span:nth-child(2) { top: 14px; }
+    .n-mobile-toggle span:nth-child(3) { top: 19px; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--gray-5);
+      padding: 2rem clamp(1.5rem, 4vw, 3rem);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+    }
+    .f-copy { font-size: 0.78rem; color: var(--gray-3); }
+    .f-nav { display: flex; gap: 1.25rem; list-style: none; }
+    .f-nav a { font-size: 0.78rem; color: var(--gray-3); text-decoration: none; transition: color 0.2s; }
+    .f-nav a:hover { color: var(--black); }
 
     .container {
       max-width: 680px;
@@ -41,27 +101,6 @@
       padding: 60px 24px 80px;
       text-align: center;
     }
-
-    /* Header */
-    .logo-link {
-      display: inline-block;
-      margin-bottom: 40px;
-    }
-    .logo-link img {
-      height: 40px;
-      width: auto;
-      display: block;
-      margin: 0 auto;
-    }
-    .back-link {
-      display: inline-block;
-      font-size: 14px;
-      color: var(--accent);
-      text-decoration: none;
-      margin-bottom: 40px;
-      letter-spacing: 0.01em;
-    }
-    .back-link:hover { text-decoration: underline; }
 
     h1 {
       font-size: 38px;
@@ -226,6 +265,10 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    @media (max-width: 640px) {
+      .n-links, .n-cta { display: none; }
+      .n-mobile-toggle { display: block; }
+    }
     @media (max-width: 500px) {
       .container { padding: 40px 20px 60px; }
       h1 { font-size: 30px; }
@@ -236,9 +279,24 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <a href="/" class="logo-link"><img src="LOGO.jpg" alt="Acre Insights" /></a>
+  <nav>
+    <a href="/" class="n-logo"><img src="LOGO.jpg" alt="Acre Insights" /></a>
+    <ul class="n-links">
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/#funding">EQIP &amp; CSP</a></li>
+      <li><a href="/#apps">Apps</a></li>
+      <li><a href="/#about">About</a></li>
+      <li><a href="/#contact">Contact</a></li>
+      <li><a href="soiltemps.html" class="active">Soil Temps</a></li>
+    </ul>
+    <a href="/#contact" class="n-cta">Get in Touch</a>
+    <button class="n-mobile-toggle" onclick="this.classList.toggle('open');document.getElementById('mobileNav').classList.toggle('open')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
 
+  <main>
+  <div class="container">
     <h1>Soil Temps</h1>
     <p class="page-subtitle">Daily 4" soil temperature readings from 3 miles NW of Axtell, NE.</p>
 
@@ -252,6 +310,16 @@
       <div class="updated-at" id="updated-at"></div>
     </div>
   </div>
+  </main>
+
+  <footer>
+    <span class="f-copy">&copy; 2026 Acre Insights, LLC</span>
+    <ul class="f-nav">
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/#about">About</a></li>
+      <li><a href="/#contact">Contact</a></li>
+    </ul>
+  </footer>
 
   <script>
     async function loadData() {
