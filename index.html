@@ -90,7 +90,20 @@
   .ct { padding: 0 clamp(1.5rem, 4vw, 3rem) clamp(3rem, 5vh, 4rem); max-width: 960px; }
 
   /* HERO */
+  .hero-wrap {
+    background: url('hero-bg.jpg') center center / cover no-repeat;
+    position: relative;
+  }
+  .hero-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.1) 100%);
+    pointer-events: none;
+  }
   .hero {
+    position: relative;
+    z-index: 1;
     padding: clamp(5rem, 12vh, 8rem) clamp(1.5rem, 4vw, 3rem) clamp(3rem, 6vh, 5rem);
     max-width: 680px;
   }
@@ -290,6 +303,7 @@
 
   <!-- HOME -->
   <div class="page active" id="page-home">
+    <div class="hero-wrap">
     <section class="hero">
       <h1 class="fade-in">Know your soil. Manage your water.</h1>
       <p class="fade-in d1">We install and manage soil moisture probes and on-farm weather stations for Nebraska farmers. Real-time data so you can stop guessing.</p>
@@ -298,6 +312,7 @@
         <a class="link-arrow" data-page="services">Our services</a>
       </div>
     </section>
+    </div>
     <section class="sec alt">
       <h2>Monitoring and data management for your operation.</h2>
       <p>We handle installation, monitoring, maintenance, and data interpretation — so you get answers, not another thing to manage.</p>
