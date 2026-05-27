@@ -162,11 +162,6 @@
 <div class="stations" id="stations"></div>
 
 <script>
-const SEED_TOKEN = [
-  'eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NzE4NzU2MzEsInN1YiI6ImFjcmUuaW5zaWdodHNc',
-  'blhvUHZON01nUHE5SXJmeXAzVlFuWFE9PSJ9.NHxwxPQIzDPm1KQjkWVrFQuXINwi9BdsX1GG',
-  'jzYKtjAWALrXC2ZLHISKXJC63cwEWXB6DNdlea6epELarr7lpA'
-].join('');
 
 const STATIONS = [
   { name: 'Dahl Substation',  uuid: 'dc8c2b04-f433-4df1-9bd3-7ce817c8cfc1' },
@@ -176,34 +171,9 @@ const STATIONS = [
 
 const STORM_GAP_MS = 24 * 60 * 60 * 1000; // 24 hours — Davis WeatherLink standard
 
-let jwt = null;
-
-async function getJwt() {
-  if (jwt) return jwt;
-  const res = await fetch('https://app.cropx.com/api/jwttoken', {
-    headers: {
-      'authorization': `Bearer ${SEED_TOKEN}`,
-      'accept': 'application/json',
-      'origin': 'https://myfarm.cropx.com',
-      'referer': 'https://myfarm.cropx.com/',
-    }
-  });
-  const d = await res.json();
-  jwt = d.content.token;
-  return jwt;
-}
-
 async function fetchRain(uuid, startMs, endMs) {
-  const token = await getJwt();
-  const url = `https://app.cropx.com/weather_calc_data/${uuid}?start=${startMs}&end=${endMs}&meta=PT`;
-  const res = await fetch(url, {
-    headers: {
-      'authorization': `Bearer ${token}`,
-      'accept': 'application/json',
-      'origin': 'https://myfarm.cropx.com',
-      'referer': 'https://myfarm.cropx.com/',
-    }
-  });
+  const url = `/.netlify/functions/cropx-rain?uuid=${uuid}&start=${startMs}&end=${endMs}`;
+  const res = await fetch(url);
   return res.json();
 }
 
@@ -311,7 +281,6 @@ async function loadStation(station, startMs, endMs, container, placeholder) {
 }
 
 async function loadAll() {
-  jwt = null; // force fresh JWT on each full reload
   const btn = document.getElementById('refreshBtn');
   btn.disabled = true;
   btn.textContent = 'Loading…';
