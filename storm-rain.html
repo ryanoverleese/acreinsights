@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Storm Rain Totals — Fishell Farms</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f4f6f0;
+      color: #1a2e1a;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #2d5016;
+      color: #f0ede4;
+      padding: 18px 20px 16px;
+    }
+    header .eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      margin-bottom: 4px;
+    }
+    header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    header .sub {
+      font-size: 12px;
+      opacity: 0.6;
+      margin-top: 3px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: #fff;
+      border-bottom: 1px solid #dde5d4;
+    }
+    .controls label { font-size: 12px; color: #666; }
+    .controls select {
+      font-size: 13px;
+      border: 1px solid #c8d5b8;
+      border-radius: 6px;
+      padding: 6px 10px;
+      background: #fff;
+      color: #1a2e1a;
+    }
+    .refresh-btn {
+      margin-left: auto;
+      background: #2d5016;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+    }
+    .refresh-btn:hover { background: #3a6a1e; }
+    .refresh-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .stations { padding: 14px 14px 40px; display: flex; flex-direction: column; gap: 14px; }
+
+    .station-card {
+      background: #fff;
+      border: 1px solid #dde5d4;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .station-header {
+      background: #2d5016;
+      color: #f0ede4;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .station-name { font-size: 15px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+    .station-updated { font-size: 10px; opacity: 0.55; letter-spacing: 0.08em; }
+
+    .storms { padding: 0; }
+
+    .storm-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      padding: 14px 16px;
+      border-bottom: 1px solid #eef2e8;
+      gap: 12px;
+    }
+    .storm-row:last-child { border-bottom: none; }
+
+    .storm-meta { font-size: 11px; color: #666; margin-top: 3px; line-height: 1.5; }
+    .storm-dates { font-size: 13px; font-weight: 600; color: #1a2e1a; }
+
+    .storm-total {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2d5016;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      line-height: 1;
+    }
+    .storm-total .unit { font-size: 13px; font-weight: 400; color: #888; }
+
+    .no-storms {
+      padding: 24px 16px;
+      text-align: center;
+      color: #999;
+      font-size: 13px;
+    }
+
+    .loading {
+      padding: 24px 16px;
+      text-align: center;
+      color: #999;
+      font-size: 13px;
+    }
+
+    .error {
+      padding: 16px;
+      background: #fff5f5;
+      color: #c0392b;
+      font-size: 12px;
+      border-top: 1px solid #fdd;
+    }
+
+    @media (min-width: 600px) {
+      .stations { max-width: 640px; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Fishell Farms · CropX Strato</div>
+  <h1>Storm Rain Totals</h1>
+  <div class="sub">Storm ends after 24 hours with no rain · Last 30 days</div>
+</header>
+
+<div class="controls">
+  <label for="lookback">Lookback</label>
+  <select id="lookback">
+    <option value="14">14 days</option>
+    <option value="30" selected>30 days</option>
+    <option value="60">60 days</option>
+    <option value="90">90 days</option>
+  </select>
+  <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">Refresh</button>
+</div>
+
+<div class="stations" id="stations"></div>
+
+<script>
+const SEED_TOKEN = [
+  'eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NzE4NzU2MzEsInN1YiI6ImFjcmUuaW5zaWdodHNc',
+  'blhvUHZON01nUHE5SXJmeXAzVlFuWFE9PSJ9.NHxwxPQIzDPm1KQjkWVrFQuXINwi9BdsX1GG',
+  'jzYKtjAWALrXC2ZLHISKXJC63cwEWXB6DNdlea6epELarr7lpA'
+].join('');
+
+const STATIONS = [
+  { name: 'Dahl Substation',  uuid: 'dc8c2b04-f433-4df1-9bd3-7ce817c8cfc1' },
+  { name: 'Dunlay 1/4',       uuid: 'ec2b1e94-8bdf-46dc-82b5-378f9a3cc81d' },
+  { name: 'Swensen',          uuid: '115b8bbe-b7f4-4ac7-a7cf-deca7f33a275' },
+];
+
+const STORM_GAP_MS = 24 * 60 * 60 * 1000; // 24 hours — Davis WeatherLink standard
+
+let jwt = null;
+
+async function getJwt() {
+  if (jwt) return jwt;
+  const res = await fetch('https://app.cropx.com/api/jwttoken', {
+    headers: {
+      'authorization': `Bearer ${SEED_TOKEN}`,
+      'accept': 'application/json',
+      'origin': 'https://myfarm.cropx.com',
+      'referer': 'https://myfarm.cropx.com/',
+    }
+  });
+  const d = await res.json();
+  jwt = d.content.token;
+  return jwt;
+}
+
+async function fetchRain(uuid, startMs, endMs) {
+  const token = await getJwt();
+  const url = `https://app.cropx.com/weather_calc_data/${uuid}?start=${startMs}&end=${endMs}&meta=PT`;
+  const res = await fetch(url, {
+    headers: {
+      'authorization': `Bearer ${token}`,
+      'accept': 'application/json',
+      'origin': 'https://myfarm.cropx.com',
+      'referer': 'https://myfarm.cropx.com/',
+    }
+  });
+  return res.json();
+}
+
+function detectStorms(timestamps, values) {
+  // Pair timestamps with values, filter to rainy readings
+  const rain = timestamps
+    .map((t, i) => ({ t, v: parseFloat(values[i]) || 0 }))
+    .filter(r => r.v > 0);
+
+  if (!rain.length) return [];
+
+  const storms = [];
+  let start = rain[0].t;
+  let end = rain[0].t;
+  let total = rain[0].v;
+
+  for (let i = 1; i < rain.length; i++) {
+    const gap = rain[i].t - rain[i - 1].t;
+    if (gap > STORM_GAP_MS) {
+      storms.push({ start, end, total });
+      start = rain[i].t;
+      end = rain[i].t;
+      total = rain[i].v;
+    } else {
+      end = rain[i].t;
+      total += rain[i].v;
+    }
+  }
+  storms.push({ start, end, total });
+
+  return storms.sort((a, b) => b.start - a.start); // newest first
+}
+
+function formatDate(ms) {
+  return new Date(ms).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+    hour12: true, timeZoneName: 'short'
+  });
+}
+
+function formatDuration(startMs, endMs) {
+  const diffH = Math.round((endMs - startMs) / 3600000);
+  if (diffH < 1) return '< 1 hr';
+  if (diffH === 1) return '1 hr';
+  const days = Math.floor(diffH / 24);
+  const hrs = diffH % 24;
+  if (days === 0) return `${hrs} hr`;
+  return hrs > 0 ? `${days}d ${hrs}h` : `${days}d`;
+}
+
+function renderStation(station, storms, updatedAt, error) {
+  const el = document.createElement('div');
+  el.className = 'station-card';
+
+  const updated = updatedAt
+    ? `Updated ${new Date(updatedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
+    : '';
+
+  let body = '';
+  if (error) {
+    body = `<div class="error">Failed to load: ${error}</div>`;
+  } else if (!storms || !storms.length) {
+    body = `<div class="no-storms">No rain events in this period</div>`;
+  } else {
+    body = '<div class="storms">' + storms.map(s => `
+      <div class="storm-row">
+        <div>
+          <div class="storm-dates">${formatDate(s.start)}</div>
+          <div class="storm-meta">
+            ended ${formatDate(s.end)}<br>
+            duration: ${formatDuration(s.start, s.end)}
+          </div>
+        </div>
+        <div>
+          <div class="storm-total">${s.total.toFixed(2)}<span class="unit">"</span></div>
+        </div>
+      </div>
+    `).join('') + '</div>';
+  }
+
+  el.innerHTML = `
+    <div class="station-header">
+      <div class="station-name">${station.name}</div>
+      <div class="station-updated">${updated}</div>
+    </div>
+    ${error ? '' : (!storms || !storms.length ? '' : '')}
+    ${body}
+  `;
+  return el;
+}
+
+async function loadStation(station, startMs, endMs, container, placeholder) {
+  try {
+    const data = await fetchRain(station.uuid, startMs, endMs);
+    const pt = data.content.data.find(x => x.code === 'PT');
+    const n = pt.values.length;
+    const intervalMs = n > 1 ? (endMs - startMs) / (n - 1) : 900000;
+    const timestamps = pt.values.map((_, i) => startMs + i * intervalMs);
+    const storms = detectStorms(timestamps, pt.values);
+    const updatedAt = Date.now();
+    placeholder.replaceWith(renderStation(station, storms, updatedAt, null));
+  } catch (e) {
+    placeholder.replaceWith(renderStation(station, null, null, e.message));
+  }
+}
+
+async function loadAll() {
+  jwt = null; // force fresh JWT on each full reload
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+
+  const days = parseInt(document.getElementById('lookback').value);
+  const endMs = Date.now();
+  const startMs = endMs - days * 86400 * 1000;
+
+  const container = document.getElementById('stations');
+  container.innerHTML = '';
+
+  // Create placeholders and kick off all 3 in parallel
+  const placeholders = STATIONS.map(s => {
+    const ph = document.createElement('div');
+    ph.className = 'station-card';
+    ph.innerHTML = `
+      <div class="station-header"><div class="station-name">${s.name}</div></div>
+      <div class="loading">Loading…</div>
+    `;
+    container.appendChild(ph);
+    return ph;
+  });
+
+  await Promise.all(STATIONS.map((s, i) => loadStation(s, startMs, endMs, container, placeholders[i])));
+
+  btn.disabled = false;
+  btn.textContent = 'Refresh';
+}
+
+document.getElementById('lookback').addEventListener('change', loadAll);
+loadAll();
+</script>
+</body>
+</html>
