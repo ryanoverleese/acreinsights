@@ -210,7 +210,7 @@ function detectStorms(timestamps, values) {
 function formatDate(ms) {
   return new Date(ms).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
-    hour12: true, timeZoneName: 'short'
+    hour12: true, timeZone: 'America/Chicago', timeZoneName: 'short'
   });
 }
 
@@ -229,7 +229,7 @@ function renderStation(station, storms, updatedAt, error) {
   el.className = 'station-card';
 
   const updated = updatedAt
-    ? `Updated ${new Date(updatedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
+    ? `Updated ${new Date(updatedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' })}`
     : '';
 
   let body = '';
