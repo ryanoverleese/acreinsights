@@ -3,156 +3,161 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Field Updates — Acre Insights</title>
-  <meta name="description" content="Expanded notes from your seasonal Acre Insights text messages." />
+  <title>Field Notes — Acre Insights</title>
+  <meta name="description" content="The full version of the notes behind your seasonal Acre Insights texts." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f4f6f0;
-      color: #1a2e1a;
-      min-height: 100vh;
-      line-height: 1.5;
+    :root{
+      --paper:#FDFCFA;
+      --ink:#1B1E18;
+      --body:#33362D;
+      --muted:#5B5F52;
+      --green:#2F5D34;
+      --line:#E3E0D5;
+      --sans:'Libre Franklin',ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;}
+    body{
+      background:var(--paper);
+      color:var(--body);
+      font-family:var(--sans);
+      font-size:18px;
+      line-height:1.62;
     }
 
-    header {
-      background: #2d5016;
-      color: #f0ede4;
-      padding: 18px 20px 16px;
-    }
-    header .eyebrow {
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      opacity: 0.65;
-      margin-bottom: 4px;
-    }
-    header h1 {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-    header .sub {
-      font-size: 12px;
-      opacity: 0.6;
-      margin-top: 3px;
+    .wrap{
+      max-width:680px;
+      margin:0 auto;
+      padding:clamp(34px,6vw,72px) clamp(20px,5vw,36px) 96px;
     }
 
-    .feed { padding: 14px 14px 48px; display: flex; flex-direction: column; gap: 16px; }
-
-    .update-card {
-      background: #fff;
-      border: 1px solid #dde5d4;
-      border-radius: 12px;
-      overflow: hidden;
-      scroll-margin-top: 14px;
-      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    .masthead{
+      border-bottom:1px solid var(--line);
+      padding-bottom:26px;
+      margin-bottom:8px;
     }
-    .update-card.is-target {
-      border-color: #2d5016;
-      box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.15);
+    .eyebrow{
+      font-weight:600;
+      font-size:.7rem;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:16px;
     }
-
-    .update-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 14px 16px 0;
+    .masthead h1{
+      font-weight:700;
+      font-size:clamp(2rem,5.5vw,2.7rem);
+      line-height:1.1;
+      letter-spacing:-.018em;
+      color:var(--ink);
     }
-    .update-date {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #2d5016;
-      opacity: 0.85;
+    .masthead .sub{
+      font-size:1.05rem;
+      color:var(--muted);
+      margin-top:12px;
+      max-width:46ch;
     }
 
-    .copy-btn {
-      flex-shrink: 0;
-      background: #eef2e8;
-      color: #2d5016;
-      border: 1px solid #d3e0c4;
-      border-radius: 6px;
-      padding: 5px 10px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      white-space: nowrap;
+    .note{
+      padding:34px 0;
+      border-bottom:1px solid var(--line);
+      scroll-margin-top:20px;
     }
-    .copy-btn:hover { background: #e3ebd8; }
-    .copy-btn.copied { background: #2d5016; color: #fff; border-color: #2d5016; }
+    .note.is-target .note-title{ color:var(--green); }
 
-    .update-title {
-      font-size: 19px;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      padding: 6px 16px 0;
+    .note-date{
+      font-weight:600;
+      font-size:.72rem;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:10px;
     }
-
-    .update-brief {
-      padding: 8px 16px 0;
-      font-size: 14px;
-      font-style: italic;
-      color: #56684f;
+    .note-title{
+      font-weight:700;
+      font-size:clamp(1.35rem,3.2vw,1.7rem);
+      line-height:1.22;
+      letter-spacing:-.012em;
+      color:var(--ink);
+      transition:color .25s ease;
     }
+    .note-title a{ color:inherit; text-decoration:none; }
+    .note-title a:hover{ color:var(--green); }
 
-    .update-body { padding: 12px 16px 18px; }
-    .update-body p { font-size: 15px; margin-top: 12px; }
-    .update-body p:first-child { margin-top: 0; }
-
-    .update-readmore { padding: 12px 16px 18px; }
-    .update-readmore a {
-      display: inline-block;
-      font-size: 14px;
-      font-weight: 600;
-      color: #2d5016;
-      text-decoration: none;
-      border-bottom: 1px solid rgba(45, 80, 22, 0.4);
-    }
-    .update-readmore a:hover { border-bottom-color: #2d5016; }
-
-    .feed-empty, .feed-loading, .feed-error {
-      padding: 28px 16px;
-      text-align: center;
-      font-size: 13px;
-      color: #999;
-    }
-    .feed-error { color: #c0392b; }
-
-    footer {
-      text-align: center;
-      padding: 0 16px 32px;
-      font-size: 11px;
-      color: #9aa890;
-      letter-spacing: 0.04em;
+    .note-brief{
+      font-size:1.06rem;
+      color:var(--body);
+      margin-top:12px;
+      max-width:54ch;
     }
 
-    @media (min-width: 600px) {
-      .feed { max-width: 640px; margin: 0 auto; }
+    .note-body p{ margin-top:14px; color:var(--body); }
+    .note-body p:first-child{ margin-top:14px; }
+
+    .note-foot{
+      display:flex;
+      align-items:center;
+      gap:22px;
+      margin-top:18px;
+    }
+    .note-more{
+      font-weight:600;
+      font-size:.98rem;
+      color:var(--green);
+      text-decoration:none;
+      border-bottom:1px solid rgba(47,93,52,.35);
+      padding-bottom:1px;
+    }
+    .note-more:hover{ border-bottom-color:var(--green); }
+    .note-copy{
+      background:none;
+      border:none;
+      padding:0;
+      font-family:var(--sans);
+      font-size:.86rem;
+      font-weight:500;
+      color:var(--muted);
+      cursor:pointer;
+      letter-spacing:.01em;
+    }
+    .note-copy:hover{ color:var(--green); }
+    .note-copy.copied{ color:var(--green); }
+
+    .feed-state{
+      padding:48px 0;
+      font-size:.98rem;
+      color:var(--muted);
+    }
+    .feed-state.error{ color:#9A3B2E; }
+
+    .foot{
+      margin-top:40px;
+      font-size:.74rem;
+      letter-spacing:.03em;
+      color:var(--muted);
     }
   </style>
 </head>
 <body>
+  <main class="wrap">
+    <div class="masthead">
+      <p class="eyebrow">Acre Insights &nbsp;/&nbsp; Field Notes</p>
+      <h1>Field Notes</h1>
+      <p class="sub">The full version of the notes behind your seasonal texts. Newest first.</p>
+    </div>
 
-<header>
-  <div class="eyebrow">Acre Insights</div>
-  <h1>Field Updates</h1>
-  <div class="sub">The full version of the notes behind your seasonal texts. Newest first.</div>
-</header>
+    <div id="feed">
+      <div class="feed-state">Loading notes…</div>
+    </div>
 
-<div class="feed" id="feed">
-  <div class="feed-loading">Loading updates…</div>
-</div>
-
-<footer>Acre Insights · seasonal field notes</footer>
+    <p class="foot">Acre Insights &nbsp;/&nbsp; Precision soil moisture monitoring &nbsp;/&nbsp; South-Central Nebraska</p>
+  </main>
 
 <script>
 function formatDate(ymd) {
-  // ymd is "YYYY-MM-DD"; parse as local date to avoid timezone shifting the day
   const [y, m, d] = ymd.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
   return dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -181,25 +186,33 @@ function escapeHtml(s) {
 }
 
 function renderUpdate(u) {
-  const card = document.createElement('article');
-  card.className = 'update-card';
-  card.id = u.id;
+  const note = document.createElement('article');
+  note.className = 'note';
+  note.id = u.id;
 
-  const tail = u.url
-    ? `<div class="update-readmore"><a href="${escapeHtml(u.url)}">Read the full note →</a></div>`
-    : `<div class="update-body">${paragraphs(u.body).map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>`;
+  const titleInner = u.url
+    ? `<a href="${escapeHtml(u.url)}">${escapeHtml(u.title)}</a>`
+    : escapeHtml(u.title);
 
-  card.innerHTML = `
-    <div class="update-head">
-      <div class="update-date">${escapeHtml(formatDate(u.date))}</div>
-      <button class="copy-btn" type="button">Copy link</button>
+  const middle = u.url
+    ? (u.brief ? `<p class="note-brief">${escapeHtml(u.brief)}</p>` : '')
+    : `<div class="note-body">${paragraphs(u.body).map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>`;
+
+  const more = u.url
+    ? `<a class="note-more" href="${escapeHtml(u.url)}">Read the full note →</a>`
+    : '';
+
+  note.innerHTML = `
+    <div class="note-date">${escapeHtml(formatDate(u.date))}</div>
+    <h2 class="note-title">${titleInner}</h2>
+    ${middle}
+    <div class="note-foot">
+      ${more}
+      <button class="note-copy" type="button">Copy link</button>
     </div>
-    <div class="update-title">${escapeHtml(u.title)}</div>
-    ${u.brief ? `<div class="update-brief">${escapeHtml(u.brief)}</div>` : ''}
-    ${tail}
   `;
 
-  const btn = card.querySelector('.copy-btn');
+  const btn = note.querySelector('.note-copy');
   btn.addEventListener('click', async () => {
     const link = u.url ? absUrl(u.url) : linkFor(u.id);
     try {
@@ -209,12 +222,12 @@ function renderUpdate(u) {
       ta.value = link; document.body.appendChild(ta); ta.select();
       document.execCommand('copy'); ta.remove();
     }
-    btn.textContent = 'Copied!';
+    btn.textContent = 'Copied';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy link'; btn.classList.remove('copied'); }, 1600);
   });
 
-  return card;
+  return note;
 }
 
 function highlightTarget() {
@@ -238,13 +251,13 @@ async function load() {
 
     feed.innerHTML = '';
     if (!updates.length) {
-      feed.innerHTML = '<div class="feed-empty">No updates posted yet.</div>';
+      feed.innerHTML = '<div class="feed-state">No notes posted yet.</div>';
       return;
     }
     updates.forEach(u => feed.appendChild(renderUpdate(u)));
     highlightTarget();
   } catch (e) {
-    feed.innerHTML = `<div class="feed-error">Couldn't load updates: ${escapeHtml(e.message)}</div>`;
+    feed.innerHTML = `<div class="feed-state error">Couldn't load notes: ${escapeHtml(e.message)}</div>`;
   }
 }
 
