@@ -104,6 +104,17 @@
     .update-body p { font-size: 15px; margin-top: 12px; }
     .update-body p:first-child { margin-top: 0; }
 
+    .update-readmore { padding: 12px 16px 18px; }
+    .update-readmore a {
+      display: inline-block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d5016;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(45, 80, 22, 0.4);
+    }
+    .update-readmore a:hover { border-bottom-color: #2d5016; }
+
     .feed-empty, .feed-loading, .feed-error {
       padding: 28px 16px;
       text-align: center;
@@ -152,6 +163,11 @@ function linkFor(id) {
   return base + '#' + id;
 }
 
+function absUrl(url) {
+  if (/^https?:\/\//.test(url)) return url;
+  return location.origin + url;
+}
+
 function paragraphs(body) {
   if (Array.isArray(body)) return body;
   if (typeof body === 'string') return body.split(/\n{2,}/);
@@ -169,9 +185,9 @@ function renderUpdate(u) {
   card.className = 'update-card';
   card.id = u.id;
 
-  const bodyHtml = paragraphs(u.body)
-    .map(p => `<p>${escapeHtml(p)}</p>`)
-    .join('');
+  const tail = u.url
+    ? `<div class="update-readmore"><a href="${escapeHtml(u.url)}">Read the full note →</a></div>`
+    : `<div class="update-body">${paragraphs(u.body).map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>`;
 
   card.innerHTML = `
     <div class="update-head">
@@ -180,12 +196,12 @@ function renderUpdate(u) {
     </div>
     <div class="update-title">${escapeHtml(u.title)}</div>
     ${u.brief ? `<div class="update-brief">${escapeHtml(u.brief)}</div>` : ''}
-    <div class="update-body">${bodyHtml}</div>
+    ${tail}
   `;
 
   const btn = card.querySelector('.copy-btn');
   btn.addEventListener('click', async () => {
-    const link = linkFor(u.id);
+    const link = u.url ? absUrl(u.url) : linkFor(u.id);
     try {
       await navigator.clipboard.writeText(link);
     } catch {
