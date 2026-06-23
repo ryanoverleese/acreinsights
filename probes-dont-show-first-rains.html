@@ -97,9 +97,16 @@
   }
   .wetting-front{
     transform-origin:top;
-    animation:seep 2.6s cubic-bezier(.22,.61,.36,1) .4s both;
+    animation:seep 5s ease .4s infinite both;
   }
-  @keyframes seep{from{transform:scaleY(0);}to{transform:scaleY(1);}}
+  @keyframes seep{
+    0%{transform:scaleY(0);opacity:.55;}
+    50%{transform:scaleY(1);opacity:.55;}
+    72%{transform:scaleY(1);opacity:.55;}
+    88%{transform:scaleY(1);opacity:0;}
+    89%{transform:scaleY(0);opacity:0;}
+    100%{transform:scaleY(0);opacity:0;}
+  }
   .droplet{animation:fall 2.4s ease-in infinite;}
   .droplet.d2{animation-delay:.8s;}
   .droplet.d3{animation-delay:1.5s;}
