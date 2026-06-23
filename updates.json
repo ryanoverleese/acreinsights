@@ -1,0 +1,16 @@
+{
+  "updates": [
+    {
+      "id": "2026-06-23-heat-timing",
+      "date": "2026-06-23",
+      "title": "Heat wave & irrigation timing",
+      "brief": "Hot, windy stretch ahead — water ahead of it, not after. Full notes:",
+      "body": [
+        "We've got several days of 95°+ and wind in the forecast. The mistake to avoid this week is waiting until the crop looks stressed to start a pass — by then you're already behind and playing catch-up in the worst conditions.",
+        "Crop water use climbs with wind as much as heat. A 90° day with a 20 mph wind pulls more out of the canopy than a calm 95° day, so don't let a cooler-looking forecast talk you into backing off.",
+        "If a field is anywhere close to its refill point right now, start it before the wave hits so the profile is full going in. It's a lot easier to hold a full tank than to refill one in the middle of a hot, windy week.",
+        "Probes are the tiebreaker. If the bottom sensor is still moving but the top has gone flat, you're drying out up top — that field wants water even if the daily totals look okay."
+      ]
+    }
+  ]
+}
