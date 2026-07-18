@@ -104,7 +104,6 @@
   <div class="inner">
     <button class="addbtn" id="addbtn" title="Add">+</button>
     <input id="addinput" type="text" placeholder="New reminder" autocomplete="off">
-    <select id="addcat"></select>
   </div>
 </div>
 
@@ -284,12 +283,9 @@ function section(title,color,rows,isCompleted){
 
 function escapeHtml(s){ return (s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-function renderAddCats(){
-  const sel = document.getElementById("addcat");
-  const cats = categories().map(c=>c.name);
-  if(!cats.includes(UNCAT)) cats.push(UNCAT);
-  sel.innerHTML = cats.map(c=>`<option value="${c}">${c}</option>`).join("");
-  if(filterCat!=="__all" && filterCat!=="__flag" && cats.includes(filterCat)) sel.value=filterCat;
+function updateAddPlaceholder(){
+  const tgt = (filterCat!=="__all") ? filterCat : "Inbox";
+  document.getElementById("addinput").placeholder = "New reminder in " + tgt;
 }
 
 document.getElementById("search").addEventListener("input", e=>{ query=e.target.value; render(); });
@@ -298,12 +294,12 @@ document.getElementById("addbtn").addEventListener("click", submitAdd);
 document.getElementById("addinput").addEventListener("keydown", e=>{ if(e.key==="Enter") submitAdd(); });
 function submitAdd(){
   const inp=document.getElementById("addinput");
-  const cat=document.getElementById("addcat").value;
+  const cat = (filterCat!=="__all") ? filterCat : UNCAT;
   add(inp.value, cat); inp.value="";
 }
 
 const _origRender = render;
-render = function(){ _origRender(); renderAddCats(); };
+render = function(){ _origRender(); updateAddPlaceholder(); };
 
 load();
 setInterval(load, 60000); // gentle refresh so texted-in reminders show up
