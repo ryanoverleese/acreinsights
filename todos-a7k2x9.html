@@ -161,24 +161,21 @@ async function saveDone(id, done){
   }catch(e){ return false; }
 }
 
+const CHECK_HOLD = 1000; // ms to show the check state before the item reflows
+
 function toggleDone(id, done){
   const it = items.find(x=>x.id===id); if(!it) return;
   it.done = done;
-  if(done){
-    // fill the check in place, hold ~0.5s so it's visible, then reflow to Completed
-    const cell = document.querySelector(`[data-toggle="${id}"]`);
-    if(cell){
-      cell.classList.add('done');
-      cell.style.background = colorFor(catOf(it));
-      cell.setAttribute('data-done','true');
-      const row = cell.closest('.row'); if(row) row.classList.add('done');
-    }
-    saveDone(id, true).then(ok=>{ if(!ok){ it.done=false; render(); showBanner("Couldn't save that change. Try again."); } });
-    setTimeout(render, 500);
-  } else {
-    render();
-    saveDone(id, false).then(ok=>{ if(!ok){ it.done=true; render(); showBanner("Couldn't save that change. Try again."); } });
+  // update the tapped row in place so the check state shows immediately, hold, then reflow
+  const cell = document.querySelector(`[data-toggle="${id}"]`);
+  if(cell){
+    const row = cell.closest('.row');
+    if(done){ cell.classList.add('done'); cell.style.background = colorFor(catOf(it)); row && row.classList.add('done'); }
+    else { cell.classList.remove('done'); cell.style.background = ''; row && row.classList.remove('done'); }
+    cell.setAttribute('data-done', done ? 'true' : 'false');
   }
+  saveDone(id, done).then(ok=>{ if(!ok){ it.done=!done; render(); showBanner("Couldn't save that change. Try again."); } });
+  setTimeout(render, CHECK_HOLD);
 }
 
 const prevCat = {}; // remembers a row's list before promoting, so un-flag restores it this session
