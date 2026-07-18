@@ -33,8 +33,7 @@
     padding:9px 12px 9px 34px; font-size:17px; color:var(--text); outline:none;
   }
   .search svg{ position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:.45; }
-  .chips{ display:flex; gap:8px; overflow-x:auto; padding:2px 0 16px; scrollbar-width:none; }
-  .chips::-webkit-scrollbar{ display:none; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; padding:2px 0 16px; }
   .chip{
     flex:0 0 auto; border:0; border-radius:16px; padding:7px 14px; font-size:14px; font-weight:600;
     background:var(--card); color:var(--text); box-shadow:var(--shadow); cursor:pointer;
