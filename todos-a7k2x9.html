@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>Reminders</title>
+<style>
+  :root{
+    --bg:#f2f2f7; --card:#ffffff; --text:#000; --sub:#8e8e93;
+    --divider:rgba(60,60,67,.13); --field:#e4e4e9; --shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#000; --card:#1c1c1e; --text:#fff; --sub:#8d8d93;
+      --divider:rgba(84,84,88,.55); --field:#1c1c1e; --shadow:none; }
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding:8px 16px 120px; }
+  h1{ font-size:34px; font-weight:800; letter-spacing:-.5px; margin:14px 4px 10px; }
+  .search{ position:relative; margin:0 0 18px; }
+  .search input{
+    width:100%; border:0; border-radius:10px; background:var(--field);
+    padding:9px 12px 9px 34px; font-size:17px; color:var(--text); outline:none;
+  }
+  .search svg{ position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:.45; }
+  .chips{ display:flex; gap:8px; overflow-x:auto; padding:2px 0 16px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar{ display:none; }
+  .chip{
+    flex:0 0 auto; border:0; border-radius:16px; padding:7px 14px; font-size:14px; font-weight:600;
+    background:var(--card); color:var(--text); box-shadow:var(--shadow); cursor:pointer;
+    display:flex; align-items:center; gap:6px; white-space:nowrap;
+  }
+  .chip .dot{ width:9px; height:9px; border-radius:50%; }
+  .chip.active{ color:#fff; }
+  .count{ opacity:.5; font-weight:700; }
+  .section{ margin-bottom:26px; }
+  .sectionhead{ display:flex; align-items:center; gap:8px; padding:0 4px 8px; }
+  .sectionhead .ticon{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .sectionhead .ticon svg{ width:15px; height:15px; }
+  .sectionhead h2{ font-size:20px; font-weight:700; margin:0; letter-spacing:-.3px; }
+  .sectionhead .n{ margin-left:auto; color:var(--sub); font-size:17px; font-weight:600; }
+  .list{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); overflow:hidden; }
+  .row{ display:flex; align-items:flex-start; gap:12px; padding:11px 14px; position:relative; }
+  .row + .row::before{ content:""; position:absolute; top:0; left:46px; right:0; height:1px; background:var(--divider); }
+  .check{
+    flex:0 0 auto; width:23px; height:23px; border-radius:50%; border:1.5px solid #c7c7cc;
+    margin-top:1px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.15s;
+  }
+  .check.done{ border-color:transparent; }
+  .check.done svg{ opacity:1; }
+  .check svg{ opacity:0; }
+  .body{ flex:1 1 auto; min-width:0; }
+  .body .txt{ font-size:17px; line-height:1.3; word-wrap:break-word; }
+  .row.done .txt{ color:var(--sub); text-decoration:line-through; }
+  .body .meta{ font-size:13px; color:var(--sub); margin-top:2px; }
+  .flag{ color:#ff9f0a; margin-left:6px; }
+  .del{
+    flex:0 0 auto; border:0; background:transparent; color:var(--sub); font-size:19px; cursor:pointer;
+    opacity:0; transition:.15s; padding:2px 4px; align-self:center;
+  }
+  .row:hover .del{ opacity:.7; }
+  .empty{ text-align:center; color:var(--sub); padding:60px 20px; font-size:16px; }
+  .banner{ background:#ff3b30; color:#fff; padding:10px 14px; border-radius:10px; font-size:14px; margin-bottom:14px; display:none; }
+  .completed-toggle{ background:transparent; border:0; color:#007aff; font-size:15px; font-weight:600; cursor:pointer; padding:4px; margin:2px 4px 12px; }
+  .addbar{
+    position:fixed; left:0; right:0; bottom:0; padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(14px);
+    border-top:1px solid var(--divider);
+  }
+  .addbar .inner{ max-width:640px; margin:0 auto; display:flex; gap:10px; align-items:center; }
+  .addbtn{ flex:0 0 auto; width:30px; height:30px; border-radius:50%; background:#007aff; border:0; color:#fff; font-size:22px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .addbar input{ flex:1 1 auto; border:0; background:var(--field); border-radius:10px; padding:10px 12px; font-size:17px; color:var(--text); outline:none; }
+  .addbar select{ flex:0 0 auto; border:0; background:var(--field); border-radius:10px; padding:10px 8px; font-size:15px; color:var(--text); outline:none; max-width:120px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reminders</h1>
+  <div class="banner" id="banner"></div>
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <input id="search" type="search" placeholder="Search" autocomplete="off" autocapitalize="none">
+  </div>
+  <div class="chips" id="chips"></div>
+  <div id="content"></div>
+  <button class="completed-toggle" id="ctoggle" style="display:none"></button>
+</div>
+<div class="addbar">
+  <div class="inner">
+    <button class="addbtn" id="addbtn" title="Add">+</button>
+    <input id="addinput" type="text" placeholder="New reminder" autocomplete="off">
+    <select id="addcat"></select>
+  </div>
+</div>
+
+<script>
+const SB = "https://vqqmyjapnvmpktxikrrz.supabase.co/rest/v1";
+const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxcW15amFwbnZtcGt0eGlrcnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5OTQzMzQsImV4cCI6MjA5OTU3MDMzNH0.6XS5-iJgnUiOx7RIEQtNxwuhLEvL9MsnzHpqjjewkL4";
+const H = { "apikey": ANON, "Authorization": "Bearer " + ANON, "Content-Type": "application/json" };
+const UNCAT = "Inbox";
+
+// Fixed colors for known lists; anything else gets a color from the palette by order.
+const COLORS = { "Property":"#34c759", "Client Work":"#007aff", "Winter":"#5ac8fa", "Errands":"#ff9500", "Others":"#af52de", [UNCAT]:"#8e8e93" };
+const PALETTE = ["#ff2d55","#5856d6","#ff9500","#30b0c7","#a2845e","#ffcc00","#64d2ff","#bf5af2"];
+
+let items = [];
+let filterCat = "__all";
+let query = "";
+let showCompleted = false;
+let paletteIdx = 0;
+const catColorCache = {};
+
+function catOf(it){ return (it.category && it.category.trim()) ? it.category.trim() : UNCAT; }
+function priorityOf(it){ const m=(it.body||"").match(/^(!{1,3})\s*/); return m ? m[1].length : 0; }
+function isFlagged(it){ return priorityOf(it) >= 1; }
+function displayText(it){ return (it.body || "").replace(/^!{1,3}\s*/, ""); }
+const PRICOLOR = { 3:"#ff3b30", 2:"#ff9500", 1:"#ffcc00" };
+function colorFor(cat){
+  if (COLORS[cat]) return COLORS[cat];
+  if (!catColorCache[cat]) { catColorCache[cat] = PALETTE[paletteIdx % PALETTE.length]; paletteIdx++; }
+  return catColorCache[cat];
+}
+
+function showBanner(msg){ const b=document.getElementById("banner"); b.textContent=msg; b.style.display="block"; }
+function hideBanner(){ document.getElementById("banner").style.display="none"; }
+
+async function load(){
+  try{
+    const r = await fetch(`${SB}/reminders?select=id,body,done,category,created_at&order=created_at.desc`, { headers:H });
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    items = await r.json();
+    hideBanner();
+    render();
+  }catch(e){ showBanner("Couldn't reach your list ("+e.message+"). Check connection."); }
+}
+
+async function toggleDone(id, done){
+  const it = items.find(x=>x.id===id); if(!it) return;
+  it.done = done; render();
+  try{
+    const r = await fetch(`${SB}/reminders?id=eq.${id}`, { method:"PATCH", headers:{...H,"Prefer":"return=minimal"}, body:JSON.stringify({done}) });
+    if(!r.ok) throw new Error("HTTP "+r.status);
+  }catch(e){ it.done=!done; render(); showBanner("Couldn't save that change. Try again."); }
+}
+
+async function del(id){
+  const prev = items.slice();
+  items = items.filter(x=>x.id!==id); render();
+  try{
+    const r = await fetch(`${SB}/reminders?id=eq.${id}`, { method:"DELETE", headers:{...H,"Prefer":"return=minimal"} });
+    if(!r.ok) throw new Error("HTTP "+r.status);
+  }catch(e){ items=prev; render(); showBanner("Couldn't delete that. Try again."); }
+}
+
+async function add(text, cat){
+  text = text.trim(); if(!text) return;
+  const payload = { body:text, category: cat===UNCAT ? null : cat };
+  try{
+    const r = await fetch(`${SB}/reminders`, { method:"POST", headers:{...H,"Prefer":"return=representation"}, body:JSON.stringify(payload) });
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const [row] = await r.json();
+    items.unshift(row); render();
+  }catch(e){ showBanner("Couldn't add that. Try again."); }
+}
+
+function svgCheck(){ return '<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 8l3 3 6-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+function svgList(){ return '<svg viewBox="0 0 16 16" fill="none"><path d="M5 4.5h7M5 8h7M5 11.5h7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="2.5" cy="4.5" r="1" fill="#fff"/><circle cx="2.5" cy="8" r="1" fill="#fff"/><circle cx="2.5" cy="11.5" r="1" fill="#fff"/></svg>'; }
+
+function categories(){
+  const set = new Map();
+  for(const it of items){ const c=catOf(it); set.set(c,(set.get(c)||0)+(it.done?0:1)); }
+  const known = ["Property","Client Work","Winter","Errands","Others"].filter(c=>set.has(c));
+  const others = [...set.keys()].filter(c=>!known.includes(c) && c!==UNCAT).sort();
+  const order = [...known, ...others]; if(set.has(UNCAT)) order.push(UNCAT);
+  return order.map(c=>({name:c, open:set.get(c)||0}));
+}
+
+function renderChips(){
+  const cats = categories();
+  const el = document.getElementById("chips");
+  const totalOpen = items.filter(x=>!x.done).length;
+  const flaggedOpen = items.filter(x=>!x.done && isFlagged(x)).length;
+  let html = chip("__all","#8e8e93","All",totalOpen);
+  if(flaggedOpen) html += chip("__flag","#ff9f0a","⚑ Flagged",flaggedOpen);
+  for(const c of cats) html += chip(c.name, colorFor(c.name), c.name, c.open);
+  el.innerHTML = html;
+  el.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ filterCat=b.dataset.cat; render(); });
+}
+function chip(cat,color,label,n){
+  const active = filterCat===cat;
+  const style = active ? `style="background:${color}"` : "";
+  return `<button class="chip ${active?'active':''}" data-cat="${cat}" ${style}>
+    <span class="dot" style="background:${active?'#fff':color}"></span>${label}<span class="count">${n}</span></button>`;
+}
+
+function render(){
+  renderChips();
+  const content = document.getElementById("content");
+  let list = items.slice();
+  if(query){ const q=query.toLowerCase(); list=list.filter(x=>(x.body||"").toLowerCase().includes(q)); }
+  if(filterCat==="__flag") list=list.filter(isFlagged);
+  else if(filterCat!=="__all") list=list.filter(x=>catOf(x)===filterCat);
+
+  const open = list.filter(x=>!x.done);
+  const done = list.filter(x=>x.done);
+
+  // group open items by category
+  const groups = {};
+  for(const it of open){ const c=catOf(it); (groups[c]=groups[c]||[]).push(it); }
+  const order = categories().map(c=>c.name).filter(c=>groups[c]);
+
+  let html = "";
+  if(open.length===0 && !(showCompleted && done.length)){
+    html = `<div class="empty">${query?'No matches.':'All clear. 🎉'}</div>`;
+  }
+  for(const c of order){
+    const rows = groups[c].sort((a,b)=> (priorityOf(b)-priorityOf(a)) );
+    html += section(c, colorFor(c), rows);
+  }
+  if(showCompleted && done.length){
+    html += section("Completed", "#8e8e93", done, true);
+  }
+  content.innerHTML = html;
+  content.querySelectorAll("[data-toggle]").forEach(el=>el.onclick=()=>toggleDone(el.dataset.toggle, el.dataset.done!=="true"?true:false));
+  content.querySelectorAll("[data-del]").forEach(el=>el.onclick=()=>del(el.dataset.del));
+
+  const ct = document.getElementById("ctoggle");
+  if(done.length){ ct.style.display="block"; ct.textContent = showCompleted ? `Hide Completed` : `Show Completed (${items.filter(x=>x.done).length})`; }
+  else ct.style.display="none";
+}
+
+function section(title,color,rows,isCompleted){
+  const head = `<div class="sectionhead">
+      <span class="ticon" style="background:${color}">${isCompleted?svgCheck():svgList()}</span>
+      <h2>${title}</h2><span class="n">${rows.length}</span></div>`;
+  const body = rows.map(it=>{
+    const p = priorityOf(it);
+    const flag = p ? `<span class="flag" style="color:${PRICOLOR[p]}">${'!'.repeat(p)}</span>` : '';
+    return `<div class="row ${it.done?'done':''}">
+      <div class="check ${it.done?'done':''}" style="${it.done?('background:'+color+';'):''}" data-toggle="${it.id}" data-done="${it.done}">${svgCheck()}</div>
+      <div class="body"><div class="txt">${escapeHtml(displayText(it))}${flag}</div></div>
+      <button class="del" data-del="${it.id}" title="Delete">✕</button>
+    </div>`;
+  }).join("");
+  return `<div class="section">${head}<div class="list">${body}</div></div>`;
+}
+
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderAddCats(){
+  const sel = document.getElementById("addcat");
+  const cats = categories().map(c=>c.name);
+  if(!cats.includes(UNCAT)) cats.push(UNCAT);
+  sel.innerHTML = cats.map(c=>`<option value="${c}">${c}</option>`).join("");
+  if(filterCat!=="__all" && filterCat!=="__flag" && cats.includes(filterCat)) sel.value=filterCat;
+}
+
+document.getElementById("search").addEventListener("input", e=>{ query=e.target.value; render(); });
+document.getElementById("ctoggle").addEventListener("click", ()=>{ showCompleted=!showCompleted; render(); });
+document.getElementById("addbtn").addEventListener("click", submitAdd);
+document.getElementById("addinput").addEventListener("keydown", e=>{ if(e.key==="Enter") submitAdd(); });
+function submitAdd(){
+  const inp=document.getElementById("addinput");
+  const cat=document.getElementById("addcat").value;
+  add(inp.value, cat); inp.value="";
+}
+
+const _origRender = render;
+render = function(){ _origRender(); renderAddCats(); };
+
+load();
+setInterval(load, 60000); // gentle refresh so texted-in reminders show up
+</script>
+</body>
+</html>
