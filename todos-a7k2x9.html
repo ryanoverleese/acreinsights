@@ -110,7 +110,7 @@ const H = { "apikey": ANON, "Authorization": "Bearer " + ANON, "Content-Type": "
 const UNCAT = "Inbox";
 
 // Fixed colors for known lists; anything else gets a color from the palette by order.
-const COLORS = { "Property":"#34c759", "Client Work":"#007aff", "Winter":"#5ac8fa", "Errands":"#ff9500", "Others":"#af52de", [UNCAT]:"#8e8e93" };
+const COLORS = { "High Priority":"#ff3b30", "Property":"#34c759", "Client Work":"#007aff", "Winter":"#5ac8fa", "Errands":"#ff9500", "Others":"#af52de", [UNCAT]:"#8e8e93" };
 const PALETTE = ["#ff2d55","#5856d6","#ff9500","#30b0c7","#a2845e","#ffcc00","#64d2ff","#bf5af2"];
 
 let items = [];
@@ -120,11 +120,11 @@ let showCompleted = false;
 let paletteIdx = 0;
 const catColorCache = {};
 
+const HIPRI = "High Priority";
 function catOf(it){ return (it.category && it.category.trim()) ? it.category.trim() : UNCAT; }
-function priorityOf(it){ const m=(it.body||"").match(/^(!{1,3})\s*/); return m ? m[1].length : 0; }
-function isFlagged(it){ return priorityOf(it) >= 1; }
+function isHi(it){ return catOf(it) === HIPRI; }
+// strip any leftover !/!!/!!! that may arrive from texted-in reminders — we never show them
 function displayText(it){ return (it.body || "").replace(/^!{1,3}\s*/, ""); }
-const PRICOLOR = { 3:"#ff3b30", 2:"#ff9500", 1:"#ffcc00" };
 function colorFor(cat){
   if (COLORS[cat]) return COLORS[cat];
   if (!catColorCache[cat]) { catColorCache[cat] = PALETTE[paletteIdx % PALETTE.length]; paletteIdx++; }
@@ -179,7 +179,7 @@ function svgList(){ return '<svg viewBox="0 0 16 16" fill="none"><path d="M5 4.5
 function categories(){
   const set = new Map();
   for(const it of items){ const c=catOf(it); set.set(c,(set.get(c)||0)+(it.done?0:1)); }
-  const known = ["Property","Client Work","Winter","Errands","Others"].filter(c=>set.has(c));
+  const known = [HIPRI,"Property","Client Work","Winter","Errands","Others"].filter(c=>set.has(c));
   const others = [...set.keys()].filter(c=>!known.includes(c) && c!==UNCAT).sort();
   const order = [...known, ...others]; if(set.has(UNCAT)) order.push(UNCAT);
   return order.map(c=>({name:c, open:set.get(c)||0}));
@@ -189,9 +189,7 @@ function renderChips(){
   const cats = categories();
   const el = document.getElementById("chips");
   const totalOpen = items.filter(x=>!x.done).length;
-  const flaggedOpen = items.filter(x=>!x.done && isFlagged(x)).length;
   let html = chip("__all","#8e8e93","All",totalOpen);
-  if(flaggedOpen) html += chip("__flag","#ff9f0a","⚑ Flagged",flaggedOpen);
   for(const c of cats) html += chip(c.name, colorFor(c.name), c.name, c.open);
   el.innerHTML = html;
   el.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ filterCat=b.dataset.cat; render(); });
@@ -208,8 +206,7 @@ function render(){
   const content = document.getElementById("content");
   let list = items.slice();
   if(query){ const q=query.toLowerCase(); list=list.filter(x=>(x.body||"").toLowerCase().includes(q)); }
-  if(filterCat==="__flag") list=list.filter(isFlagged);
-  else if(filterCat!=="__all") list=list.filter(x=>catOf(x)===filterCat);
+  if(filterCat!=="__all") list=list.filter(x=>catOf(x)===filterCat);
 
   const open = list.filter(x=>!x.done);
   const done = list.filter(x=>x.done);
@@ -224,8 +221,7 @@ function render(){
     html = `<div class="empty">${query?'No matches.':'All clear. 🎉'}</div>`;
   }
   for(const c of order){
-    const rows = groups[c].sort((a,b)=> (priorityOf(b)-priorityOf(a)) );
-    html += section(c, colorFor(c), rows);
+    html += section(c, colorFor(c), groups[c]);
   }
   if(showCompleted && done.length){
     html += section("Completed", "#8e8e93", done, true);
@@ -244,11 +240,9 @@ function section(title,color,rows,isCompleted){
       <span class="ticon" style="background:${color}">${isCompleted?svgCheck():svgList()}</span>
       <h2>${title}</h2><span class="n">${rows.length}</span></div>`;
   const body = rows.map(it=>{
-    const p = priorityOf(it);
-    const flag = p ? `<span class="flag" style="color:${PRICOLOR[p]}">${'!'.repeat(p)}</span>` : '';
     return `<div class="row ${it.done?'done':''}">
       <div class="check ${it.done?'done':''}" style="${it.done?('background:'+color+';'):''}" data-toggle="${it.id}" data-done="${it.done}">${svgCheck()}</div>
-      <div class="body"><div class="txt">${escapeHtml(displayText(it))}${flag}</div></div>
+      <div class="body"><div class="txt">${escapeHtml(displayText(it))}</div></div>
       <button class="del" data-del="${it.id}" title="Delete">✕</button>
     </div>`;
   }).join("");
