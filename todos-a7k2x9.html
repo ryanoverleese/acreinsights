@@ -71,7 +71,8 @@
     flex:0 0 auto; border:0; background:transparent; color:var(--sub); font-size:19px; cursor:pointer;
     opacity:0; transition:.15s; padding:2px 4px; align-self:center;
   }
-  .row:hover .del{ opacity:.7; }
+  @media (hover:hover){ .row:hover .del{ opacity:.7; } }
+  @media (hover:none){ .del{ opacity:.4; } }  /* touch: keep delete tappable, no phantom-hover */
   .flagbtn{
     flex:0 0 auto; border:0; background:transparent; cursor:pointer; padding:3px 5px; align-self:center;
     display:flex; align-items:center; transition:transform .1s;
