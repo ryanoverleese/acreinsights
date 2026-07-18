@@ -69,6 +69,12 @@
     opacity:0; transition:.15s; padding:2px 4px; align-self:center;
   }
   .row:hover .del{ opacity:.7; }
+  .flagbtn{
+    flex:0 0 auto; border:0; background:transparent; cursor:pointer; padding:3px 5px; align-self:center;
+    display:flex; align-items:center; transition:transform .1s;
+  }
+  .flagbtn:active{ transform:scale(.82); }
+  .flagbtn svg{ width:20px; height:20px; }
   .empty{ text-align:center; color:var(--sub); padding:60px 20px; font-size:16px; }
   .banner{ background:#ff3b30; color:#fff; padding:10px 14px; border-radius:10px; font-size:14px; margin-bottom:14px; display:none; }
   .completed-toggle{ background:transparent; border:0; color:#007aff; font-size:15px; font-weight:600; cursor:pointer; padding:4px; margin:2px 4px 12px; }
@@ -153,6 +159,24 @@ async function toggleDone(id, done){
   }catch(e){ it.done=!done; render(); showBanner("Couldn't save that change. Try again."); }
 }
 
+const prevCat = {}; // remembers a row's list before promoting, so un-flag restores it this session
+
+async function setCategory(id, cat){
+  const it = items.find(x=>x.id===id); if(!it) return;
+  const before = it.category;
+  it.category = cat; render();
+  try{
+    const r = await fetch(`${SB}/reminders?id=eq.${id}`, { method:"PATCH", headers:{...H,"Prefer":"return=minimal"}, body:JSON.stringify({category:cat}) });
+    if(!r.ok) throw new Error("HTTP "+r.status);
+  }catch(e){ it.category=before; render(); showBanner("Couldn't move that. Try again."); }
+}
+
+function toggleHi(id){
+  const it = items.find(x=>x.id===id); if(!it) return;
+  if(isHi(it)){ setCategory(id, prevCat[id] ?? null); }
+  else { prevCat[id] = it.category; setCategory(id, HIPRI); }
+}
+
 async function del(id){
   const prev = items.slice();
   items = items.filter(x=>x.id!==id); render();
@@ -174,6 +198,13 @@ async function add(text, cat){
 }
 
 function svgCheck(){ return '<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 8l3 3 6-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+function svgFlag(hi){
+  const c = hi ? '#ff3b30' : '#c7c7cc';
+  const pole = `<path d="M6 3v18" stroke="${c}" stroke-width="2" stroke-linecap="round"/>`;
+  return hi
+    ? `<svg viewBox="0 0 24 24">${pole}<path d="M6 4h11l-2.2 3 2.2 3H6z" fill="${c}"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none">${pole}<path d="M6 4h11l-2.2 3 2.2 3H6z" stroke="${c}" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+}
 function svgList(){ return '<svg viewBox="0 0 16 16" fill="none"><path d="M5 4.5h7M5 8h7M5 11.5h7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="2.5" cy="4.5" r="1" fill="#fff"/><circle cx="2.5" cy="8" r="1" fill="#fff"/><circle cx="2.5" cy="11.5" r="1" fill="#fff"/></svg>'; }
 
 function categories(){
@@ -228,6 +259,7 @@ function render(){
   }
   content.innerHTML = html;
   content.querySelectorAll("[data-toggle]").forEach(el=>el.onclick=()=>toggleDone(el.dataset.toggle, el.dataset.done!=="true"?true:false));
+  content.querySelectorAll("[data-flag]").forEach(el=>el.onclick=()=>toggleHi(el.dataset.flag));
   content.querySelectorAll("[data-del]").forEach(el=>el.onclick=()=>del(el.dataset.del));
 
   const ct = document.getElementById("ctoggle");
@@ -240,9 +272,11 @@ function section(title,color,rows,isCompleted){
       <span class="ticon" style="background:${color}">${isCompleted?svgCheck():svgList()}</span>
       <h2>${title}</h2><span class="n">${rows.length}</span></div>`;
   const body = rows.map(it=>{
+    const hi = isHi(it);
     return `<div class="row ${it.done?'done':''}">
       <div class="check ${it.done?'done':''}" style="${it.done?('background:'+color+';'):''}" data-toggle="${it.id}" data-done="${it.done}">${svgCheck()}</div>
       <div class="body"><div class="txt">${escapeHtml(displayText(it))}</div></div>
+      <button class="flagbtn" data-flag="${it.id}" title="${hi?'Remove from High Priority':'Mark High Priority'}">${svgFlag(hi)}</button>
       <button class="del" data-del="${it.id}" title="Delete">✕</button>
     </div>`;
   }).join("");
