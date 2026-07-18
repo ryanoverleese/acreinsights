@@ -153,13 +153,32 @@ async function load(){
   }catch(e){ showBanner("Couldn't reach your list ("+e.message+"). Check connection."); }
 }
 
-async function toggleDone(id, done){
-  const it = items.find(x=>x.id===id); if(!it) return;
-  it.done = done; render();
+async function saveDone(id, done){
   try{
     const r = await fetch(`${SB}/reminders?id=eq.${id}`, { method:"PATCH", headers:{...H,"Prefer":"return=minimal"}, body:JSON.stringify({done}) });
     if(!r.ok) throw new Error("HTTP "+r.status);
-  }catch(e){ it.done=!done; render(); showBanner("Couldn't save that change. Try again."); }
+    return true;
+  }catch(e){ return false; }
+}
+
+function toggleDone(id, done){
+  const it = items.find(x=>x.id===id); if(!it) return;
+  it.done = done;
+  if(done){
+    // fill the check in place, hold ~0.5s so it's visible, then reflow to Completed
+    const cell = document.querySelector(`[data-toggle="${id}"]`);
+    if(cell){
+      cell.classList.add('done');
+      cell.style.background = colorFor(catOf(it));
+      cell.setAttribute('data-done','true');
+      const row = cell.closest('.row'); if(row) row.classList.add('done');
+    }
+    saveDone(id, true).then(ok=>{ if(!ok){ it.done=false; render(); showBanner("Couldn't save that change. Try again."); } });
+    setTimeout(render, 500);
+  } else {
+    render();
+    saveDone(id, false).then(ok=>{ if(!ok){ it.done=true; render(); showBanner("Couldn't save that change. Try again."); } });
+  }
 }
 
 const prevCat = {}; // remembers a row's list before promoting, so un-flag restores it this session
