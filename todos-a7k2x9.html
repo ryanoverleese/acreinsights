@@ -114,7 +114,7 @@ const H = { "apikey": ANON, "Authorization": "Bearer " + ANON, "Content-Type": "
 const UNCAT = "Inbox";
 
 // Fixed colors for known lists; anything else gets a color from the palette by order.
-const COLORS = { "High Priority":"#ff3b30", "Property":"#34c759", "Client Work":"#007aff", "Winter":"#5ac8fa", "Errands":"#ff9500", "Others":"#af52de", [UNCAT]:"#8e8e93" };
+const COLORS = { "High Priority":"#ff3b30", "Probe Moves":"#a2845e", "Property":"#34c759", "Client Work":"#007aff", "Winter":"#5ac8fa", "Errands":"#ff9500", "Others":"#af52de", "Read/Watch":"#5856d6", [UNCAT]:"#8e8e93" };
 const PALETTE = ["#ff2d55","#5856d6","#ff9500","#30b0c7","#a2845e","#ffcc00","#64d2ff","#bf5af2"];
 
 let items = [];
@@ -208,7 +208,7 @@ function svgList(){ return '<svg viewBox="0 0 16 16" fill="none"><path d="M5 4.5
 function categories(){
   const set = new Map();
   for(const it of items){ const c=catOf(it); set.set(c,(set.get(c)||0)+(it.done?0:1)); }
-  const known = [HIPRI,"Property","Client Work","Winter","Errands","Others"].filter(c=>set.has(c));
+  const known = [HIPRI,"Probe Moves","Property","Client Work","Winter","Errands","Others","Read/Watch"].filter(c=>set.has(c));
   const others = [...set.keys()].filter(c=>!known.includes(c) && c!==UNCAT).sort();
   const order = [...known, ...others]; if(set.has(UNCAT)) order.push(UNCAT);
   return order.map(c=>({name:c, open:set.get(c)||0}));
