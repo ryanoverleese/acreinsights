@@ -1,0 +1,93 @@
+<title>ACRE INSIGHTS WIRE</title>
+<style>
+  /* An ag wire, printed.
+     Dense rows and aligned figures from the Bloomberg rationale — scan a lot of
+     numbers without eye fatigue — but system sans, NOT monospace: tabular-nums
+     lines the digits up without the typewriter costume. Dateline furniture,
+     kickers and rules from the DTN market wire. No cards, no rounding, no
+     shadow, no gradient: nothing that wears off (37signals). Ink on newsprint,
+     one red, spent once. Hierarchy comes from weight and size, one family. */
+  :root{
+    --bg:#f1eee5;         /* newsprint, not white — white glares at 5am */
+    --panel:#e8e4d8;
+    --ink:#17150f;        /* the black a press actually lays down */
+    --ink-2:#4a4639;
+    --grey:#7d7869;
+    --rule:#c6c0ae;
+    --rule-hard:#17150f;
+    --red:#9c2b16;        /* one colour, spent once */
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  /* No dark mode on purpose. A wire is printed. Committing to one look is a
+     choice, not an omission — and Ryan reads this in a lit kitchen. */
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink-2);
+    font-family:var(--sans); font-size:14.5px; line-height:1.55;
+    font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased;
+  }
+  .wire{max-width:900px; margin:0 auto; padding:14px 14px 70px}
+
+  /* masthead: a status bar, the way a terminal opens */
+  .bar{display:flex; gap:14px; align-items:baseline; flex-wrap:wrap;
+       border-bottom:1px solid var(--ink); padding-bottom:5px}
+  .bar .id{color:var(--ink); font-weight:800; letter-spacing:.16em}
+  .bar .dt{color:var(--grey); margin-left:auto; letter-spacing:.05em; font-size:11.5px; font-weight:600}
+  .tape{border-bottom:1px solid var(--rule); padding:5px 0 12px; color:var(--grey);
+        font-size:12px; letter-spacing:.03em; display:flex; gap:18px; flex-wrap:wrap}
+  .tape b{color:var(--ink); font-weight:700}
+  .tape .up{color:var(--ink)} .tape .dn{color:var(--red)}
+
+  /* wire items: kicker, headline, body — no boxes */
+  .item{border-bottom:1px solid var(--rule); padding:14px 0}
+  .kicker{font-size:11px; letter-spacing:.16em; color:var(--grey); text-transform:uppercase}
+  .item.alert .kicker{color:var(--red)}
+  h2{margin:3px 0 6px; font-size:17px; line-height:1.28; color:var(--ink); font-weight:750;
+     letter-spacing:-.012em; text-transform:none}
+  .item.alert h2{color:var(--red)}
+  .item p{margin:0 0 7px; color:var(--ink-2); max-width:74ch}
+  .item p:last-child{margin-bottom:0}
+  .item p b{color:var(--ink); font-weight:700}
+  .item p em{font-style:normal; color:var(--grey)}
+
+  /* figures: a fixed-width run, the way a quote line reads */
+  .run{margin-top:8px; color:var(--grey); font-size:12.5px; letter-spacing:.02em}
+  .run u{text-decoration:none; color:var(--red); font-weight:700}
+  .run s{text-decoration:none; color:var(--ink); font-weight:700}
+
+  table{width:100%; border-collapse:collapse; margin-top:9px; font-size:13px}
+  th{text-align:left; color:var(--grey); font-weight:400; font-size:11px; letter-spacing:.14em;
+     text-transform:uppercase; padding:0 0 4px; border-bottom:1px solid var(--rule)}
+  th.r,td.r{text-align:right}
+  td{padding:4px 0; border-bottom:1px dotted var(--rule); color:var(--ink-2); vertical-align:baseline}
+  tr:last-child td{border-bottom:0}
+  td.r{color:var(--ink); font-weight:700; white-space:nowrap}
+  td .n{display:block; color:var(--grey); font-size:11.5px; letter-spacing:.02em}
+  .scroll{overflow-x:auto}
+
+  .foot{padding-top:14px; color:var(--grey); font-size:12.5px}
+  .foot p{margin:0 0 7px; max-width:76ch; color:var(--ink-2)}
+  .foot b{color:var(--ink); font-weight:700}
+  .end{margin-top:16px; padding-top:8px; border-top:1px solid var(--ink);
+       color:var(--grey); font-size:11px; letter-spacing:.16em}
+</style>
+
+<div class="wire">
+
+
+
+  <div class="bar">
+    <span class="id">ACRE INSIGHTS WIRE</span>
+    <span class="dt">Mon 10 Aug 2026 · UPDATED 5:39 PM</span>
+  </div>
+  <div class="tape"><span>HIGH <b class="">93°F</b></span><span>ET₀ <b class="">0.19&quot;</b></span><span>LOW SIG <b class="dn">4</b> <em>was 1</em></span><span>ZERO READ <b class="dn">1</b> <em>2nd day</em></span><span>REPAIRS <b class="">13</b></span><span>OVERDUE <b class="dn">$77K</b> <em>53%</em></span></div>
+
+  <div class="item alert"><div class="kicker">FAULT — Fishell Farms / Daryl&#x27;s</div><h2>Second day of 0.0 readings — sensor fault, not dry soil.</h2><p>This probe read exactly zero yesterday and again today. That&#x27;s a dead sensor. Fishell Farms has a draft invoice sitting at $1,425 — might want to get the probe fixed before you send it.</p></div><div class="item"><div class="kicker">SIGNAL</div><h2>Low-signal probes jumped from 1 to 4 overnight.</h2><p>Yesterday only Fishell / Dahl Substation was flagged. Now add Roeder / Volentine NW, Joyce Farms / Adam&#x27;s County, and Red Thunder / Boy&#x27;s Town. Joyce and Dahl have been in and out all week; Volentine and Boy&#x27;s Town are new today. Worth watching whether this is heat or a gateway issue at one of those sites.</p></div><div class="item"><div class="kicker">WEATHER &amp; WATER</div><h2>Hot day, light shower yesterday, nobody in trouble.</h2><p>High of 93°F today with ET around 0.19&quot;. Yesterday Bertrand picked up 0.21&quot; and Loomis got 0.15&quot; — nothing elsewhere. Driest field is LogLand / The 80 at 29.6%, down about 5 points from yesterday but still in working range. Bunker Hill has four fields in the low 30s; they&#x27;re drawing down but holding.</p></div><div class="item"><div class="kicker">RECEIVABLES</div><h2>Still $77K overdue — Brian Johnson alone owes $19,120.</h2><p>Top seven past-due: Brian Johnson $19,120, Carson Blum $14,375, Double BJ Farms $12,475, 37 Ag $8,650, Kyle Jensen $5,675, Jared Brader $5,350, Roeder $5,175. Double BJ also has an open repair (Dier West reinstall) dating to June 29.</p><div class="scroll"><table><tr><th>Customer</th><th class="r">Owed</th></tr><tr><td>Brian Johnson</td><td class="r">$19,120</td></tr><tr><td>Carson Blum</td><td class="r">$14,375</td></tr><tr><td>Double BJ Farms</td><td class="r">$12,475</td></tr><tr><td>37 Ag</td><td class="r">$8,650</td></tr><tr><td>Kyle Jensen</td><td class="r">$5,675</td></tr></table></div></div><div class="item"><div class="kicker">BILLING</div><h2>Four invoices in draft — two need numbers, two are ready.</h2><p>Fishell Farms ($1,425) and C4 Farms ($1,625) still need invoice numbers. Zac Carlson (#1758, $12,975) and Brian Carlson (#1759, $3,900) look ready to send. Brian Carlson also has an open repair ticket from July 27 — probe showing dry despite 2&quot; per week applied.</p></div><div class="item"><div class="kicker">BUSINESS OPS</div><h2>Flat week: 314 fields, 13 repairs open, 66% of invoices paid.</h2><p>365 probes placed this season, 480 in stock, 6 at RMA. 54 of 82 invoices paid. Repair backlog unchanged at 13 — oldest ticket is Roeder / Peterson South from June 21 (antenna upgrade candidate).</p></div>
+
+  <div class="foot">
+<p><b>Water.</b> Nobody is short. LogLand / The 80 is the driest at 29.6% — watch it if this heat holds, but it&#x27;s fine today.</p><p><b>Shop.</b> Thirteen repairs open, oldest nearly two months. Three reinstalls (Double BJ, 3W Farms, Hock) and two agronomic checks (4G Farms, Olsen Cattle) are the ones that need field time.</p>
+    <div class="end">END — ACRE INSIGHTS AI TEAM</div>
+  </div>
+
+</div>
