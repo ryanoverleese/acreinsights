@@ -24,26 +24,26 @@
   *{box-sizing:border-box}
   body{
     margin:0; background:var(--bg); color:var(--ink-2);
-    font-family:var(--sans); font-size:14.5px; line-height:1.55;
+    font-family:var(--sans); font-size:17px; line-height:1.6;
     font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased;
   }
-  .wire{max-width:900px; margin:0 auto; padding:14px 14px 70px}
+  .wire{max-width:820px; margin:0 auto; padding:18px 16px 80px}
 
   /* masthead: a status bar, the way a terminal opens */
   .bar{display:flex; gap:14px; align-items:baseline; flex-wrap:wrap;
        border-bottom:1px solid var(--ink); padding-bottom:5px}
-  .bar .id{color:var(--ink); font-weight:800; letter-spacing:.16em}
-  .bar .dt{color:var(--grey); margin-left:auto; letter-spacing:.05em; font-size:11.5px; font-weight:600}
+  .bar .id{color:var(--ink); font-weight:800; letter-spacing:.12em; font-size:15px}
+  .bar .dt{color:var(--grey); margin-left:auto; letter-spacing:.03em; font-size:13px; font-weight:600}
   .tape{border-bottom:1px solid var(--rule); padding:5px 0 12px; color:var(--grey);
-        font-size:12px; letter-spacing:.03em; display:flex; gap:18px; flex-wrap:wrap}
+        font-size:14.5px; letter-spacing:.01em; display:flex; gap:14px 20px; flex-wrap:wrap; line-height:1.7}
   .tape b{color:var(--ink); font-weight:700}
   .tape .up{color:var(--ink)} .tape .dn{color:var(--red)}
 
   /* wire items: kicker, headline, body — no boxes */
-  .item{border-bottom:1px solid var(--rule); padding:14px 0}
-  .kicker{font-size:11px; letter-spacing:.16em; color:var(--grey); text-transform:uppercase}
+  .item{border-bottom:1px solid var(--rule); padding:20px 0}
+  .kicker{font-size:13px; letter-spacing:.12em; color:var(--grey); text-transform:uppercase}
   .item.alert .kicker{color:var(--red)}
-  h2{margin:3px 0 6px; font-size:17px; line-height:1.28; color:var(--ink); font-weight:750;
+  h2{margin:5px 0 8px; font-size:20px; line-height:1.3; color:var(--ink); font-weight:750;
      letter-spacing:-.012em; text-transform:none}
   .item.alert h2{color:var(--red)}
   .item p{margin:0 0 7px; color:var(--ink-2); max-width:74ch}
@@ -52,25 +52,25 @@
   .item p em{font-style:normal; color:var(--grey)}
 
   /* figures: a fixed-width run, the way a quote line reads */
-  .run{margin-top:8px; color:var(--grey); font-size:12.5px; letter-spacing:.02em}
+  .run{margin-top:10px; color:var(--grey); font-size:14.5px; letter-spacing:.02em}
   .run u{text-decoration:none; color:var(--red); font-weight:700}
   .run s{text-decoration:none; color:var(--ink); font-weight:700}
 
-  table{width:100%; border-collapse:collapse; margin-top:9px; font-size:13px}
-  th{text-align:left; color:var(--grey); font-weight:400; font-size:11px; letter-spacing:.14em;
+  table{width:100%; border-collapse:collapse; margin-top:12px; font-size:16px}
+  th{text-align:left; color:var(--grey); font-weight:600; font-size:12.5px; letter-spacing:.1em;
      text-transform:uppercase; padding:0 0 4px; border-bottom:1px solid var(--rule)}
   th.r,td.r{text-align:right}
-  td{padding:4px 0; border-bottom:1px dotted var(--rule); color:var(--ink-2); vertical-align:baseline}
+  td{padding:8px 0; border-bottom:1px dotted var(--rule); color:var(--ink-2); vertical-align:baseline}
   tr:last-child td{border-bottom:0}
   td.r{color:var(--ink); font-weight:700; white-space:nowrap}
-  td .n{display:block; color:var(--grey); font-size:11.5px; letter-spacing:.02em}
+  td .n{display:block; color:var(--grey); font-size:13.5px; letter-spacing:.02em}
   .scroll{overflow-x:auto}
 
-  .foot{padding-top:14px; color:var(--grey); font-size:12.5px}
+  .foot{padding-top:18px; color:var(--grey); font-size:16px}
   .foot p{margin:0 0 7px; max-width:76ch; color:var(--ink-2)}
   .foot b{color:var(--ink); font-weight:700}
-  .end{margin-top:16px; padding-top:8px; border-top:1px solid var(--ink);
-       color:var(--grey); font-size:11px; letter-spacing:.16em}
+  .end{margin-top:20px; padding-top:10px; border-top:1px solid var(--ink);
+       color:var(--grey); font-size:12.5px; letter-spacing:.12em}
 </style>
 
 <div class="wire">
@@ -79,14 +79,14 @@
 
   <div class="bar">
     <span class="id">ACRE INSIGHTS WIRE</span>
-    <span class="dt">Mon 10 Aug 2026 · UPDATED 5:42 PM</span>
+    <span class="dt">Mon 10 Aug 2026 · UPDATED 5:56 PM</span>
   </div>
-  <div class="tape"><span>HIGH <b class="">93°F</b></span><span>ET₀ <b class="">0.19″</b></span><span>LOW SIG <b class="dn">4</b> <em>was 1</em></span><span>ZERO READ <b class="">1</b></span><span>OVERDUE <b class="">$77k</b> <em>53%</em></span><span>REPAIRS <b class="">13</b></span></div>
+  <div class="tape"><span>HIGH <b class="">93°F</b></span><span>ET₀ <b class="">0.18″</b></span><span>LOW SIG <b class="dn">4</b> <em>was 1</em></span><span>ZERO READ <b class="">1</b></span><span>REPAIRS <b class="">13</b></span><span>OVERDUE <b class="">$77K</b> <em>53%</em></span></div>
 
-  <div class="item alert"><div class="kicker">FAULT — Fishell Farms / Daryl&#x27;s</div><h2>Probe reading exactly 0.0 for the second day — sensor fault, not dry soil.</h2><p>This showed up yesterday and is still stuck at zero. Needs a site visit or swap. You also have a draft invoice sitting for Fishell ($1,425) — might want to get the probe fixed before sending it.</p></div><div class="item alert"><div class="kicker">SIGNAL</div><h2>Low-signal probes jumped from 1 yesterday to 4 today.</h2><p>Roeder / Volentine NW, Fishell / Dahl Substation, Joyce / Adam&#x27;s County, and Red Thunder / Boy&#x27;s Town are all showing LowRssi. Dahl Substation has been flaky all week. The other three popped up overnight — worth checking if there&#x27;s a common gateway or cell issue.</p></div><div class="item"><div class="kicker">WEATHER &amp; WATER</div><h2>Hot day today (93°F) after yesterday&#x27;s scattered showers — expect faster drawdown.</h2><p>Bertrand got the most yesterday (0.21″), lighter amounts around Loomis, Holdrege, Funk, and Axtell. Driest field this morning is LogLand / The 80 at 29.6 — it&#x27;s been bouncing around the top of the list all week but nothing dramatic. Bunker Hill has four fields in the dry dozen; no one is critically short.</p></div><div class="item"><div class="kicker">RECEIVABLES</div><h2>Still carrying $77k overdue (53% of $145k total receivables).</h2><p>Brian Johnson alone is $19k, all past 90 days. Double BJ owes $12,475 and also has an open repair ticket from June 29 — reinstall needed on Dier West.</p><div class="scroll"><table><tr><th>Customer</th><th class="r">Owed</th></tr><tr><td>Brian Johnson<span class="n">all past 90</span></td><td class="r">$19,120</td></tr><tr><td>Carson Blum</td><td class="r">$14,375</td></tr><tr><td>Double BJ Farms</td><td class="r">$12,475</td></tr><tr><td>37 Ag</td><td class="r">$8,650</td></tr><tr><td>Kyle Jensen</td><td class="r">$5,675</td></tr></table></div></div><div class="item"><div class="kicker">BILLING</div><h2>Four draft invoices waiting — two without invoice numbers yet.</h2><p>Fishell Farms ($1,425) and C4 Farms ($1,625) need numbers assigned. Zac Carlson (#1758, $12,975) and Brian Carlson (#1759, $3,900) look ready to send. Brian Carlson also has an open repair ticket from July 27 about a field showing dry despite 2″/week applied.</p></div>
+  <div class="item alert"><div class="kicker">FAULT — Fishell Farms / Daryl&#x27;s</div><h2>Probe reading exactly 0.0 for the second day — sensor fault, not dry soil.</h2><p>This showed up yesterday and is still there. Needs a field visit or remote check before you write Fishell&#x27;s report. You also have a draft invoice for Fishell ($1,425) sitting unsent.</p></div><div class="item alert"><div class="kicker">SIGNAL</div><h2>Low-signal probes jumped from 1 yesterday to 4 today.</h2><p>New this morning: Roeder / Volentine NW, Joyce Farms / Adam&#x27;s County, Red Thunder Farms / Boy&#x27;s Town. Fishell Farms / Dahl Substation has been weak all week. Volentine NW already has a repair note open for the stub antenna — might be the same root cause.</p></div><div class="item"><div class="kicker">WEATHER &amp; WATER</div><h2>Hot day ahead — 93°F high — after yesterday&#x27;s light shower near Bertrand and Loomis.</h2><p>Radar measured 0.21″ at Bertrand, 0.15″ at Loomis, trace amounts elsewhere. Today looks dry with strong ET, so fields that didn&#x27;t catch rain will draw down. LogLand / The 80 dropped about 5 points overnight to 29.6 — driest on the board now, and it wasn&#x27;t in the top 12 yesterday. Worth a glance to see if it&#x27;s real or a sensor acting up.</p></div><div class="item"><div class="kicker">RECEIVABLES</div><h2>Double BJ Farms owes $12,475 overdue and also has an open reinstall ticket from June 29.</h2><p>Might be worth a conversation that covers both. Brian Johnson still leads at $19,120, Carson Blum at $14,375. Overall 53% of receivables ($77K of $145K) are past due.</p><div class="scroll"><table><tr><th>Customer</th><th class="r">Overdue</th></tr><tr><td>Brian Johnson</td><td class="r">$19,120</td></tr><tr><td>Carson Blum</td><td class="r">$14,375</td></tr><tr><td>Double BJ Farms</td><td class="r">$12,475</td></tr><tr><td>37 Ag</td><td class="r">$8,650</td></tr><tr><td>Kyle Jensen</td><td class="r">$5,675</td></tr></table></div></div><div class="item"><div class="kicker">BILLING</div><h2>Four invoices in draft: two have numbers assigned (Zac Carlson $12,975, Brian Carlson $3,900), two don&#x27;t (Fishell $1,425, C4 Farms $1,625).</h2><p>Brian Carlson also has an open repair ticket — &#x27;applying 2″ per week but still showing dry&#x27; — from July 27. Nine sent invoices still unmatched to payments.</p></div>
 
   <div class="foot">
-<p><b>Water.</b> Nobody is critically short. A handful of Bunker Hill fields are on the dry side but nothing below 30 except LogLand&#x27;s 80. Hot day today will move them.</p><p><b>Shop.</b> Thirteen repairs open, unchanged. Five of those are three weeks old or more — Double BJ, 3W Farms, and Roeder have the oldest.</p><p><b>Ops.</b> 314 fields, 365 probes placed, 54 of 82 invoices paid (66%). Flat from recent days.</p>
+<p><b>Water.</b> Nobody critical. LogLand / The 80 is the driest at 29.6 — keep an eye on it, especially with today&#x27;s heat.</p><p><b>Shop.</b> Thirteen repairs open, oldest from June 21. Roeder Feedlot appears twice on the list with different problems.</p><p><b>Ops.</b> 314 fields under contract, 365 probes placed, 54 of 82 invoices paid (66%). Flat from last report.</p>
     <div class="end">END — ACRE INSIGHTS AI TEAM</div>
   </div>
 
