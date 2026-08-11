@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="noindex, nofollow">
+<title>Kasen's Log</title>
+<meta name="apple-mobile-web-app-title" content="Kasen's Log">
+<style>
+  :root{
+    --bg:#f2f2f7; --card:#ffffff; --text:#000; --sub:#8e8e93;
+    --divider:rgba(60,60,67,.13); --field:#e4e4e9; --shadow:0 1px 2px rgba(0,0,0,.04);
+    --blue:#007aff; --green:#34c759; --line:#c7c7cc;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#000; --card:#1c1c1e; --text:#fff; --sub:#8d8d93;
+      --divider:rgba(84,84,88,.55); --field:#2c2c2e; --shadow:none; --line:#48484a; }
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:520px; margin:0 auto; padding:12px 16px 60px; }
+  h1{ font-size:30px; font-weight:800; letter-spacing:-.5px; margin:16px 2px 4px; }
+  .sub{ color:var(--sub); font-size:15px; margin:0 2px 22px; }
+
+  .block{ margin-bottom:26px; }
+  .block > label{ display:block; font-size:19px; font-weight:700; margin:0 2px 10px; letter-spacing:-.2px; }
+
+  input[type=date]{
+    width:100%; border:0; border-radius:12px; background:var(--card); box-shadow:var(--shadow);
+    padding:15px 14px; font-size:18px; color:var(--text); outline:none;
+    font-family:inherit; font-variant-numeric:tabular-nums;
+  }
+
+  /* Big tap targets — this gets filled in on a phone at the end of a long day. */
+  .opts{ display:grid; gap:9px; }
+  .opt{
+    display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+    background:var(--card); box-shadow:var(--shadow); border:0; border-radius:12px;
+    padding:15px 15px; font-size:18px; font-weight:500; color:var(--text);
+    cursor:pointer; font-family:inherit; transition:background .12s;
+  }
+  .opt .box{
+    flex:0 0 auto; width:25px; height:25px; border-radius:6px;
+    border:2px solid var(--line); display:flex; align-items:center; justify-content:center;
+    transition:.12s;
+  }
+  .opt .box svg{ width:15px; height:15px; opacity:0; transform:scale(.6); transition:.12s; }
+  .opt[aria-pressed="true"] .box{ background:var(--blue); border-color:var(--blue); }
+  .opt[aria-pressed="true"] .box svg{ opacity:1; transform:scale(1); }
+  .opt[aria-pressed="true"]{ font-weight:700; }
+
+  textarea{
+    width:100%; border:0; border-radius:12px; background:var(--card); box-shadow:var(--shadow);
+    padding:14px; font-size:17px; color:var(--text); outline:none; resize:vertical;
+    min-height:96px; font-family:inherit; line-height:1.45;
+  }
+  textarea::placeholder{ color:var(--sub); }
+
+  .submit{
+    width:100%; border:0; border-radius:13px; background:var(--blue); color:#fff;
+    padding:17px; font-size:19px; font-weight:700; cursor:pointer; font-family:inherit;
+    margin-top:4px;
+  }
+  .submit:disabled{ opacity:.45; cursor:default; }
+
+  .note{ margin:16px 2px 0; font-size:15px; line-height:1.45; }
+  .note.ok{ color:var(--green); font-weight:600; }
+  .note.bad{ color:#ff3b30; font-weight:600; }
+  .note.quiet{ color:var(--sub); }
+
+  .done{ text-align:center; padding:52px 10px; }
+  .done .tick{
+    width:74px; height:74px; border-radius:50%; background:var(--green);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 20px;
+  }
+  .done .tick svg{ width:38px; height:38px; }
+  .done h2{ font-size:26px; font-weight:800; margin:0 0 8px; letter-spacing:-.3px; }
+  .done p{ color:var(--sub); font-size:16px; margin:0 0 26px; line-height:1.45; }
+  .again{
+    border:0; background:none; color:var(--blue); font-size:17px; font-weight:600;
+    cursor:pointer; font-family:inherit; padding:8px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="form">
+    <h1>Kasen's Log</h1>
+    <p class="sub">Takes about twenty seconds. Thank you.</p>
+
+    <div class="block">
+      <label for="date">Date</label>
+      <input type="date" id="date">
+    </div>
+
+    <div class="block">
+      <label id="focusLabel">Focus &amp; Attention</label>
+      <div class="opts" id="focus" role="group" aria-labelledby="focusLabel"></div>
+    </div>
+
+    <div class="block">
+      <label id="behaviorLabel">Behavior</label>
+      <div class="opts" id="behavior" role="group" aria-labelledby="behaviorLabel"></div>
+    </div>
+
+    <div class="block">
+      <label for="other">Anything else?</label>
+      <textarea id="other" placeholder="A pattern you noticed, or a hard time of day"></textarea>
+    </div>
+
+    <button class="submit" id="submit">Submit</button>
+    <p class="note" id="note"></p>
+  </div>
+
+  <div class="done" id="done" hidden>
+    <div class="tick">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <h2>Got it</h2>
+    <p id="doneText"></p>
+    <button class="again" id="again">Log another day</button>
+  </div>
+
+</div>
+
+<script>
+const SB    = "https://vqqmyjapnvmpktxikrrz.supabase.co/rest/v1/rpc";
+const ANON  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxcW15amFwbnZtcGt0eGlrcnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5OTQzMzQsImV4cCI6MjA5OTU3MDMzNH0.6XS5-iJgnUiOx7RIEQtNxwuhLEvL9MsnzHpqjjewkL4";
+// This link can only WRITE a day and read back that same day. It cannot read
+// the history — so forwarding it around the school leaks nothing.
+const TOKEN = "6TV60J5uEEEz1SOwOEdH90rFbUf5kDAV";
+const H = { "apikey": ANON, "Authorization": "Bearer " + ANON, "Content-Type": "application/json" };
+
+const FOCUS    = ["Excellent", "Good", "Fair", "Poor"];
+const BEHAVIOR = ["Positive", "Mixed", "Challenging"];
+
+let picked = { focus: null, behavior: null };
+
+const $ = (id) => document.getElementById(id);
+const TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
+/** Today in the LOCAL day, not UTC — a 7pm entry must not roll to tomorrow. */
+function todayLocal(){
+  const d = new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+
+function buildGroup(el, values, key){
+  el.innerHTML = "";
+  for (const value of values){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "opt";
+    b.setAttribute("aria-pressed", "false");
+    b.innerHTML = '<span class="box">' + TICK + '</span><span>' + value + '</span>';
+    b.onclick = () => {
+      picked[key] = value;
+      for (const other of el.children) other.setAttribute("aria-pressed", String(other === b));
+      $("note").textContent = "";
+    };
+    el.appendChild(b);
+  }
+}
+
+function setPicked(key, value){
+  const el = $(key);
+  picked[key] = value;
+  for (const b of el.children){
+    b.setAttribute("aria-pressed", String(b.textContent.trim() === value));
+  }
+}
+
+async function rpc(fn, body){
+  const res = await fetch(SB + "/" + fn, { method: "POST", headers: H, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error((await res.text()) || res.statusText);
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+/**
+ * If this date was already logged, show what's there so a mis-tap can be
+ * corrected instead of guessed at.
+ */
+async function loadDay(){
+  const date = $("date").value;
+  if (!date) return;
+  $("note").textContent = "";
+  $("note").className = "note";
+  try {
+    const rows = await rpc("kasen_day", { p_token: TOKEN, p_date: date });
+    const row = rows && rows[0];
+    if (row){
+      setPicked("focus", row.focus);
+      setPicked("behavior", row.behavior);
+      $("other").value = row.other || "";
+      $("note").textContent = "This day is already filled in. Changing anything and submitting will update it.";
+      $("note").className = "note quiet";
+    } else {
+      setPicked("focus", null);
+      setPicked("behavior", null);
+      $("other").value = "";
+    }
+  } catch {
+    // A failed pre-fill is not worth stopping her — the submit still works, and
+    // silently showing a blank form is the same as a day with nothing in it.
+  }
+}
+
+async function submit(){
+  const date = $("date").value;
+  const note = $("note");
+  note.className = "note bad";
+
+  if (!date)             { note.textContent = "Pick a date first.";               return; }
+  if (!picked.focus)     { note.textContent = "Choose one for Focus & Attention."; return; }
+  if (!picked.behavior)  { note.textContent = "Choose one for Behavior.";          return; }
+
+  $("submit").disabled = true;
+  $("submit").textContent = "Sending…";
+  note.textContent = "";
+  note.className = "note";
+
+  try {
+    await rpc("kasen_log_day", {
+      p_token:    TOKEN,
+      p_date:     date,
+      p_focus:    picked.focus,
+      p_behavior: picked.behavior,
+      p_other:    $("other").value,
+    });
+    const pretty = new Date(date + "T12:00:00").toLocaleDateString(undefined, {
+      weekday: "long", month: "long", day: "numeric",
+    });
+    $("doneText").textContent = pretty + " is saved.";
+    $("form").hidden = true;
+    $("done").hidden = false;
+    window.scrollTo(0, 0);
+  } catch (e) {
+    note.className = "note bad";
+    note.textContent = "That didn't save — check the connection and try again.";
+  } finally {
+    $("submit").disabled = false;
+    $("submit").textContent = "Submit";
+  }
+}
+
+function reset(){
+  $("done").hidden = true;
+  $("form").hidden = false;
+  $("date").value = todayLocal();
+  $("other").value = "";
+  setPicked("focus", null);
+  setPicked("behavior", null);
+  $("note").textContent = "";
+  $("note").className = "note";
+  loadDay();
+}
+
+buildGroup($("focus"), FOCUS, "focus");
+buildGroup($("behavior"), BEHAVIOR, "behavior");
+$("date").value = todayLocal();
+$("date").max = todayLocal();
+$("date").onchange = loadDay;
+$("submit").onclick = submit;
+$("again").onclick = reset;
+loadDay();
+</script>
+</body>
+</html>

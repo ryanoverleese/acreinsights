@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="noindex, nofollow">
+<title>Kasen's Log</title>
+<meta name="apple-mobile-web-app-title" content="Kasen's Log">
+<style>
+  :root{
+    --bg:#f2f2f7; --card:#ffffff; --text:#000; --sub:#8e8e93;
+    --divider:rgba(60,60,67,.13); --shadow:0 1px 2px rgba(0,0,0,.04);
+    --empty:#e4e4e9;
+    --f1:#1f8f4e; --f2:#34c759; --f3:#ff9500; --f4:#ff3b30;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#000; --card:#1c1c1e; --text:#fff; --sub:#8d8d93;
+      --divider:rgba(84,84,88,.55); --shadow:none; --empty:#2c2c2e; }
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:760px; margin:0 auto; padding:12px 16px 80px; }
+  h1{ font-size:30px; font-weight:800; letter-spacing:-.5px; margin:16px 2px 4px; }
+  .sub{ color:var(--sub); font-size:15px; margin:0 2px 22px; }
+  h2{ font-size:20px; font-weight:700; letter-spacing:-.2px; margin:0 2px 10px; }
+
+  .tiles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:28px; }
+  .tile{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); padding:14px 15px; }
+  .tile small{ display:block; color:var(--sub); font-size:13px; font-weight:600; margin-bottom:6px;
+    text-transform:uppercase; letter-spacing:.4px; }
+  .tile strong{ font-size:27px; font-weight:800; letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
+  .tile em{ font-style:normal; color:var(--sub); font-size:15px; font-weight:600; margin-left:4px; }
+
+  .section{ margin-bottom:30px; }
+
+  /* Focus over time. Every school day is one bar; taller and greener is better. */
+  .strip{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); padding:16px 14px 12px; }
+  .bars{ display:flex; align-items:flex-end; gap:3px; height:104px; overflow-x:auto; padding-bottom:2px; }
+  .bar{ flex:0 0 13px; border-radius:3px 3px 0 0; background:var(--empty); position:relative; cursor:default; }
+  .legend{ display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; padding-top:12px; border-top:1px solid var(--divider); }
+  .legend span{ display:flex; align-items:center; gap:6px; font-size:13px; color:var(--sub); font-weight:600; }
+  .legend i{ width:11px; height:11px; border-radius:3px; }
+
+  .list{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); overflow:hidden; }
+  .row{ display:flex; gap:12px; padding:13px 15px; position:relative; align-items:flex-start; }
+  .row + .row::before{ content:""; position:absolute; top:0; left:15px; right:0; height:1px; background:var(--divider); }
+  .row .when{ flex:0 0 96px; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .row .when span{ display:block; color:var(--sub); font-size:13px; font-weight:600; }
+  .row .body{ flex:1 1 auto; min-width:0; }
+  .pills{ display:flex; flex-wrap:wrap; gap:6px; }
+  .pill{ font-size:13px; font-weight:700; border-radius:7px; padding:4px 9px; color:#fff; }
+  .pill.beh{ background:var(--empty); color:var(--text); }
+  .row .other{ margin:8px 0 0; font-size:15px; line-height:1.45; color:var(--text); }
+
+  .msg{ color:var(--sub); font-size:16px; padding:34px 4px; text-align:center; line-height:1.5; }
+  .msg.bad{ color:#ff3b30; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kasen's Log</h1>
+  <p class="sub" id="sub">Loading…</p>
+  <div id="content" hidden>
+    <div class="tiles" id="tiles"></div>
+
+    <div class="section">
+      <h2>Focus, day by day</h2>
+      <div class="strip">
+        <div class="bars" id="bars"></div>
+        <div class="legend">
+          <span><i style="background:var(--f1)"></i>Excellent</span>
+          <span><i style="background:var(--f2)"></i>Good</span>
+          <span><i style="background:var(--f3)"></i>Fair</span>
+          <span><i style="background:var(--f4)"></i>Poor</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Every day</h2>
+      <div class="list" id="list"></div>
+    </div>
+  </div>
+  <p class="msg" id="msg" hidden></p>
+</div>
+
+<script>
+const SB    = "https://vqqmyjapnvmpktxikrrz.supabase.co/rest/v1/rpc";
+const ANON  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxcW15amFwbnZtcGt0eGlrcnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5OTQzMzQsImV4cCI6MjA5OTU3MDMzNH0.6XS5-iJgnUiOx7RIEQtNxwuhLEvL9MsnzHpqjjewkL4";
+// The parents' token. Reads the log; cannot write to it.
+const TOKEN = "rFTdim32BnlXoIyesfyqtWsT_qBPc81r";
+const H = { "apikey": ANON, "Authorization": "Bearer " + ANON, "Content-Type": "application/json" };
+
+// Focus is an ordered scale, so it can carry a height and a color. Behavior is
+// three named states, so it stays a label — averaging it would invent a number.
+const FOCUS = {
+  "Excellent": { score: 4, color: "var(--f1)" },
+  "Good":      { score: 3, color: "var(--f2)" },
+  "Fair":      { score: 2, color: "var(--f3)" },
+  "Poor":      { score: 1, color: "var(--f4)" },
+};
+const BEH_COLOR = { "Positive": "var(--f2)", "Mixed": "var(--f3)", "Challenging": "var(--f4)" };
+
+const $ = (id) => document.getElementById(id);
+
+function fail(text){
+  $("sub").hidden = true;
+  $("msg").hidden = false;
+  $("msg").className = "msg bad";
+  $("msg").textContent = text;
+}
+
+function dayLabel(iso){
+  const d = new Date(iso + "T12:00:00");
+  return {
+    date: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+    day:  d.toLocaleDateString(undefined, { weekday: "short" }),
+  };
+}
+
+/** Average focus score over the most recent `n` logged days. */
+function avgFocus(rows, n){
+  const slice = rows.slice(0, n).filter((r) => FOCUS[r.focus]);
+  if (slice.length === 0) return null;
+  const total = slice.reduce((sum, r) => sum + FOCUS[r.focus].score, 0);
+  return { value: total / slice.length, days: slice.length };
+}
+
+function render(rows){
+  $("sub").textContent = rows.length === 1
+    ? "1 day logged."
+    : rows.length + " days logged.";
+  $("content").hidden = false;
+
+  // --- Tiles: recent vs. the stretch before it. Two weeks of school days is
+  // about ten entries, which is the shortest window worth reading as a trend.
+  const recent = avgFocus(rows, 10);
+  const prior  = avgFocus(rows.slice(10), 10);
+  const hard   = rows.slice(0, 20).filter((r) => r.focus === "Poor" || r.behavior === "Challenging").length;
+  const window = Math.min(20, rows.length);
+
+  let move = "—";
+  if (recent && prior){
+    const delta = recent.value - prior.value;
+    move = (delta > 0 ? "+" : delta < 0 ? "−" : "") + Math.abs(delta).toFixed(1);
+  }
+
+  $("tiles").innerHTML = [
+    tile("Last 10 days", recent ? recent.value.toFixed(1) : "—", "of 4"),
+    tile("The 10 before", prior ? prior.value.toFixed(1) : "—", "of 4"),
+    tile("Change", move, ""),
+    tile("Hard days", String(hard), "of last " + window),
+  ].join("");
+
+  // --- Bars, oldest on the left so the trend reads the way time runs.
+  const chron = [...rows].reverse();
+  $("bars").innerHTML = chron.map((r) => {
+    const f = FOCUS[r.focus];
+    const height = f ? Math.round((f.score / 4) * 100) : 8;
+    const label = dayLabel(r.log_date);
+    return '<div class="bar" style="height:' + height + '%;background:' + (f ? f.color : "var(--empty)") + '"'
+      + ' title="' + label.day + " " + label.date + " — " + r.focus + ", " + r.behavior + '"></div>';
+  }).join("");
+  // Newest day should be in view on a long log.
+  $("bars").scrollLeft = $("bars").scrollWidth;
+
+  // --- The full list, newest first.
+  $("list").innerHTML = rows.map((r) => {
+    const l = dayLabel(r.log_date);
+    const f = FOCUS[r.focus];
+    return '<div class="row">'
+      + '<div class="when">' + l.date + '<span>' + l.day + '</span></div>'
+      + '<div class="body">'
+      +   '<div class="pills">'
+      +     '<span class="pill" style="background:' + (f ? f.color : "var(--empty)") + '">' + esc(r.focus) + '</span>'
+      +     '<span class="pill beh" style="background:' + (BEH_COLOR[r.behavior] || "var(--empty)") + ';color:#fff">' + esc(r.behavior) + '</span>'
+      +   '</div>'
+      +   (r.other ? '<p class="other">' + esc(r.other) + '</p>' : "")
+      + '</div></div>';
+  }).join("");
+}
+
+function tile(label, value, unit){
+  return '<div class="tile"><small>' + label + '</small><strong>' + value + '</strong>'
+    + (unit ? '<em>' + unit + '</em>' : "") + '</div>';
+}
+
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, (c) => (
+    { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]
+  ));
+}
+
+(async () => {
+  try {
+    const res = await fetch(SB + "/kasen_read_log", {
+      method: "POST", headers: H, body: JSON.stringify({ p_token: TOKEN }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const rows = await res.json();
+    if (!rows || rows.length === 0){
+      $("sub").hidden = true;
+      $("msg").hidden = false;
+      $("msg").className = "msg";
+      $("msg").textContent = "Nothing logged yet. It'll show up here the first afternoon his teacher fills the form in.";
+      return;
+    }
+    render(rows);
+  } catch {
+    fail("Couldn't load the log. Check the connection and reload.");
+  }
+})();
+</script>
+</body>
+</html>
