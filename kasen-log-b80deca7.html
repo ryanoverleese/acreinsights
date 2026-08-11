@@ -208,8 +208,8 @@ async function rpc(fn, body){
 
 /**
  * The form always opens BLANK — a filled-in form on reopen reads as stuck.
- * A day that is already logged just raises a notice, so she knows it landed
- * and can still fill it in again to replace it.
+ * A day that already has entries just raises a notice, so she knows the first
+ * one landed and that this will be a SECOND entry, not a correction.
  */
 async function checkDay(){
   const date = $("date").value;
@@ -217,10 +217,14 @@ async function checkDay(){
   if (!date) return;
   try {
     const rows = await rpc("kasen_day", { p_token: TOKEN, p_date: date });
-    if (rows && rows[0]){
-      $("already").textContent = date === todayLocal()
-        ? "You already logged today. Filling this in again will replace it."
-        : "You already logged this day. Filling it in again will replace it.";
+    const count = Number(rows && rows[0] ? rows[0].entry_count : 0);
+    if (count > 0){
+      const when = date === todayLocal() ? "today" : "this day";
+      // Say the count once there is more than one, so a third entry doesn't
+      // read the same as a second.
+      const sofar = count === 1 ? "" : ` (${count} so far)`;
+      $("already").textContent =
+        `Already logged ${when}${sofar}. Filling this in again will add another entry for ${when}.`;
       $("already").hidden = false;
     }
   } catch {

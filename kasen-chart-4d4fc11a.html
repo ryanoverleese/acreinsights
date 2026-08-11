@@ -55,6 +55,11 @@
   .row + .row::before{ content:""; position:absolute; top:0; left:15px; right:0; height:1px; background:var(--divider); }
   .row .when{ flex:0 0 96px; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; }
   .row .when span{ display:block; color:var(--sub); font-size:13px; font-weight:600; }
+  /* A second entry on the same day hangs under the date rather than repeating it. */
+  .row.sameday .when{ color:var(--sub); font-weight:600; }
+  .row.sameday .when .cont{ display:block; font-size:13px; }
+  .row.sameday::before{ left:96px !important; }
+  .pill.time, .time{ font-size:13px; font-weight:600; color:var(--sub); align-self:center; }
   .row .body{ flex:1 1 auto; min-width:0; }
   .pills{ display:flex; flex-wrap:wrap; gap:6px; }
   .pill{ font-size:13px; font-weight:700; border-radius:7px; padding:4px 9px; color:#fff; }
@@ -73,7 +78,7 @@
     <div class="tiles" id="tiles"></div>
 
     <div class="section">
-      <h2>Focus, day by day</h2>
+      <h2>Focus, entry by entry</h2>
       <div class="strip">
         <div class="bars" id="bars"></div>
         <div class="legend">
@@ -127,7 +132,7 @@ function dayLabel(iso){
   };
 }
 
-/** Average focus score over the most recent `n` logged days. */
+/** Average focus score over the most recent `n` entries. */
 function avgFocus(rows, n){
   const slice = rows.slice(0, n).filter((r) => FOCUS[r.focus]);
   if (slice.length === 0) return null;
@@ -136,9 +141,9 @@ function avgFocus(rows, n){
 }
 
 function render(rows){
-  $("sub").textContent = rows.length === 1
-    ? "1 day logged."
-    : rows.length + " days logged.";
+  const days = new Set(rows.map((r) => r.log_date)).size;
+  $("sub").textContent = rows.length + (rows.length === 1 ? " entry" : " entries")
+    + " across " + days + (days === 1 ? " day." : " days.");
   $("content").hidden = false;
 
   // --- Tiles: recent vs. the stretch before it. Two weeks of school days is
@@ -155,10 +160,10 @@ function render(rows){
   }
 
   $("tiles").innerHTML = [
-    tile("Last 10 days", recent ? recent.value.toFixed(1) : "—", "of 4"),
+    tile("Last 10 entries", recent ? recent.value.toFixed(1) : "—", "of 4"),
     tile("The 10 before", prior ? prior.value.toFixed(1) : "—", "of 4"),
     tile("Change", move, ""),
-    tile("Hard days", String(hard), "of last " + window),
+    tile("Hard reads", String(hard), "of last " + window),
   ].join("");
 
   // --- Bars, oldest on the left so the trend reads the way time runs.
@@ -168,25 +173,45 @@ function render(rows){
     const height = f ? Math.round((f.score / 4) * 100) : 8;
     const label = dayLabel(r.log_date);
     return '<div class="bar" style="height:' + height + '%;background:' + (f ? f.color : "var(--empty)") + '"'
-      + ' title="' + label.day + " " + label.date + " — " + r.focus + ", " + r.behavior + '"></div>';
+      + ' title="' + label.day + " " + label.date + " " + timeLabel(r.created_at) + " — " + r.focus + ", " + r.behavior + '"></div>';
   }).join("");
   // Newest day should be in view on a long log.
   $("bars").scrollLeft = $("bars").scrollWidth;
 
-  // --- The full list, newest first.
+  // --- The full list, newest first. A day with two entries shows the date
+  // once and then each entry with the time it came in: a morning read and an
+  // afternoon read of the same day are the comparison that matters.
+  let lastDate = null;
   $("list").innerHTML = rows.map((r) => {
     const l = dayLabel(r.log_date);
     const f = FOCUS[r.focus];
-    return '<div class="row">'
-      + '<div class="when">' + l.date + '<span>' + l.day + '</span></div>'
+    const firstOfDay = r.log_date !== lastDate;
+    lastDate = r.log_date;
+    const when = firstOfDay
+      ? l.date + '<span>' + l.day + '</span>'
+      : '<span class="cont">' + timeLabel(r.created_at) + '</span>';
+    return '<div class="row' + (firstOfDay ? "" : " sameday") + '">'
+      + '<div class="when">' + when + '</div>'
       + '<div class="body">'
       +   '<div class="pills">'
       +     '<span class="pill" style="background:' + (f ? f.color : "var(--empty)") + '">' + esc(r.focus) + '</span>'
       +     '<span class="pill beh" style="background:' + (BEH_COLOR[r.behavior] || "var(--empty)") + ';color:#fff">' + esc(r.behavior) + '</span>'
+      +     (firstOfDay && countForDay(rows, r.log_date) > 1
+              ? '<span class="time">' + timeLabel(r.created_at) + '</span>' : "")
       +   '</div>'
       +   (r.other ? '<p class="other">' + esc(r.other) + '</p>' : "")
       + '</div></div>';
   }).join("");
+}
+
+/** Local clock time an entry came in, e.g. "3:15 PM". */
+function timeLabel(iso){
+  if (!iso) return "";
+  return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
+function countForDay(rows, date){
+  return rows.reduce((n, r) => n + (r.log_date === date ? 1 : 0), 0);
 }
 
 function tile(label, value, unit){
