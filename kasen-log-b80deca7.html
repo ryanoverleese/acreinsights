@@ -36,9 +36,12 @@
   .block{ margin-bottom:26px; }
   .block > label{ display:block; font-size:19px; font-weight:700; margin:0 2px 10px; letter-spacing:-.2px; }
 
+  /* A date field sizes to the DATE, never to the column. Stretched full-width,
+     iOS centres the value in a mostly-empty white slab and it reads as a bug. */
   input[type=date]{
-    width:100%; border:0; border-radius:12px; background:var(--card); box-shadow:var(--shadow);
-    padding:15px 14px; font-size:18px; color:var(--text); outline:none;
+    width:auto; max-width:100%; display:inline-block;
+    border:0; border-radius:12px; background:var(--card); box-shadow:var(--shadow);
+    padding:15px 16px; font-size:18px; color:var(--text); outline:none;
     font-family:inherit; font-variant-numeric:tabular-nums;
   }
 
