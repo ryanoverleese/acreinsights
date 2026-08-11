@@ -37,7 +37,7 @@
   .tile{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); padding:14px 15px; }
   .tile small{ display:block; color:var(--sub); font-size:13px; font-weight:600; margin-bottom:6px;
     text-transform:uppercase; letter-spacing:.4px; }
-  .tile strong{ font-size:27px; font-weight:800; letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
+  .tile strong{ font-size:23px; font-weight:800; letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
   .tile em{ font-style:normal; color:var(--sub); font-size:15px; font-weight:600; margin-left:4px; }
 
   .section{ margin-bottom:30px; }
@@ -64,6 +64,9 @@
   .pills{ display:flex; flex-wrap:wrap; gap:6px; }
   .pill{ font-size:13px; font-weight:700; border-radius:7px; padding:4px 9px; color:#fff; }
   .pill.beh{ background:var(--empty); color:var(--text); }
+  /* When it was hardest — an outline, not a fill, so it reads as detail about
+     the behavior beside it rather than a third rating of its own. */
+  .pill.hard{ background:none; color:var(--sub); border:1.5px solid var(--divider); padding:3px 8px; }
   .row .other{ margin:8px 0 0; font-size:15px; line-height:1.45; color:var(--text); }
 
   .msg{ color:var(--sub); font-size:16px; padding:34px 4px; text-align:center; line-height:1.5; }
@@ -164,6 +167,7 @@ function render(rows){
     tile("The 10 before", prior ? prior.value.toFixed(1) : "—", "of 4"),
     tile("Change", move, ""),
     tile("Hard reads", String(hard), "of last " + window),
+    tile("Hardest when", commonHardTime(rows) ?? "—", ""),
   ].join("");
 
   // --- Bars, oldest on the left so the trend reads the way time runs.
@@ -196,12 +200,32 @@ function render(rows){
       +   '<div class="pills">'
       +     '<span class="pill" style="background:' + (f ? f.color : "var(--empty)") + '">' + esc(r.focus) + '</span>'
       +     '<span class="pill beh" style="background:' + (BEH_COLOR[r.behavior] || "var(--empty)") + ';color:#fff">' + esc(r.behavior) + '</span>'
+      +     (r.hard_time ? '<span class="pill hard">' + esc(r.hard_time) + '</span>' : "")
       +     (firstOfDay && countForDay(rows, r.log_date) > 1
               ? '<span class="time">' + timeLabel(r.created_at) + '</span>' : "")
       +   '</div>'
       +   (r.other ? '<p class="other">' + esc(r.other) + '</p>' : "")
       + '</div></div>';
   }).join("");
+}
+
+/**
+ * The time of day that comes up most across the hard entries. This is the
+ * dosing signal: the same answer over and over says something the individual
+ * days do not. Needs three before it will claim a pattern.
+ */
+function commonHardTime(rows){
+  const counts = new Map();
+  for (const r of rows){
+    if (!r.hard_time) continue;
+    counts.set(r.hard_time, (counts.get(r.hard_time) ?? 0) + 1);
+  }
+  let best = null;
+  let bestN = 0;
+  for (const [when, n] of counts){
+    if (n > bestN){ best = when; bestN = n; }
+  }
+  return bestN >= 3 ? best : null;
 }
 
 /** Local clock time an entry came in, e.g. "3:15 PM". */
