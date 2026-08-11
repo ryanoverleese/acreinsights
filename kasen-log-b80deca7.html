@@ -14,11 +14,13 @@
   :root{
     --bg:#f2f2f7; --card:#ffffff; --text:#000; --sub:#8e8e93;
     --divider:rgba(60,60,67,.13); --field:#e4e4e9; --shadow:0 1px 2px rgba(0,0,0,.04);
-    --blue:#007aff; --green:#34c759; --line:#c7c7cc;
+    --accent:#bf5700; --green:#34c759; --line:#c7c7cc;
   }
   @media (prefers-color-scheme: dark){
     :root{ --bg:#000; --card:#1c1c1e; --text:#fff; --sub:#8d8d93;
-      --divider:rgba(84,84,88,.55); --field:#2c2c2e; --shadow:none; --line:#48484a; }
+      --divider:rgba(84,84,88,.55); --field:#2c2c2e; --shadow:none; --line:#48484a;
+      /* Lifted a little so it still reads on black. */
+      --accent:#e2691f; }
   }
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ margin:0; padding:0; }
@@ -29,8 +31,7 @@
     -webkit-font-smoothing:antialiased;
   }
   .wrap{ max-width:520px; margin:0 auto; padding:12px 16px 60px; }
-  h1{ font-size:30px; font-weight:800; letter-spacing:-.5px; margin:16px 2px 4px; }
-  .sub{ color:var(--sub); font-size:15px; margin:0 2px 22px; }
+  h1{ font-size:30px; font-weight:800; letter-spacing:-.5px; margin:16px 2px 24px; }
 
   .block{ margin-bottom:26px; }
   .block > label{ display:block; font-size:19px; font-weight:700; margin:0 2px 10px; letter-spacing:-.2px; }
@@ -55,7 +56,7 @@
     transition:.12s;
   }
   .opt .box svg{ width:15px; height:15px; opacity:0; transform:scale(.6); transition:.12s; }
-  .opt[aria-pressed="true"] .box{ background:var(--blue); border-color:var(--blue); }
+  .opt[aria-pressed="true"] .box{ background:var(--accent); border-color:var(--accent); }
   .opt[aria-pressed="true"] .box svg{ opacity:1; transform:scale(1); }
   .opt[aria-pressed="true"]{ font-weight:700; }
 
@@ -67,7 +68,7 @@
   textarea::placeholder{ color:var(--sub); }
 
   .submit{
-    width:100%; border:0; border-radius:13px; background:var(--blue); color:#fff;
+    width:100%; border:0; border-radius:13px; background:var(--accent); color:#fff;
     padding:17px; font-size:19px; font-weight:700; cursor:pointer; font-family:inherit;
     margin-top:4px;
   }
@@ -80,14 +81,14 @@
 
   .done{ text-align:center; padding:52px 10px; }
   .done .tick{
-    width:74px; height:74px; border-radius:50%; background:var(--green);
+    width:74px; height:74px; border-radius:50%; background:var(--accent);
     display:flex; align-items:center; justify-content:center; margin:0 auto 20px;
   }
   .done .tick svg{ width:38px; height:38px; }
   .done h2{ font-size:26px; font-weight:800; margin:0 0 8px; letter-spacing:-.3px; }
   .done p{ color:var(--sub); font-size:16px; margin:0 0 26px; line-height:1.45; }
   .again{
-    border:0; background:none; color:var(--blue); font-size:17px; font-weight:600;
+    border:0; background:none; color:var(--accent); font-size:17px; font-weight:600;
     cursor:pointer; font-family:inherit; padding:8px;
   }
 </style>
@@ -97,7 +98,6 @@
 
   <div id="form">
     <h1>Kasen's Log</h1>
-    <p class="sub">Takes about twenty seconds. Thank you.</p>
 
     <div class="block">
       <label for="date">Date</label>
