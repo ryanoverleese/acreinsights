@@ -30,11 +30,11 @@
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{ max-width:520px; margin:0 auto; padding:12px 16px 60px; }
-  h1{ font-size:30px; font-weight:800; letter-spacing:-.5px; margin:16px 2px 24px; }
+  .wrap{ max-width:520px; margin:0 auto; padding:6px 16px 24px; }
+  h1{ font-size:26px; font-weight:800; letter-spacing:-.5px; margin:8px 2px 14px; }
 
-  .block{ margin-bottom:26px; }
-  .block > label:not(.daterow){ display:block; font-size:19px; font-weight:700; margin:0 2px 10px; letter-spacing:-.2px; }
+  .block{ margin-bottom:16px; }
+  .block > label:not(.daterow){ display:block; font-size:16px; font-weight:700; margin:0 2px 7px; letter-spacing:-.2px; }
 
   /* The date is a ROW, the same full-width card as every other control: label
      left, value right, whole thing tappable. Left on its own it was a stubby
@@ -42,49 +42,45 @@
   .daterow{
     display:flex; align-items:center; justify-content:space-between; gap:12px;
     background:var(--card); box-shadow:var(--shadow); border-radius:12px;
-    padding:15px 15px; cursor:pointer;
+    padding:12px 14px; cursor:pointer;
   }
-  .daterow > span{ font-size:18px; font-weight:700; letter-spacing:-.2px; }
+  .daterow > span{ font-size:16px; font-weight:700; letter-spacing:-.2px; }
   /* The row is the card, so the field itself carries no box of its own. */
   .daterow input[type=date]{
     width:auto; max-width:62%; border:0; background:none; box-shadow:none; padding:0;
-    font-size:18px; color:var(--text); outline:none; text-align:right;
+    font-size:16px; color:var(--text); outline:none; text-align:right;
     font-family:inherit; font-variant-numeric:tabular-nums;
   }
 
-  /* Big tap targets — this gets filled in on a phone at the end of a long day. */
-  .opts{ display:grid; gap:9px; }
+  /* One row per scale. Excellent -> Poor left to right reads as the scale it
+     actually is, and it turns ~250px of stacked rows into one 52px band, which
+     is what gets the whole form onto a single screen. Each chip still clears
+     the 44px minimum tap target by a comfortable margin. */
+  .opts{ display:grid; grid-template-columns:repeat(var(--cols,4),1fr); gap:7px; }
   .opt{
-    display:flex; align-items:center; gap:13px; width:100%; text-align:left;
-    background:var(--card); box-shadow:var(--shadow); border:0; border-radius:12px;
-    padding:15px 15px; font-size:18px; font-weight:500; color:var(--text);
-    cursor:pointer; font-family:inherit; transition:background .12s;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    min-height:52px; padding:8px 4px; border:0; border-radius:11px;
+    background:var(--card); box-shadow:var(--shadow); color:var(--text);
+    font-size:15px; font-weight:600; line-height:1.15; letter-spacing:-.2px;
+    cursor:pointer; font-family:inherit; transition:background .12s, color .12s;
   }
-  .opt .box{
-    flex:0 0 auto; width:25px; height:25px; border-radius:6px;
-    border:2px solid var(--line); display:flex; align-items:center; justify-content:center;
-    transition:.12s;
-  }
-  .opt .box svg{ width:15px; height:15px; opacity:0; transform:scale(.6); transition:.12s; }
-  .opt[aria-pressed="true"] .box{ background:var(--accent); border-color:var(--accent); }
-  .opt[aria-pressed="true"] .box svg{ opacity:1; transform:scale(1); }
-  .opt[aria-pressed="true"]{ font-weight:700; }
+  .opt[aria-pressed="true"]{ background:var(--accent); color:#fff; font-weight:700; }
 
   textarea{
     width:100%; border:0; border-radius:12px; background:var(--card); box-shadow:var(--shadow);
-    padding:14px; font-size:17px; color:var(--text); outline:none; resize:vertical;
-    min-height:96px; font-family:inherit; line-height:1.45;
+    padding:11px 13px; font-size:16px; color:var(--text); outline:none; resize:vertical;
+    min-height:62px; font-family:inherit; line-height:1.4;
   }
   textarea::placeholder{ color:var(--sub); }
 
   .submit{
     width:100%; border:0; border-radius:13px; background:var(--accent); color:#fff;
-    padding:17px; font-size:19px; font-weight:700; cursor:pointer; font-family:inherit;
-    margin-top:4px;
+    padding:15px; font-size:18px; font-weight:700; cursor:pointer; font-family:inherit;
+    margin-top:2px;
   }
   .submit:disabled{ opacity:.45; cursor:default; }
 
-  .note{ margin:16px 2px 0; font-size:15px; line-height:1.45; }
+  .note{ margin:11px 2px 0; font-size:14px; line-height:1.4; }
   .note.ok{ color:var(--green); font-weight:600; }
   .note.bad{ color:#ff3b30; font-weight:600; }
   .note.quiet{ color:var(--sub); }
@@ -128,7 +124,7 @@
 
     <div class="block">
       <label for="other">Anything else?</label>
-      <textarea id="other" placeholder="A pattern you noticed, a hard time of day, or anything we can help with at home"></textarea>
+      <textarea id="other" placeholder="A pattern, a hard time of day, or anything we can help with at home"></textarea>
     </div>
 
     <button class="submit" id="submit">Submit</button>
@@ -160,7 +156,6 @@ const BEHAVIOR = ["Positive", "Mixed", "Challenging"];
 let picked = { focus: null, behavior: null };
 
 const $ = (id) => document.getElementById(id);
-const TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
 
 /** Today in the LOCAL day, not UTC — a 7pm entry must not roll to tomorrow. */
 function todayLocal(){
@@ -170,12 +165,13 @@ function todayLocal(){
 
 function buildGroup(el, values, key){
   el.innerHTML = "";
+  el.style.setProperty("--cols", String(values.length));
   for (const value of values){
     const b = document.createElement("button");
     b.type = "button";
     b.className = "opt";
     b.setAttribute("aria-pressed", "false");
-    b.innerHTML = '<span class="box">' + TICK + '</span><span>' + value + '</span>';
+    b.textContent = value;
     b.onclick = () => {
       picked[key] = value;
       for (const other of el.children) other.setAttribute("aria-pressed", String(other === b));
