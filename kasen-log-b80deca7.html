@@ -80,6 +80,15 @@
   }
   .submit:disabled{ opacity:.45; cursor:default; }
 
+  /* "Already logged" belongs at the TOP. Under the Submit button it was the
+     last thing anyone would read. Tinted, not red — this is a status, not a
+     mistake she made. */
+  .already{
+    background:rgba(191,87,0,.10); color:var(--accent); border-radius:12px;
+    padding:11px 14px; margin:0 0 14px; font-size:15px; font-weight:600; line-height:1.35;
+  }
+  @media (prefers-color-scheme: dark){ .already{ background:rgba(226,105,31,.18); } }
+
   .note{ margin:11px 2px 0; font-size:14px; line-height:1.4; }
   .note.ok{ color:var(--green); font-weight:600; }
   .note.bad{ color:#ff3b30; font-weight:600; }
@@ -104,6 +113,7 @@
 
   <div id="form">
     <h1>Kasen's Log</h1>
+    <p class="already" id="already" hidden></p>
 
     <div class="block">
       <label class="daterow" for="date">
@@ -197,31 +207,24 @@ async function rpc(fn, body){
 }
 
 /**
- * If this date was already logged, show what's there so a mis-tap can be
- * corrected instead of guessed at.
+ * The form always opens BLANK — a filled-in form on reopen reads as stuck.
+ * A day that is already logged just raises a notice, so she knows it landed
+ * and can still fill it in again to replace it.
  */
-async function loadDay(){
+async function checkDay(){
   const date = $("date").value;
+  $("already").hidden = true;
   if (!date) return;
-  $("note").textContent = "";
-  $("note").className = "note";
   try {
     const rows = await rpc("kasen_day", { p_token: TOKEN, p_date: date });
-    const row = rows && rows[0];
-    if (row){
-      setPicked("focus", row.focus);
-      setPicked("behavior", row.behavior);
-      $("other").value = row.other || "";
-      $("note").textContent = "This day is already filled in. Changing anything and submitting will update it.";
-      $("note").className = "note quiet";
-    } else {
-      setPicked("focus", null);
-      setPicked("behavior", null);
-      $("other").value = "";
+    if (rows && rows[0]){
+      $("already").textContent = date === todayLocal()
+        ? "You already logged today. Filling this in again will replace it."
+        : "You already logged this day. Filling it in again will replace it.";
+      $("already").hidden = false;
     }
   } catch {
-    // A failed pre-fill is not worth stopping her — the submit still works, and
-    // silently showing a blank form is the same as a day with nothing in it.
+    // Not worth stopping her over — Submit still works either way.
   }
 }
 
@@ -251,6 +254,12 @@ async function submit(){
       weekday: "long", month: "long", day: "numeric",
     });
     $("doneText").textContent = pretty + " is saved.";
+    // Wipe the entries NOW, not on the way back in — tapping Back or
+    // reopening the link must never show yesterday's taps still sitting there.
+    setPicked("focus", null);
+    setPicked("behavior", null);
+    $("other").value = "";
+    $("already").hidden = true;
     $("form").hidden = true;
     $("done").hidden = false;
     window.scrollTo(0, 0);
@@ -263,6 +272,7 @@ async function submit(){
   }
 }
 
+/** Back to a clean form — used by "Log another day" and after every submit. */
 function reset(){
   $("done").hidden = true;
   $("form").hidden = false;
@@ -272,17 +282,17 @@ function reset(){
   setPicked("behavior", null);
   $("note").textContent = "";
   $("note").className = "note";
-  loadDay();
+  checkDay();
 }
 
 buildGroup($("focus"), FOCUS, "focus");
 buildGroup($("behavior"), BEHAVIOR, "behavior");
 $("date").value = todayLocal();
 $("date").max = todayLocal();
-$("date").onchange = loadDay;
+$("date").onchange = checkDay;
 $("submit").onclick = submit;
 $("again").onclick = reset;
-loadDay();
+checkDay();
 </script>
 </body>
 </html>
