@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Stub antennas — will a corn field make the season?</title>
+<style>
+  :root{ --bg:#f2f2f7; --card:#fff; --text:#000; --sub:#6b6b70; --divider:rgba(60,60,67,.14);
+    --shadow:0 1px 2px rgba(0,0,0,.05); --good:#1f8f4e; --mid:#ff9500; --bad:#ff3b30; --line:#c7c7cc; }
+  @media (prefers-color-scheme:dark){ :root{ --bg:#000; --card:#1c1c1e; --text:#fff; --sub:#9a9aa0;
+    --divider:rgba(84,84,88,.55); --shadow:none; --line:#48484a; } }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; line-height:1.5; }
+  .wrap{ max-width:820px; margin:0 auto; padding:28px 20px 80px; }
+  h1{ font-size:31px; font-weight:800; letter-spacing:-.6px; margin:0 0 6px; }
+  .dek{ color:var(--sub); font-size:16px; margin:0 0 26px; }
+  h2{ font-size:21px; font-weight:700; letter-spacing:-.3px; margin:34px 0 10px; }
+  p{ font-size:16px; margin:0 0 14px; }
+  .card{ background:var(--card); border-radius:13px; box-shadow:var(--shadow); padding:18px 20px; margin:0 0 16px; }
+  .headline{ border-left:5px solid var(--good); }
+  .headline strong{ font-size:20px; }
+  .warn{ border-left:5px solid var(--mid); }
+  table{ border-collapse:collapse; width:100%; font-size:15px; }
+  th{ text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--sub);
+    font-weight:700; padding:0 10px 8px 0; border-bottom:1px solid var(--divider); }
+  td{ padding:9px 10px 9px 0; border-bottom:1px solid var(--divider); font-variant-numeric:tabular-nums; }
+  tr:last-child td{ border-bottom:0; }
+  .num{ text-align:right; font-variant-numeric:tabular-nums; }
+  .barwrap{ display:flex; align-items:center; gap:9px; }
+  .barwrap i{ height:9px; border-radius:5px; display:block; }
+  .pill{ display:inline-block; font-size:12px; font-weight:700; border-radius:6px; padding:2px 7px; color:#fff; }
+  .foot{ color:var(--sub); font-size:14px; margin-top:34px; padding-top:16px; border-top:1px solid var(--divider); }
+  code{ font-family:inherit; font-weight:600; background:rgba(127,127,127,.15); padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body><div class="wrap">
+
+<h1>Will a corn field make it through the season?</h1>
+<p class="dek">Early-season signal against where the same probes ended up. 261 corn probes, 2026-05-29 to 2026-08-09.</p>
+
+<div class="card headline">
+  <p style="margin:0"><strong>A corn probe that starts the year at 90% or better has an 88% chance of still being above 60% in August.</strong></p>
+  <p style="margin:8px 0 0; color:var(--sub)">Below 75% early, it is about 15%. There is very little in between — the curve turns hard somewhere around 75, and does not become dependable until 90.</p>
+</div>
+
+<div class="card warn">
+  <p style="margin:0"><strong>Read this before you use the number.</strong></p>
+  <p style="margin:8px 0 0">This is <em>all corn probes</em>, not stub-only. Antenna type lives in Baserow <code>probe_assignments</code>, and the API token in <code>signal_tracker.py</code> and <code>baserow_backup.py</code> is revoked — every table returns 403. Tall antennas both start high and stay high, so they will be flattering the high end here. <strong>The true stub threshold is probably higher than 90.</strong></p>
+</div>
+
+<h2>Where it starts, where it ends</h2>
+<p>Grouped by the average signal over May 29 – June 15, before canopy. &ldquo;Made it&rdquo; means the probe&rsquo;s median reading from July 15 on was still at or above your 60% line.</p>
+<div class="card"><table>
+  <tr><th>Early signal</th><th class="num">Probes</th><th class="num">Made it</th><th>&nbsp;</th><th class="num">Median August</th></tr>
+  <tr><td>under 60</td><td class="num">52</td><td class="num"><span class="pill" style="background:var(--bad)">15%</span></td><td><span class="barwrap"><i style="width:14px;background:var(--bad)"></i></span></td><td class="num">46%</td></tr><tr><td>60–74</td><td class="num">63</td><td class="num"><span class="pill" style="background:var(--bad)">13%</span></td><td><span class="barwrap"><i style="width:12px;background:var(--bad)"></i></span></td><td class="num">47%</td></tr><tr><td>75–84</td><td class="num">54</td><td class="num"><span class="pill" style="background:var(--mid)">44%</span></td><td><span class="barwrap"><i style="width:40px;background:var(--mid)"></i></span></td><td class="num">58%</td></tr><tr><td>85–89</td><td class="num">16</td><td class="num"><span class="pill" style="background:var(--mid)">62%</span></td><td><span class="barwrap"><i style="width:56px;background:var(--mid)"></i></span></td><td class="num">66%</td></tr><tr><td>90+</td><td class="num">76</td><td class="num"><span class="pill" style="background:var(--good)">88%</span></td><td><span class="barwrap"><i style="width:79px;background:var(--good)"></i></span></td><td class="num">72%</td></tr>
+</table></div>
+
+<h2>Pick your cut-off</h2>
+<p>Each row: of every corn probe that started at or above that number, how many were still above 60% in August.</p>
+<div class="card"><table>
+  <tr><th>Started at or above</th><th class="num">Probes</th><th class="num">Still good</th><th>&nbsp;</th></tr>
+  <tr><td>60%</td><td class="num">209</td><td class="num"><span class="pill" style="background:var(--mid)">52.2%</span></td><td><span class="barwrap"><i style="width:47px;background:var(--mid)"></i></span></td></tr><tr><td>62%</td><td class="num">201</td><td class="num"><span class="pill" style="background:var(--mid)">53.2%</span></td><td><span class="barwrap"><i style="width:48px;background:var(--mid)"></i></span></td></tr><tr><td>64%</td><td class="num">192</td><td class="num"><span class="pill" style="background:var(--mid)">54.7%</span></td><td><span class="barwrap"><i style="width:49px;background:var(--mid)"></i></span></td></tr><tr><td>66%</td><td class="num">184</td><td class="num"><span class="pill" style="background:var(--mid)">56.5%</span></td><td><span class="barwrap"><i style="width:51px;background:var(--mid)"></i></span></td></tr><tr><td>68%</td><td class="num">177</td><td class="num"><span class="pill" style="background:var(--mid)">58.8%</span></td><td><span class="barwrap"><i style="width:53px;background:var(--mid)"></i></span></td></tr><tr><td>70%</td><td class="num">171</td><td class="num"><span class="pill" style="background:var(--mid)">60.2%</span></td><td><span class="barwrap"><i style="width:54px;background:var(--mid)"></i></span></td></tr><tr><td>72%</td><td class="num">160</td><td class="num"><span class="pill" style="background:var(--mid)">63.8%</span></td><td><span class="barwrap"><i style="width:57px;background:var(--mid)"></i></span></td></tr><tr><td>74%</td><td class="num">152</td><td class="num"><span class="pill" style="background:var(--mid)">67.1%</span></td><td><span class="barwrap"><i style="width:60px;background:var(--mid)"></i></span></td></tr><tr><td>76%</td><td class="num">143</td><td class="num"><span class="pill" style="background:var(--mid)">69.2%</span></td><td><span class="barwrap"><i style="width:62px;background:var(--mid)"></i></span></td></tr><tr><td>78%</td><td class="num">128</td><td class="num"><span class="pill" style="background:var(--good)">71.9%</span></td><td><span class="barwrap"><i style="width:65px;background:var(--good)"></i></span></td></tr><tr><td>80%</td><td class="num">120</td><td class="num"><span class="pill" style="background:var(--good)">74.2%</span></td><td><span class="barwrap"><i style="width:67px;background:var(--good)"></i></span></td></tr><tr><td>82%</td><td class="num">113</td><td class="num"><span class="pill" style="background:var(--good)">75.2%</span></td><td><span class="barwrap"><i style="width:68px;background:var(--good)"></i></span></td></tr><tr><td>84%</td><td class="num">100</td><td class="num"><span class="pill" style="background:var(--good)">80.0%</span></td><td><span class="barwrap"><i style="width:72px;background:var(--good)"></i></span></td></tr><tr><td>86%</td><td class="num">90</td><td class="num"><span class="pill" style="background:var(--good)">83.3%</span></td><td><span class="barwrap"><i style="width:75px;background:var(--good)"></i></span></td></tr><tr><td>88%</td><td class="num">84</td><td class="num"><span class="pill" style="background:var(--good)">84.5%</span></td><td><span class="barwrap"><i style="width:76px;background:var(--good)"></i></span></td></tr><tr><td>90%</td><td class="num">76</td><td class="num"><span class="pill" style="background:var(--good)">88.2%</span></td><td><span class="barwrap"><i style="width:79px;background:var(--good)"></i></span></td></tr><tr><td>92%</td><td class="num">66</td><td class="num"><span class="pill" style="background:var(--good)">89.4%</span></td><td><span class="barwrap"><i style="width:80px;background:var(--good)"></i></span></td></tr><tr><td>94%</td><td class="num">59</td><td class="num"><span class="pill" style="background:var(--good)">93.2%</span></td><td><span class="barwrap"><i style="width:84px;background:var(--good)"></i></span></td></tr><tr><td>96%</td><td class="num">52</td><td class="num"><span class="pill" style="background:var(--good)">94.2%</span></td><td><span class="barwrap"><i style="width:85px;background:var(--good)"></i></span></td></tr>
+</table></div>
+
+<h2>The fleet, run by run</h2>
+<p>Average signal across every probe reporting a reading. The population widened on July 29 when the filter broke, so treat the last four runs as a slightly different mix.</p>
+<div class="card"><table>
+  <tr><th>Date</th><th class="num">Probes</th><th class="num">Avg signal</th><th>&nbsp;</th></tr>
+  <tr><td>2026-05-29</td><td class="num">180</td><td class="num">85.4%</td><td><span class="barwrap"><i style="width:77px;background:var(--good)"></i></span></td></tr><tr><td>2026-06-03</td><td class="num">488</td><td class="num">64.5%</td><td><span class="barwrap"><i style="width:58px;background:var(--mid)"></i></span></td></tr><tr><td>2026-06-07</td><td class="num">498</td><td class="num">68.8%</td><td><span class="barwrap"><i style="width:62px;background:var(--mid)"></i></span></td></tr><tr><td>2026-06-10</td><td class="num">423</td><td class="num">76.2%</td><td><span class="barwrap"><i style="width:69px;background:var(--good)"></i></span></td></tr><tr><td>2026-06-15</td><td class="num">525</td><td class="num">65.9%</td><td><span class="barwrap"><i style="width:59px;background:var(--mid)"></i></span></td></tr><tr><td>2026-06-17</td><td class="num">347</td><td class="num">77.8%</td><td><span class="barwrap"><i style="width:70px;background:var(--good)"></i></span></td></tr><tr><td>2026-06-21</td><td class="num">359</td><td class="num">77.2%</td><td><span class="barwrap"><i style="width:69px;background:var(--good)"></i></span></td></tr><tr><td>2026-06-24</td><td class="num">350</td><td class="num">76.6%</td><td><span class="barwrap"><i style="width:69px;background:var(--good)"></i></span></td></tr><tr><td>2026-06-28</td><td class="num">359</td><td class="num">73.8%</td><td><span class="barwrap"><i style="width:66px;background:var(--good)"></i></span></td></tr><tr><td>2026-07-01</td><td class="num">376</td><td class="num">73.6%</td><td><span class="barwrap"><i style="width:66px;background:var(--good)"></i></span></td></tr><tr><td>2026-07-05</td><td class="num">382</td><td class="num">71.2%</td><td><span class="barwrap"><i style="width:64px;background:var(--good)"></i></span></td></tr><tr><td>2026-07-08</td><td class="num">394</td><td class="num">69.2%</td><td><span class="barwrap"><i style="width:62px;background:var(--mid)"></i></span></td></tr><tr><td>2026-07-12</td><td class="num">388</td><td class="num">64.9%</td><td><span class="barwrap"><i style="width:58px;background:var(--mid)"></i></span></td></tr><tr><td>2026-07-15</td><td class="num">383</td><td class="num">61.8%</td><td><span class="barwrap"><i style="width:56px;background:var(--mid)"></i></span></td></tr><tr><td>2026-07-19</td><td class="num">402</td><td class="num">62.1%</td><td><span class="barwrap"><i style="width:56px;background:var(--mid)"></i></span></td></tr><tr><td>2026-07-22</td><td class="num">403</td><td class="num">60.4%</td><td><span class="barwrap"><i style="width:54px;background:var(--mid)"></i></span></td></tr><tr><td>2026-07-26</td><td class="num">392</td><td class="num">59.3%</td><td><span class="barwrap"><i style="width:53px;background:var(--mid)"></i></span></td></tr><tr><td>2026-07-29</td><td class="num">545</td><td class="num">57.0%</td><td><span class="barwrap"><i style="width:51px;background:var(--mid)"></i></span></td></tr><tr><td>2026-08-02</td><td class="num">524</td><td class="num">56.7%</td><td><span class="barwrap"><i style="width:51px;background:var(--mid)"></i></span></td></tr><tr><td>2026-08-05</td><td class="num">511</td><td class="num">64.8%</td><td><span class="barwrap"><i style="width:58px;background:var(--mid)"></i></span></td></tr><tr><td>2026-08-09</td><td class="num">540</td><td class="num">57.2%</td><td><span class="barwrap"><i style="width:51px;background:var(--mid)"></i></span></td></tr>
+</table></div>
+
+<h2>Corn probes below the line right now</h2>
+<p>144 of 261 corn probes have an August median under 60%. The fifteen furthest under:</p>
+<div class="card"><table>
+  <tr><th>Field</th><th>Serial</th><th class="num">Started</th><th class="num">August</th><th class="num">Drop</th></tr>
+  <tr><td>1</td><td>407967</td><td class="num">50%</td><td class="num"><span class="pill" style="background:var(--bad)">18%</span></td><td class="num">&minus;32</td></tr><tr><td>Alberts</td><td>414367</td><td class="num">57%</td><td class="num"><span class="pill" style="background:var(--bad)">20%</span></td><td class="num">&minus;37</td></tr><tr><td>Volentine NW</td><td>417775</td><td class="num">60%</td><td class="num"><span class="pill" style="background:var(--bad)">22%</span></td><td class="num">&minus;38</td></tr><tr><td>Peister</td><td>418124</td><td class="num">67%</td><td class="num"><span class="pill" style="background:var(--bad)">24%</span></td><td class="num">&minus;43</td></tr><tr><td>Swanson Pivot</td><td>412504</td><td class="num">48%</td><td class="num"><span class="pill" style="background:var(--bad)">24%</span></td><td class="num">&minus;24</td></tr><tr><td>Adam's County</td><td>407970</td><td class="num">40%</td><td class="num"><span class="pill" style="background:var(--bad)">24%</span></td><td class="num">&minus;16</td></tr><tr><td>Swanson</td><td>410385</td><td class="num">48%</td><td class="num"><span class="pill" style="background:var(--bad)">24%</span></td><td class="num">&minus;24</td></tr><tr><td>TV Station West Quarter</td><td>413674</td><td class="num">64%</td><td class="num"><span class="pill" style="background:var(--bad)">24%</span></td><td class="num">&minus;40</td></tr><tr><td>Dove Pine</td><td>418052</td><td class="num">74%</td><td class="num"><span class="pill" style="background:var(--bad)">24%</span></td><td class="num">&minus;50</td></tr><tr><td>1</td><td>407869</td><td class="num">35%</td><td class="num"><span class="pill" style="background:var(--bad)">25%</span></td><td class="num">&minus;10</td></tr><tr><td>Ken's North</td><td>413421</td><td class="num">55%</td><td class="num"><span class="pill" style="background:var(--bad)">26%</span></td><td class="num">&minus;29</td></tr><tr><td>Jameson West</td><td>412681</td><td class="num">64%</td><td class="num"><span class="pill" style="background:var(--bad)">26%</span></td><td class="num">&minus;38</td></tr><tr><td>Dean's</td><td>413913</td><td class="num">62%</td><td class="num"><span class="pill" style="background:var(--bad)">26%</span></td><td class="num">&minus;36</td></tr><tr><td>Feedlot</td><td>414347</td><td class="num">48%</td><td class="num"><span class="pill" style="background:var(--bad)">26%</span></td><td class="num">&minus;22</td></tr><tr><td>Peterson South</td><td>414029</td><td class="num">38%</td><td class="num"><span class="pill" style="background:var(--bad)">26%</span></td><td class="num">&minus;12</td></tr>
+</table></div>
+
+<p class="foot">
+  Built from <code>signal_log.csv</code> (May 17 – Aug 9, twice weekly) joined to crop from the CropX
+  nickname convention in the daily archives under <code>cropx-daily-brief/data</code>. Serials matched
+  with the V prefix stripped. &ldquo;Early&rdquo; is the mean of readings May 29 – June 15;
+  &ldquo;August&rdquo; is the median of readings from July 15 on. Antenna type is not in this analysis —
+  see the note at the top.
+</p>
+
+</div></body></html>
