@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>CSP fields — which need reports</title>
+<style>
+ :root{ --bg:#f2f2f7; --card:#fff; --text:#000; --sub:#6b6b70; --divider:rgba(60,60,67,.14);
+   --shadow:0 1px 2px rgba(0,0,0,.05); --accent:#0a7d32; --warn:#b35c00; }
+ @media (prefers-color-scheme:dark){ :root{ --bg:#000; --card:#1c1c1e; --text:#fff; --sub:#9a9aa0;
+   --divider:rgba(84,84,88,.55); --shadow:none; --accent:#34c759; --warn:#ff9f0a; } }
+ *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+ html,body{margin:0;padding:0}
+ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+   background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.45}
+ .wrap{max-width:720px;margin:0 auto;padding:20px 16px 140px}
+ h1{font-size:27px;font-weight:800;letter-spacing:-.5px;margin:6px 0 4px}
+ .dek{color:var(--sub);font-size:15px;margin:0 0 20px}
+ .grower{background:var(--card);border-radius:13px;box-shadow:var(--shadow);margin:0 0 14px;overflow:hidden}
+ .grower header{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:13px 16px 6px}
+ h2{font-size:18px;font-weight:700;margin:0;letter-spacing:-.2px}
+ .tag{font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 7px;text-transform:uppercase;letter-spacing:.4px}
+ .tag.done{background:rgba(10,125,50,.14);color:var(--accent)}
+ .tag.warn{background:rgba(179,92,0,.15);color:var(--warn);text-transform:none;letter-spacing:0;font-weight:600}
+ .acts{display:flex;gap:7px;padding:0 16px 8px}
+ .acts button{border:0;border-radius:7px;background:rgba(127,127,127,.14);color:var(--text);
+   font:inherit;font-size:12.5px;font-weight:600;padding:4px 11px;cursor:pointer}
+ .farmhead{font-size:12.5px;font-weight:700;color:var(--sub);padding:8px 16px 3px;
+   text-transform:uppercase;letter-spacing:.4px;border-top:1px solid var(--divider)}
+ .row{display:flex;align-items:center;gap:11px;padding:9px 16px;cursor:pointer}
+ .row+.row{border-top:1px solid var(--divider)}
+ .row input{width:21px;height:21px;accent-color:var(--accent);flex:0 0 auto;margin:0}
+ .fname{flex:1 1 auto;font-size:16px}
+ .probes{color:var(--sub);font-size:13px;font-variant-numeric:tabular-nums}
+ .none{color:var(--sub);font-size:14.5px;margin:0 16px 10px}
+ .fix{width:calc(100% - 32px);margin:0 16px 14px;border:0;border-radius:9px;
+   background:rgba(127,127,127,.13);padding:10px 12px;font:inherit;font-size:15px;color:var(--text)}
+ .bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);
+   border-top:1px solid var(--divider);padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+   display:flex;gap:11px;align-items:center;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+ .count{flex:1 1 auto;font-size:14.5px;color:var(--sub);font-variant-numeric:tabular-nums}
+ .bar button{border:0;border-radius:10px;background:var(--accent);color:#fff;
+   font:inherit;font-size:16px;font-weight:700;padding:12px 20px;cursor:pointer}
+ .copied{color:var(--accent);font-weight:700}
+ textarea{position:absolute;left:-9999px}
+</style></head><body><div class="wrap">
+<h1>Which fields need CSP reports?</h1>
+<p class="dek">Tick the enrolled fields. Ones already sent to Lisa are marked. Then hit Copy and paste it back to me.</p>
+<section class="grower" data-grower="Carlson Farms">
+  <header><h2>Carlson Farms</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="B and N">
+              <span class="fname">B and N</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Craneview">
+              <span class="fname">Craneview</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Garret 1">
+              <span class="fname">Garret 1</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Garret 2">
+              <span class="fname">Garret 2</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Highway 44">
+              <span class="fname">Highway 44</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Isaac&#x27;s Home">
+              <span class="fname">Isaac&#x27;s Home</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Just West Home">
+              <span class="fname">Just West Home</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Layton&#x27;s">
+              <span class="fname">Layton&#x27;s</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Lieske 1">
+              <span class="fname">Lieske 1</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Lieske 2">
+              <span class="fname">Lieske 2</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="May&#x27;s 80">
+              <span class="fname">May&#x27;s 80</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="South of Doug&#x27;s 80">
+              <span class="fname">South of Doug&#x27;s 80</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Swingspan">
+              <span class="fname">Swingspan</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Zac Home">
+              <span class="fname">Zac Home</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Carlson Farms" value="Zeal">
+              <span class="fname">Zeal</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Fishell Farms">
+  <header><h2>Fishell Farms</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Bill&#x27;s">
+              <span class="fname">Bill&#x27;s</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Boston North">
+              <span class="fname">Boston North</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Dahl Substation">
+              <span class="fname">Dahl Substation</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Dahl West">
+              <span class="fname">Dahl West</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Daryl&#x27;s">
+              <span class="fname">Daryl&#x27;s</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Dunlay Quarter">
+              <span class="fname">Dunlay Quarter</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Emil’s - Good">
+              <span class="fname">Emil’s - Good</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Ernie&#x27;s">
+              <span class="fname">Ernie&#x27;s</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Everett&#x27;s">
+              <span class="fname">Everett&#x27;s</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Gwen&#x27;s 80">
+              <span class="fname">Gwen&#x27;s 80</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Home - Fishell">
+              <span class="fname">Home - Fishell</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Home East">
+              <span class="fname">Home East</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Lost Creek">
+              <span class="fname">Lost Creek</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Murray&#x27;s 80">
+              <span class="fname">Murray&#x27;s 80</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Murray&#x27;s Quarter">
+              <span class="fname">Murray&#x27;s Quarter</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Palmblade">
+              <span class="fname">Palmblade</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Ronnie B&#x27;s">
+              <span class="fname">Ronnie B&#x27;s</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="Swensen&#x27;s">
+              <span class="fname">Swensen&#x27;s</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Fishell Farms" value="The 80/Hedstrom">
+              <span class="fname">The 80/Hedstrom</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Joyce Farms">
+  <header><h2>Joyce Farms</h2></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Joyce Farms" value="Adam&#x27;s County">
+              <span class="fname">Adam&#x27;s County</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Joyce Farms" value="East 28">
+              <span class="fname">East 28</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Joyce Farms" value="Gladys - Drip">
+              <span class="fname">Gladys - Drip</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Joyce Farms" value="Home Pivot">
+              <span class="fname">Home Pivot</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Joyce Farms" value="New Pivot">
+              <span class="fname">New Pivot</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Joyce Farms" value="North 36">
+              <span class="fname">North 36</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Joyce Farms" value="South 36">
+              <span class="fname">South 36</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Joyce Farms" value="Virgil&#x27;s">
+              <span class="fname">Virgil&#x27;s</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Joyce Farms" value="West 28">
+              <span class="fname">West 28</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="4G Farms">
+  <header><h2>4G Farms</h2></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="11">
+              <span class="fname">11</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="20">
+              <span class="fname">20</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="21">
+              <span class="fname">21</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="26 North">
+              <span class="fname">26 North</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="28 East">
+              <span class="fname">28 East</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="31">
+              <span class="fname">31</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="35 South">
+              <span class="fname">35 South</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="38">
+              <span class="fname">38</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="39 South">
+              <span class="fname">39 South</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="40">
+              <span class="fname">40</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Four G Farms, LLC." value="41 West">
+              <span class="fname">41 West</span>
+              <span class="probes">2 probes</span></label></div>
+</section>
+<section class="grower" data-grower="Kyle Jensen">
+  <header><h2>Kyle Jensen</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Kyle Jensen" value="Brown 80">
+              <span class="fname">Brown 80</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Kyle Jensen" value="Highway 3 Tower">
+              <span class="fname">Highway 3 Tower</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Kyle Jensen" value="Highway South">
+              <span class="fname">Highway South</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Kyle Jensen" value="Home">
+              <span class="fname">Home</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Kyle Jensen" value="North Pivot">
+              <span class="fname">North Pivot</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower missing" data-grower="Lans Peterson">
+  <header><h2>Lans Peterson</h2><span class="tag warn">no CropX farm</span></header>
+  <p class="none">Nothing in CropX matches this name — not a farm, not a field.
+  Type the farm it should be and I'll pick it up:</p>
+  <input class="fix" placeholder="the CropX farm name for Lans Peterson">
+</section>
+<section class="grower missing" data-grower="Joel Grams">
+  <header><h2>Joel Grams</h2><span class="tag warn">no CropX farm</span></header>
+  <p class="none">Nothing in CropX matches this name — not a farm, not a field.
+  Type the farm it should be and I'll pick it up:</p>
+  <input class="fix" placeholder="the CropX farm name for Joel Grams">
+</section>
+<section class="grower" data-grower="Brad Johnson">
+  <header><h2>Brad Johnson</h2></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Johnson Farm" value="1">
+              <span class="fname">1</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Johnson Farm" value="2">
+              <span class="fname">2</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Johnson Farm" value="7">
+              <span class="fname">7</span>
+              <span class="probes">2 probes</span></label></div>
+</section>
+<section class="grower" data-grower="Grimes Farms">
+  <header><h2>Grimes Farms</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Matt Grimes" value="Beck Quarter">
+              <span class="fname">Beck Quarter</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Matt Grimes" value="Half Section">
+              <span class="fname">Half Section</span>
+              <span class="probes">4 probes</span></label><label class="row"><input type="checkbox" data-farm="Matt Grimes" value="Marlins N80">
+              <span class="fname">Marlins N80</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Landstrom Farms">
+  <header><h2>Landstrom Farms</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Landstrom" value="Dorinda&#x27;s">
+              <span class="fname">Dorinda&#x27;s</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Landstrom" value="Ruth&#x27;s South">
+              <span class="fname">Ruth&#x27;s South</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Landstrom" value="Ruth’s North">
+              <span class="fname">Ruth’s North</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Petersen Farms">
+  <header><h2>Petersen Farms</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Petersen Farms" value="Adams Pivot">
+              <span class="fname">Adams Pivot</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Petersen Farms" value="Beverly&#x27;s">
+              <span class="fname">Beverly&#x27;s</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Petersen Farms" value="Deet&#x27;s">
+              <span class="fname">Deet&#x27;s</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Darrin Swanson">
+  <header><h2>Darrin Swanson</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Swanson Farm &amp; Consulting" value="Bruce&#x27;s East">
+              <span class="fname">Bruce&#x27;s East</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Swanson Farm &amp; Consulting" value="Dad&#x27;s North">
+              <span class="fname">Dad&#x27;s North</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Swanson Farm &amp; Consulting" value="Home Place - Swanson">
+              <span class="fname">Home Place - Swanson</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Terry Sorensen">
+  <header><h2>Terry Sorensen</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Terry Sorensen " value="Chester&#x27;s Pivot">
+              <span class="fname">Chester&#x27;s Pivot</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Terry Sorensen " value="Home">
+              <span class="fname">Home</span>
+              <span class="probes">2 probes</span></label><label class="row"><input type="checkbox" data-farm="Terry Sorensen " value="Stadler&#x27;s">
+              <span class="fname">Stadler&#x27;s</span>
+              <span class="probes">2 probes</span></label></div>
+</section>
+<section class="grower" data-grower="Heath Anderbery">
+  <header><h2>Heath Anderbery</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Anderbery" value="Harold&#x27;s">
+              <span class="fname">Harold&#x27;s</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Anderbery" value="Rick&#x27;s">
+              <span class="fname">Rick&#x27;s</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Dirk Ehrenberg">
+  <header><h2>Dirk Ehrenberg</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Ehrenberg" value="Home East - Ehrenberg">
+              <span class="fname">Home East - Ehrenberg</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Ehrenberg" value="Home West - Ehrenberg">
+              <span class="fname">Home West - Ehrenberg</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Ehrenberg" value="Lockwood">
+              <span class="fname">Lockwood</span>
+              <span class="probes">2 probes</span></label></div>
+</section>
+<section class="grower" data-grower="Strolberg Farms">
+  <header><h2>Strolberg Farms</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Strolberg Farms" value="Ken&#x27;s North">
+              <span class="fname">Ken&#x27;s North</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Strolberg Farms" value="Thur&#x27;s">
+              <span class="fname">Thur&#x27;s</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Cody Waller">
+  <header><h2>Cody Waller</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Cody Waller" value="Nelson Quarter">
+              <span class="fname">Nelson Quarter</span>
+              <span class="probes">2 probes</span></label></div>
+</section>
+<section class="grower" data-grower="Gray Pearson">
+  <header><h2>Gray Pearson</h2><span class="tag done">packet made</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Pearson" value="Dealey&#x27;s">
+              <span class="fname">Dealey&#x27;s</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Hock Farms">
+  <header><h2>Hock Farms</h2><span class="tag warn">two possible farms — tick under the right one</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><div class="farmhead">Hock Farms  <em>1 fields</em></div><label class="row"><input type="checkbox" data-farm="Hock Farms " value="Salisbury Smith">
+              <span class="fname">Salisbury Smith</span>
+              <span class="probes">2 probes</span></label></div><div class="farm"><div class="farmhead">Tim Hock <em>1 fields</em></div><label class="row"><input type="checkbox" data-farm="Tim Hock" value="Home">
+              <span class="fname">Home</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Joel Bergman">
+  <header><h2>Joel Bergman</h2><span class="tag warn">two possible farms — tick under the right one</span></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><div class="farmhead">Joel Bergman <em>1 fields</em></div><label class="row"><input type="checkbox" data-farm="Joel Bergman" value="Half Section">
+              <span class="fname">Half Section</span>
+              <span class="probes">4 probes</span></label></div><div class="farm"><div class="farmhead">Bergman Bros <em>4 fields</em></div><label class="row"><input type="checkbox" data-farm="Bergman Bros" value="Carlson Pivot">
+              <span class="fname">Carlson Pivot</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Bergman Bros" value="Loomis 1/4">
+              <span class="fname">Loomis 1/4</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Bergman Bros" value="Marshall SE">
+              <span class="fname">Marshall SE</span>
+              <span class="probes">1 probe</span></label><label class="row"><input type="checkbox" data-farm="Bergman Bros" value="Samuelson">
+              <span class="fname">Samuelson</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+<section class="grower" data-grower="Urwiller">
+  <header><h2>Urwiller</h2></header>
+  <div class="acts"><button class="all">All</button><button class="none2">None</button></div>
+  <div class="farm"><label class="row"><input type="checkbox" data-farm="Acre Insights" value="Urwiller Drip">
+              <span class="fname">Urwiller Drip</span>
+              <span class="probes">1 probe</span></label></div>
+</section>
+</div>
+<div class="bar"><span class="count" id="count">nothing ticked yet</span>
+  <button id="copy">Copy for Claude</button></div>
+<textarea id="sink"></textarea>
+<script>
+const KEY="csp-picker-v1";
+const boxes=[...document.querySelectorAll('input[type=checkbox]')];
+const fixes=[...document.querySelectorAll('.fix')];
+
+function save(){
+  localStorage.setItem(KEY, JSON.stringify({
+    on: boxes.filter(b=>b.checked).map(b=>b.dataset.farm+"||"+b.value),
+    fix: fixes.map(f=>f.value)
+  }));
+}
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY)||"{}");
+    const on=new Set(s.on||[]);
+    boxes.forEach(b=>b.checked=on.has(b.dataset.farm+"||"+b.value));
+    (s.fix||[]).forEach((v,i)=>{ if(fixes[i]) fixes[i].value=v; });
+  }catch(e){}
+}
+function count(){
+  const n=boxes.filter(b=>b.checked).length;
+  const g=new Set(boxes.filter(b=>b.checked).map(b=>b.closest('.grower').dataset.grower)).size;
+  document.getElementById('count').textContent =
+    n? `${n} field${n!=1?'s':''} across ${g} grower${g!=1?'s':''}` : "nothing ticked yet";
+}
+function text(){
+  const out=[];
+  document.querySelectorAll('.grower').forEach(sec=>{
+    const g=sec.dataset.grower;
+    const on=[...sec.querySelectorAll('input:checked')];
+    const fix=sec.querySelector('.fix');
+    if(fix && fix.value.trim()) out.push(`${g} -> farm is "${fix.value.trim()}"`);
+    if(!on.length) return;
+    const byFarm={};
+    on.forEach(b=>{ (byFarm[b.dataset.farm] ||= []).push(b.value); });
+    for(const f in byFarm) out.push(`${g} [${f}]: ${byFarm[f].join(", ")}`);
+  });
+  return out.length? out.join("\n") : "(nothing ticked)";
+}
+boxes.forEach(b=>b.addEventListener('change',()=>{save();count();}));
+fixes.forEach(f=>f.addEventListener('input',save));
+document.querySelectorAll('.all').forEach(b=>b.onclick=()=>{
+  b.closest('.grower').querySelectorAll('input[type=checkbox]').forEach(x=>x.checked=true);save();count();});
+document.querySelectorAll('.none2').forEach(b=>b.onclick=()=>{
+  b.closest('.grower').querySelectorAll('input[type=checkbox]').forEach(x=>x.checked=false);save();count();});
+document.getElementById('copy').onclick=async ()=>{
+  const t=text(); const btn=document.getElementById('copy');
+  try{ await navigator.clipboard.writeText(t); }
+  catch(e){ const s=document.getElementById('sink'); s.value=t; s.select(); document.execCommand('copy'); }
+  btn.textContent="Copied"; btn.classList.add('copied');
+  setTimeout(()=>{btn.textContent="Copy for Claude";btn.classList.remove('copied');},1600);
+};
+load();count();
+</script></body></html>
