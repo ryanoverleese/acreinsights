@@ -79,6 +79,35 @@
   }
   .flagbtn:active{ transform:scale(.82); }
   .flagbtn svg{ width:20px; height:20px; }
+  /* ---- notes / journal entries ---- */
+  .row.note{ align-items:flex-start; padding:13px 14px 12px; }
+  .row.note + .row::before{ left:14px; }
+  .row.note .body .title{ font-size:17px; font-weight:700; letter-spacing:-.2px; line-height:1.25; margin-bottom:3px; }
+  .row.note .notebody{
+    font-size:15px; line-height:1.45; color:var(--text); white-space:pre-wrap;
+    word-wrap:break-word; font-variant-numeric:tabular-nums;
+  }
+  .row.note .notebody p{ margin:0 0 9px; white-space:pre-wrap; }
+  .row.note .notebody p:last-child{ margin-bottom:0; }
+  .row.note .notebody .tw{ overflow-x:auto; -webkit-overflow-scrolling:touch; margin:4px 0 10px; }
+  .row.note .notebody table{
+    border-collapse:collapse; font-size:14px; min-width:100%;
+    font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .row.note .notebody th, .row.note .notebody td{
+    text-align:right; padding:4px 7px; border-bottom:1px solid var(--divider);
+  }
+  .row.note .notebody th:first-child, .row.note .notebody td:first-child{ text-align:left; font-weight:600; }
+  .row.note .notebody thead th{ font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--sub); font-weight:700; }
+  .row.note .notebody tbody tr:last-child td{ border-bottom:0; }
+  .row.note .clamp{ max-height:132px; overflow:hidden; -webkit-mask-image:linear-gradient(#000 70%,transparent); mask-image:linear-gradient(#000 70%,transparent); }
+  .row.note .more{
+    background:transparent; border:0; color:#007aff; font-size:14px; font-weight:600;
+    padding:6px 0 0; cursor:pointer;
+  }
+  .row.note .notemeta{ font-size:12px; color:var(--sub); margin-top:7px; }
+  .notedot{ flex:0 0 auto; width:23px; display:flex; justify-content:center; padding-top:5px; }
+  .notedot span{ width:7px; height:7px; border-radius:50%; background:var(--sub); opacity:.45; }
   .empty{ text-align:center; color:var(--sub); padding:60px 20px; font-size:16px; }
   .banner{ background:#ff3b30; color:#fff; padding:10px 14px; border-radius:10px; font-size:14px; margin-bottom:14px; display:none; }
   .completed-toggle{ background:transparent; border:0; color:#007aff; font-size:15px; font-weight:600; cursor:pointer; padding:4px; margin:2px 4px 12px; }
@@ -89,7 +118,10 @@
   }
   .addbar .inner{ max-width:640px; margin:0 auto; display:flex; gap:10px; align-items:center; }
   .addbtn{ flex:0 0 auto; width:30px; height:30px; border-radius:50%; background:#007aff; border:0; color:#fff; font-size:22px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-  .addbar input{ flex:1 1 auto; border:0; background:var(--field); border-radius:10px; padding:10px 12px; font-size:17px; color:var(--text); outline:none; }
+  .addbar textarea{ flex:1 1 auto; border:0; background:var(--field); border-radius:10px; padding:10px 12px;
+    font-size:17px; color:var(--text); outline:none; resize:none; font-family:inherit; line-height:1.35;
+    max-height:38vh; overflow-y:auto; }
+  .addhint{ max-width:640px; margin:5px auto 0; font-size:11.5px; color:var(--sub); padding-left:40px; opacity:.75; }
   .addbar select{ flex:0 0 auto; border:0; background:var(--field); border-radius:10px; padding:10px 8px; font-size:15px; color:var(--text); outline:none; max-width:120px; }
 </style>
 </head>
@@ -108,8 +140,9 @@
 <div class="addbar">
   <div class="inner">
     <button class="addbtn" id="addbtn" title="Add">+</button>
-    <input id="addinput" type="text" placeholder="New reminder" autocomplete="off">
+    <textarea id="addinput" rows="1" placeholder="New reminder" autocomplete="off"></textarea>
   </div>
+  <div class="addhint">Enter to save &middot; Shift+Enter for a new line &mdash; anything with a line break saves as a note</div>
 </div>
 
 <script>
@@ -280,6 +313,11 @@ function render(){
   content.querySelectorAll("[data-toggle]").forEach(el=>el.onclick=()=>toggleDone(el.dataset.toggle, el.dataset.done!=="true"?true:false));
   content.querySelectorAll("[data-flag]").forEach(el=>el.onclick=()=>toggleHi(el.dataset.flag));
   content.querySelectorAll("[data-del]").forEach(el=>el.onclick=()=>del(el.dataset.del));
+  content.querySelectorAll("[data-more]").forEach(el=>el.onclick=()=>{
+    const nb = content.querySelector(`[data-note="${el.dataset.more}"]`);
+    const open = nb.classList.toggle("clamp");
+    el.textContent = open ? "More" : "Less";
+  });
 
   const ct = document.getElementById("ctoggle");
   if(done.length){ ct.style.display="block"; ct.textContent = showCompleted ? `Hide Completed` : `Show Completed (${items.filter(x=>x.done).length})`; }
@@ -292,6 +330,7 @@ function section(title,color,rows,isCompleted){
       <h2>${title}</h2><span class="n">${rows.length}</span></div>`;
   const body = rows.map(it=>{
     const hi = isHi(it);
+    if(isNote(it)) return noteRow(it);
     return `<div class="row ${it.done?'done':''}">
       <div class="check ${it.done?'done':''}" style="${it.done?('background:'+color+';'):''}" data-toggle="${it.id}" data-done="${it.done}">${svgCheck()}</div>
       <div class="body"><div class="txt">${escapeHtml(displayText(it))}</div></div>
@@ -304,6 +343,58 @@ function section(title,color,rows,isCompleted){
 
 function escapeHtml(s){ return (s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+/* ---------- notes / journal ----------
+   Anything with a line break is treated as a note, not a task: title from the
+   first line, body keeps its line breaks, and space-aligned tables become real
+   tables so the columns line up in a proportional font. */
+function isNote(it){ return (it.body||"").indexOf("\n") !== -1; }
+
+function looksTabular(line){
+  if(!line.trim()) return false;
+  return line.trim().split(/\s{2,}/).length >= 3;
+}
+
+function noteHtml(text){
+  const lines = text.split("\n");
+  let out = "", para = [], tbl = [];
+  const flushPara = ()=>{ if(para.length){ out += `<p>${escapeHtml(para.join("\n"))}</p>`; para=[]; } };
+  const flushTbl = ()=>{
+    if(!tbl.length) return;
+    const rows = tbl.map(l=>l.trim().split(/\s{2,}/));
+    const head = rows.shift();
+    out += `<div class="tw"><table><thead><tr>${head.map(c=>`<th>${escapeHtml(c)}</th>`).join("")}</tr></thead><tbody>`
+        +  rows.map(r=>`<tr>${r.map(c=>`<td>${escapeHtml(c)}</td>`).join("")}</tr>`).join("")
+        +  `</tbody></table></div>`;
+    tbl=[];
+  };
+  for(const ln of lines){
+    if(looksTabular(ln)){ flushPara(); tbl.push(ln); }
+    else if(!ln.trim()){ flushTbl(); flushPara(); }
+    else { flushTbl(); para.push(ln); }
+  }
+  flushTbl(); flushPara();
+  return out;
+}
+
+function noteRow(it){
+  const raw = displayText(it);
+  const nl = raw.indexOf("\n");
+  const title = raw.slice(0, nl).trim();
+  const rest  = raw.slice(nl+1).replace(/^\n+/,"");
+  const when  = new Date(it.created_at).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+  const long  = rest.length > 260;
+  return `<div class="row note ${it.done?'done':''}">
+    <div class="notedot"><span></span></div>
+    <div class="body">
+      <div class="title">${escapeHtml(title)}</div>
+      <div class="notebody ${long?'clamp':''}" data-note="${it.id}">${noteHtml(rest)}</div>
+      ${long?`<button class="more" data-more="${it.id}">More</button>`:""}
+      <div class="notemeta">${when}</div>
+    </div>
+    <button class="del" data-del="${it.id}" title="Delete">✕</button>
+  </div>`;
+}
+
 function updateAddPlaceholder(){
   const tgt = (filterCat!=="__all") ? filterCat : "Inbox";
   document.getElementById("addinput").placeholder = "New reminder in " + tgt;
@@ -312,7 +403,10 @@ function updateAddPlaceholder(){
 document.getElementById("search").addEventListener("input", e=>{ query=e.target.value; render(); });
 document.getElementById("ctoggle").addEventListener("click", ()=>{ showCompleted=!showCompleted; render(); });
 document.getElementById("addbtn").addEventListener("click", submitAdd);
-document.getElementById("addinput").addEventListener("keydown", e=>{ if(e.key==="Enter") submitAdd(); });
+const addEl=document.getElementById("addinput");
+function growAdd(){ addEl.style.height="auto"; addEl.style.height=Math.min(addEl.scrollHeight, window.innerHeight*0.38)+"px"; }
+addEl.addEventListener("input", growAdd);
+addEl.addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); submitAdd(); } });
 function submitAdd(){
   const inp=document.getElementById("addinput");
   const cat = (filterCat!=="__all") ? filterCat : UNCAT;
