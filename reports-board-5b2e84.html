@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Reports board</title>
+<style>
+ :root{ --bg:#f2f2f7; --card:#fff; --text:#000; --sub:#6b6b70; --divider:rgba(60,60,67,.13);
+   --shadow:0 1px 2px rgba(0,0,0,.05); --accent:#0a7d32; --todo:#b35c00; }
+ @media (prefers-color-scheme:dark){ :root{ --bg:#000; --card:#1c1c1e; --text:#fff; --sub:#9a9aa0;
+   --divider:rgba(84,84,88,.5); --shadow:none; --accent:#34c759; --todo:#ff9f0a; } }
+ *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+ html,body{margin:0;padding:0}
+ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.4}
+ .wrap{max-width:760px;margin:0 auto;padding:18px 14px 130px}
+ h1{font-size:26px;font-weight:800;letter-spacing:-.5px;margin:6px 0 3px}
+ .dek{color:var(--sub);font-size:14.5px;margin:0 0 18px}
+ h2{font-size:17px;font-weight:800;margin:26px 0 4px;letter-spacing:-.2px}
+ .sub2{color:var(--sub);font-size:13.5px;margin:0 0 9px}
+ .grp{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px}
+ .row{display:flex;align-items:center;gap:11px;padding:10px 14px;cursor:pointer}
+ .row+.row{border-top:1px solid var(--divider)}
+ .row.pending{background:rgba(179,92,0,.05)}
+ @media (prefers-color-scheme:dark){ .row.pending{background:rgba(255,159,10,.07)} }
+ .row input{width:21px;height:21px;accent-color:var(--accent);flex:0 0 auto;margin:0}
+ .who{flex:1 1 auto;min-width:0}
+ .who b{display:block;font-size:15.5px;font-weight:600}
+ .who small{display:block;color:var(--sub);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .cnt{color:var(--sub);font-size:12.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+ .tag{font-size:11px;font-weight:700;border-radius:5px;padding:2px 6px;white-space:nowrap}
+ .tag.done{background:rgba(10,125,50,.13);color:var(--accent)}
+ .tag.todo{background:rgba(179,92,0,.16);color:var(--todo)}
+ .warn{color:var(--todo);font-weight:700}
+ details summary{cursor:pointer;color:var(--sub);font-size:14px;padding:6px 2px;list-style:none}
+ details summary::-webkit-details-marker{display:none}
+ .bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--divider);
+   padding:11px 14px calc(11px + env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center}
+ .count{flex:1 1 auto;font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+ .bar button{border:0;border-radius:10px;background:var(--accent);color:#fff;font:inherit;
+   font-size:15.5px;font-weight:700;padding:11px 18px;cursor:pointer}
+ textarea{position:absolute;left:-9999px}
+</style></head><body><div class="wrap">
+<h1>Reports board</h1>
+<p class="dek">Tick what still needs doing, hit Copy, paste it back to me. Amber rows have nothing built yet.</p>
+
+<h2>CSP soil-moisture packets</h2>
+<p class="sub2">Grouped by CropX <b>owner</b>, not farm name — so a grower with two farm labels is one row.</p>
+<div class="grp"><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Bergman Brothers" data-email="bergman.bros" value="Bergman Brothers">
+      <span class="who"><b>Bergman Brothers</b><small>Bergman Bros</small></span>
+      <span class="cnt">4 fld · 4 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Blake Johnson" data-email="blake.johnson" value="Blake Johnson">
+      <span class="who"><b>Blake Johnson</b><small>37 Ag</small></span>
+      <span class="cnt">43 fld · 45 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Blake Johnson-Pioneer" data-email="blake.pioneer" value="Blake Johnson-Pioneer">
+      <span class="who"><b>Blake Johnson-Pioneer</b><small>Grandpa&#x27;s</small></span>
+      <span class="cnt">1 fld · 1 probe</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="bmolzahn11@gmail.com" data-email="bmolzahn11@gmail.com" value="bmolzahn11@gmail.com">
+      <span class="who"><b>bmolzahn11@gmail.com</b><small>Molzahn Farms · Unassigned Sensors <span class="warn">2 farm names</span></small></span>
+      <span class="cnt">4 fld · 5 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Brian Johnson" data-email="brianjohnson@atcjet.net" value="Brian Johnson">
+      <span class="who"><b>Brian Johnson</b><small>Bunker Hill Farm</small></span>
+      <span class="cnt">21 fld · 21 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Carson Blum" data-email="cblum826@gmail.com" value="Carson Blum">
+      <span class="who"><b>Carson Blum</b><small>Blum</small></span>
+      <span class="cnt">5 fld · 10 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Dahlgren" data-email="jdahlgren93@hotmail.com" value="Dahlgren">
+      <span class="who"><b>Dahlgren</b><small>DD Farms · Dahlgren Cattle Co. · Dahlgren Ventures · Garfield Farms · Gary Dahlgren <span class="warn">2 farm names</span></small></span>
+      <span class="cnt">7 fld · 7 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Dave Nelson" data-email="dn311313@msn.com" value="Dave Nelson">
+      <span class="who"><b>Dave Nelson</b><small>Dave Nelson</small></span>
+      <span class="cnt">2 fld · 2 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="emjhusker4life@gmail.com" data-email="emjhusker4life@gmail.com" value="emjhusker4life@gmail.com">
+      <span class="who"><b>emjhusker4life@gmail.com</b><small>Johannsen</small></span>
+      <span class="cnt">3 fld · 6 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Greg Anderson" data-email="gsa1032@hotmail.com" value="Greg Anderson">
+      <span class="who"><b>Greg Anderson</b><small>Greg Anderson</small></span>
+      <span class="cnt">1 fld · 1 probe</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Jared Brader" data-email="jared.brader@plantpioneer.com" value="Jared Brader">
+      <span class="who"><b>Jared Brader</b><small>Jared Brader</small></span>
+      <span class="cnt">6 fld · 6 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Joel Kuehn" data-email="joel.kuehn@plantpioneer.com" value="Joel Kuehn">
+      <span class="who"><b>Joel Kuehn</b><small>Joel Kuehn</small></span>
+      <span class="cnt">2 fld · 2 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="jon.isaacson" data-email="jon.isaacson" value="jon.isaacson">
+      <span class="who"><b>jon.isaacson</b><small>Isaacson Farms</small></span>
+      <span class="cnt">5 fld · 5 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Josh Brader" data-email="jbrader856@gmail.com" value="Josh Brader">
+      <span class="who"><b>Josh Brader</b><small>Josh Brader</small></span>
+      <span class="cnt">5 fld · 6 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="jsindelar6@gmail.com" data-email="jsindelar6@gmail.com" value="jsindelar6@gmail.com">
+      <span class="who"><b>jsindelar6@gmail.com</b><small>Eds · Gladmans · Inezs · Lee’s <span class="warn">2 farm names</span></small></span>
+      <span class="cnt">5 fld · 6 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Logan Reed" data-email="loganreed117@gmail.com" value="Logan Reed">
+      <span class="who"><b>Logan Reed</b><small>LogLand AG</small></span>
+      <span class="cnt">13 fld · 18 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Mark Lundeen" data-email="marklundeeninc@gmail.com" value="Mark Lundeen">
+      <span class="who"><b>Mark Lundeen</b><small>Brad and Deb Lundeen Trust · Eugene Lundeen Trust · Gene Lundeen, Inc. · Larry Bill · Mark and Rebekah Lundeen · Thomsen Family Corporation <span class="warn">2 farm names</span></small></span>
+      <span class="cnt">14 fld · 16 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Matt Holt" data-email="mattholt72@gmail.com" value="Matt Holt">
+      <span class="who"><b>Matt Holt</b><small>Matt Holt</small></span>
+      <span class="cnt">9 fld · 9 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Mike/Craig Hadley" data-email="hadley" value="Mike/Craig Hadley">
+      <span class="who"><b>Mike/Craig Hadley</b><small>Phelps County</small></span>
+      <span class="cnt">10 fld · 10 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Roeder" data-email="roederfarms@gmail.com" value="Roeder">
+      <span class="who"><b>Roeder</b><small>Roeder</small></span>
+      <span class="cnt">18 fld · 19 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Roger Overleese" data-email="roger.overleese@plantpioneer.com" value="Roger Overleese">
+      <span class="who"><b>Roger Overleese</b><small>RO</small></span>
+      <span class="cnt">3 fld · 3 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Scott Bunger" data-email="scott.bunger" value="Scott Bunger">
+      <span class="who"><b>Scott Bunger</b><small>Scott Bunger</small></span>
+      <span class="cnt">1 fld · 1 probe</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Scott Ford" data-email="s.ford@plantpioneer.com" value="Scott Ford">
+      <span class="who"><b>Scott Ford</b><small>Cross Diamond</small></span>
+      <span class="cnt">1 fld · 1 probe</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Shane &amp; Chase Wohlgemuth" data-email="scwohlgemuth.farms@gmail.com" value="Shane &amp; Chase Wohlgemuth">
+      <span class="who"><b>Shane &amp; Chase Wohlgemuth</b><small>Wohlgemuth Farms</small></span>
+      <span class="cnt">1 fld · 1 probe</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Shane Westcott" data-email="3w.farms" value="Shane Westcott">
+      <span class="who"><b>Shane Westcott</b><small>3W Farms</small></span>
+      <span class="cnt">4 fld · 4 probes</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Tim Hock" data-email="tandl_farms@hotmail.com" value="Tim Hock">
+      <span class="who"><b>Tim Hock</b><small>T and L Farms · Tim Hock <span class="warn">2 farm names</span></small></span>
+      <span class="cnt">1 fld · 1 probe</span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="csp" data-who="Tye Marquardt" data-email="tye.marquardt@gmail.com" value="Tye Marquardt">
+      <span class="who"><b>Tye Marquardt</b><small>NebraskaLand</small></span>
+      <span class="cnt">1 fld · 1 probe</span>
+      <span class="tag todo">not built</span></label></div>
+<details><summary>▸ 23 already built — tick only to redo</summary>
+<div class="grp"><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="August Fishell" data-email="august.fishell@gmail.com" value="August Fishell">
+      <span class="who"><b>August Fishell</b><small>Fishell Farms</small></span>
+      <span class="cnt">19 fld · 34 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Bruce Petersen" data-email="bltjpetersen@hotmail.com" value="Bruce Petersen">
+      <span class="who"><b>Bruce Petersen</b><small>Petersen Farms</small></span>
+      <span class="cnt">3 fld · 3 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Dan Kristensen" data-email="dkristensen11@gmail.com" value="Dan Kristensen">
+      <span class="who"><b>Dan Kristensen</b><small>DK Farms</small></span>
+      <span class="cnt">13 fld · 13 probes</span>
+      <span class="tag done">built Aug 4</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Darrin Swanson" data-email="darrin.swanson@hotmail.com" value="Darrin Swanson">
+      <span class="who"><b>Darrin Swanson</b><small>Swanson Farm &amp; Consulting</small></span>
+      <span class="cnt">3 fld · 3 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Dave Olsen" data-email="olsen.cattle" value="Dave Olsen">
+      <span class="who"><b>Dave Olsen</b><small>Olsen Cattle Co</small></span>
+      <span class="cnt">11 fld · 11 probes</span>
+      <span class="tag done">built Aug 4</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Dirk Ehrenberg" data-email="dirkbecky@gmail.com" value="Dirk Ehrenberg">
+      <span class="who"><b>Dirk Ehrenberg</b><small>Ehrenberg</small></span>
+      <span class="cnt">3 fld · 4 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Drake Johnson" data-email="drakejohnson7893@gmail.com" value="Drake Johnson">
+      <span class="who"><b>Drake Johnson</b><small>Johnson Farm</small></span>
+      <span class="cnt">3 fld · 6 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Gray Pearson" data-email="graypearson63@gmail.com" value="Gray Pearson">
+      <span class="who"><b>Gray Pearson</b><small>Pearson</small></span>
+      <span class="cnt">1 fld · 1 probe</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Heath Anderbery" data-email="heathanderbery@gmail.com" value="Heath Anderbery">
+      <span class="who"><b>Heath Anderbery</b><small>Anderbery</small></span>
+      <span class="cnt">2 fld · 2 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="hockfarms1@gmail.com" data-email="hockfarms1@gmail.com" value="hockfarms1@gmail.com">
+      <span class="who"><b>hockfarms1@gmail.com</b><small>Hock Farms </small></span>
+      <span class="cnt">1 fld · 2 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Jason Landstrom" data-email="jasonlandstrom87@gmail.com" value="Jason Landstrom">
+      <span class="who"><b>Jason Landstrom</b><small>Landstrom</small></span>
+      <span class="cnt">3 fld · 3 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="jbergman@atcjet.net" data-email="jbergman@atcjet.net" value="jbergman@atcjet.net">
+      <span class="who"><b>jbergman@atcjet.net</b><small>Joel Bergman</small></span>
+      <span class="cnt">1 fld · 4 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="jlginc97@hotmail.com" data-email="jlginc97@hotmail.com" value="jlginc97@hotmail.com">
+      <span class="who"><b>jlginc97@hotmail.com</b><small>J.L.G. Inc. </small></span>
+      <span class="cnt">4 fld · 8 probes</span>
+      <span class="tag done">built Aug 13</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Kyle Jensen" data-email="jensenandsoninc@gmail.com" value="Kyle Jensen">
+      <span class="who"><b>Kyle Jensen</b><small>Kyle Jensen</small></span>
+      <span class="cnt">5 fld · 6 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Lans Peterson" data-email="lppeterson1981@gmail.com" value="Lans Peterson">
+      <span class="who"><b>Lans Peterson</b><small>FARE, Inc.</small></span>
+      <span class="cnt">2 fld · 2 probes</span>
+      <span class="tag done">built Aug 13</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="lopers1961@gmail.com" data-email="lopers1961@gmail.com" value="lopers1961@gmail.com">
+      <span class="who"><b>lopers1961@gmail.com</b><small>Terry Sorensen </small></span>
+      <span class="cnt">3 fld · 6 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Matt Strolberg" data-email="m.strolberg@gmail.com" value="Matt Strolberg">
+      <span class="who"><b>Matt Strolberg</b><small>Strolberg Farms</small></span>
+      <span class="cnt">2 fld · 2 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="matthewgrms313@gmail.com" data-email="matthewgrms313@gmail.com" value="matthewgrms313@gmail.com">
+      <span class="who"><b>matthewgrms313@gmail.com</b><small>Matt Grimes</small></span>
+      <span class="cnt">3 fld · 7 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Ryan Overleese" data-email="acre.insights" value="Ryan Overleese">
+      <span class="who"><b>Ryan Overleese</b><small>Acre Insights · Ryan&#x27;s Home · Unassigned Sensors <span class="warn">2 farm names</span></small></span>
+      <span class="cnt">3 fld · 4 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Tad Joyce" data-email="farmertj@hotmail.com" value="Tad Joyce">
+      <span class="who"><b>Tad Joyce</b><small>Joyce Farms · Red Thunder Farms <span class="warn">2 farm names</span></small></span>
+      <span class="cnt">19 fld · 25 probes</span>
+      <span class="tag done">built Aug 13</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Todd Garrelts" data-email="todd.garrelts@gmail.com" value="Todd Garrelts">
+      <span class="who"><b>Todd Garrelts</b><small>Four G Farms, LLC.</small></span>
+      <span class="cnt">11 fld · 17 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="waller_cody@yahoo.com" data-email="waller_cody@yahoo.com" value="waller_cody@yahoo.com">
+      <span class="who"><b>waller_cody@yahoo.com</b><small>Cody Waller</small></span>
+      <span class="cnt">1 fld · 2 probes</span>
+      <span class="tag done">built Aug 12</span></label><label class="row">
+      <input type="checkbox" data-kind="csp" data-who="Zac Carlson" data-email="carlson_zac@yahoo.com" value="Zac Carlson">
+      <span class="who"><b>Zac Carlson</b><small>Carlson Farms</small></span>
+      <span class="cnt">15 fld · 20 probes</span>
+      <span class="tag done">built Aug 12</span></label></div></details>
+
+<h2>Weather station reports</h2>
+<p class="sub2">13 live stations. Built from the station CSV export.</p>
+<div class="grp"><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="37 Ag" value="(unnamed 15120)">
+      <span class="who"><b>(unnamed 15120)</b><small>37 Ag · 15120</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="37 Ag" value="(unnamed 121766)">
+      <span class="who"><b>(unnamed 121766)</b><small>37 Ag · 121766</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="Ryan / RO" value="(unnamed 95684)">
+      <span class="who"><b>(unnamed 95684)</b><small>Ryan / RO · 95684</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="jbergman@atcjet.net" value="Half Section - Bergman">
+      <span class="who"><b>Half Section - Bergman</b><small>jbergman@atcjet.net · Half Section · G219334</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="August Fishell" value="Dunlay 1/4 Weather">
+      <span class="who"><b>Dunlay 1/4 Weather</b><small>August Fishell · Dunlay Quarter · G218998</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="August Fishell" value="Swenson Weather">
+      <span class="who"><b>Swenson Weather</b><small>August Fishell · Swensen&#x27;s · G219820</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="Roeder" value="Wilbur&#x27;s South Weather">
+      <span class="who"><b>Wilbur&#x27;s South Weather</b><small>Roeder · Wilbur&#x27;s South · G218981</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="jlginc97@hotmail.com" value="Elger’s">
+      <span class="who"><b>Elger’s</b><small>jlginc97@hotmail.com · Elgers · G218995</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="matthewgrms313@gmail.com" value="Beck 1/4 Weather">
+      <span class="who"><b>Beck 1/4 Weather</b><small>matthewgrms313@gmail.com · Beck Quarter · G218996</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="lopers1961@gmail.com" value="Chester&#x27;s">
+      <span class="who"><b>Chester&#x27;s</b><small>lopers1961@gmail.com · Chester&#x27;s Pivot · G218717</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="jlginc97@hotmail.com" value="Tina’s">
+      <span class="who"><b>Tina’s</b><small>jlginc97@hotmail.com · Tina’s · G218723</small></span>
+      <span class="tag todo">not built</span></label><label class="row pending">
+      <input type="checkbox" data-kind="ws" data-who="hockfarms1@gmail.com" value="Salisbury Smith Weather">
+      <span class="who"><b>Salisbury Smith Weather</b><small>hockfarms1@gmail.com · Salisbury Smith · G218976</small></span>
+      <span class="tag todo">not built</span></label></div>
+<details><summary>▸ 1 already built</summary><div class="grp"><label class="row">
+      <input type="checkbox" data-kind="ws" data-who="August Fishell" value="Dahl Substation Weather">
+      <span class="who"><b>Dahl Substation Weather</b><small>August Fishell · Dahl Substation · G218990</small></span>
+      <span class="tag done">built Aug 4</span></label></div></details>
+</div>
+<div class="bar"><span class="count" id="count">nothing ticked</span>
+<button id="copy">Copy for Claude</button></div><textarea id="sink"></textarea>
+<script>
+const KEY="reports-board-v1";
+const B=[...document.querySelectorAll('input[type=checkbox]')];
+const save=()=>localStorage.setItem(KEY,JSON.stringify(B.filter(b=>b.checked).map(b=>b.dataset.kind+"|"+b.value)));
+const load=()=>{try{const on=new Set(JSON.parse(localStorage.getItem(KEY)||"[]"));
+  B.forEach(b=>b.checked=on.has(b.dataset.kind+"|"+b.value));}catch(e){}};
+function count(){const n=B.filter(b=>b.checked).length;
+  document.getElementById('count').textContent=n?`${n} ticked`:"nothing ticked";}
+function text(){
+  const csp=B.filter(b=>b.checked&&b.dataset.kind==='csp').map(b=>`  ${b.value}  <${b.dataset.email}>`);
+  const ws=B.filter(b=>b.checked&&b.dataset.kind==='ws').map(b=>`  ${b.value}  (${b.dataset.who})`);
+  let o=[];
+  if(csp.length) o.push("CSP packets needed:",...csp);
+  if(ws.length) o.push("Weather station reports needed:",...ws);
+  return o.length?o.join("\n"):"(nothing ticked)";
+}
+B.forEach(b=>b.addEventListener('change',()=>{save();count();}));
+document.getElementById('copy').onclick=async()=>{const t=text(),btn=document.getElementById('copy');
+  try{await navigator.clipboard.writeText(t);}catch(e){const s=document.getElementById('sink');s.value=t;s.select();document.execCommand('copy');}
+  btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy for Claude",1500);};
+load();count();
+</script></body></html>
