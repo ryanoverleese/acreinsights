@@ -40,6 +40,11 @@
   .tile strong{ font-size:19px; font-weight:800; letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
   .tile em{ font-style:normal; color:var(--sub); font-size:15px; font-weight:600; margin-left:4px; }
 
+  /* The one finding worth stating outright. Colour on the text, no box. */
+  .pattern{ font-size:17px; font-weight:700; letter-spacing:-.2px;
+    color:#b35c00; margin:-14px 2px 22px; }
+  @media (prefers-color-scheme: dark){ .pattern{ color:#ff9f0a; } }
+
   .section{ margin-bottom:30px; }
 
   /* Focus over time. Every school day is one bar; taller and greener is better. */
@@ -81,9 +86,8 @@
   <h1>Daily Log</h1>
   <p class="demo">Sample data &mdash; not a real student.</p>
   <p class="sub" id="sub">Loading…</p>
+  <p class="pattern" id="pattern" hidden></p>
   <div id="content" hidden>
-    <div class="tiles" id="tiles"></div>
-
     <div class="section">
       <h2>Focus, entry by entry</h2>
       <div class="strip">
@@ -399,13 +403,13 @@ function render(rows){
     + " across " + days + (days === 1 ? " day." : " days.");
   $("content").hidden = false;
 
-  // --- The summary in words, not invented numbers.
+  // No summary tiles. The chart below is already the summary — a row of boxes
+  // restating "lately it is green" above a picture of it being green is just
+  // furniture, and it pushed the actual day list off the screen.
   //
-  // This used to print "3.5 of 4", "Change +0.4" and "Hard reads 0 of last 20".
-  // Averaging a four-step word scale produces a number nobody asked for and
-  // nobody can act on — a parent reading 3.5 has to be told what 3.5 means, and
-  // a teacher glancing at it in a meeting simply won't. So say the words the
-  // teacher actually tapped, and say the comparison as a sentence.
+  // One thing survived, because it is the only claim here that CANNOT be seen
+  // by looking: the hard days landing at the same hour. That needs counting
+  // across weeks, so it gets said in a sentence.
   const commonFocus = (slice) => {
     const counts = new Map();
     for (const r of slice) if (FOCUS[r.focus]) counts.set(r.focus, (counts.get(r.focus) ?? 0) + 1);
@@ -413,24 +417,11 @@ function render(rows){
     for (const [word, n] of counts) if (n > bestN){ best = word; bestN = n; }
     return best;
   };
-  // Compare the recent stretch with the START of the record, not with the ten
-  // entries just before it. A rolling two-week window said "About the same"
-  // while the chart underneath it went from red to green — the arc was longer
-  // than the window, so the number contradicted the picture. At a medication
-  // review the question is "is this working compared with before we changed
-  // anything", and that is what the first entries are.
-  const recentRows = rows.slice(0, 10);
-  const startRows  = rows.slice(-10);
-  const recent = avgFocus(rows, 10);
-  const start  = avgFocus([...rows].reverse(), 10);
-  const tough  = rows.slice(0, 20).filter((r) => r.focus === "Poor" || r.behavior === "Challenging").length;
-
-  $("tiles").innerHTML = [
-    tile("Most days lately", commonFocus(recentRows) ?? "\u2014", ""),
-    tile("Most days at the start", commonFocus(startRows) ?? "\u2014", ""),
-    tile("Tough days", String(tough), "of the last " + Math.min(20, rows.length)),
-    tile("Hardest when", commonHardTime(rows) ?? "No pattern yet", ""),
-  ].join("");
+  const when = commonHardTime(rows);
+  if (when){
+    $("pattern").textContent = "The harder days almost always come " + when.toLowerCase() + ".";
+    $("pattern").hidden = false;
+  }
 
   // --- Bars, oldest on the left so the trend reads the way time runs.
   const chron = [...rows].reverse();
