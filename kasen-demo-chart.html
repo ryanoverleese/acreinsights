@@ -37,7 +37,7 @@
   .tile{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); padding:14px 15px; }
   .tile small{ display:block; color:var(--sub); font-size:13px; font-weight:600; margin-bottom:6px;
     text-transform:uppercase; letter-spacing:.4px; }
-  .tile strong{ font-size:23px; font-weight:800; letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
+  .tile strong{ font-size:19px; font-weight:800; letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
   .tile em{ font-style:normal; color:var(--sub); font-size:15px; font-weight:600; margin-left:4px; }
 
   .section{ margin-bottom:30px; }
@@ -46,6 +46,7 @@
   .strip{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); padding:16px 14px 12px; }
   .bars{ display:flex; align-items:flex-end; gap:3px; height:104px; overflow-x:auto; padding-bottom:2px; }
   .bar{ flex:0 0 13px; border-radius:3px 3px 0 0; background:var(--empty); position:relative; cursor:default; }
+  .span{ margin:10px 0 0; font-size:13px; color:var(--sub); font-weight:600; }
   .legend{ display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; padding-top:12px; border-top:1px solid var(--divider); }
   .legend span{ display:flex; align-items:center; gap:6px; font-size:13px; color:var(--sub); font-weight:600; }
   .legend i{ width:11px; height:11px; border-radius:3px; }
@@ -87,6 +88,7 @@
       <h2>Focus, entry by entry</h2>
       <div class="strip">
         <div class="bars" id="bars"></div>
+        <p class="span" id="span"></p>
         <div class="legend">
           <span><i style="background:var(--f1)"></i>Excellent</span>
           <span><i style="background:var(--f2)"></i>Good</span>
@@ -397,25 +399,37 @@ function render(rows){
     + " across " + days + (days === 1 ? " day." : " days.");
   $("content").hidden = false;
 
-  // --- Tiles: recent vs. the stretch before it. Two weeks of school days is
-  // about ten entries, which is the shortest window worth reading as a trend.
+  // --- The summary in words, not invented numbers.
+  //
+  // This used to print "3.5 of 4", "Change +0.4" and "Hard reads 0 of last 20".
+  // Averaging a four-step word scale produces a number nobody asked for and
+  // nobody can act on — a parent reading 3.5 has to be told what 3.5 means, and
+  // a teacher glancing at it in a meeting simply won't. So say the words the
+  // teacher actually tapped, and say the comparison as a sentence.
+  const commonFocus = (slice) => {
+    const counts = new Map();
+    for (const r of slice) if (FOCUS[r.focus]) counts.set(r.focus, (counts.get(r.focus) ?? 0) + 1);
+    let best = null, bestN = 0;
+    for (const [word, n] of counts) if (n > bestN){ best = word; bestN = n; }
+    return best;
+  };
+  // Compare the recent stretch with the START of the record, not with the ten
+  // entries just before it. A rolling two-week window said "About the same"
+  // while the chart underneath it went from red to green — the arc was longer
+  // than the window, so the number contradicted the picture. At a medication
+  // review the question is "is this working compared with before we changed
+  // anything", and that is what the first entries are.
+  const recentRows = rows.slice(0, 10);
+  const startRows  = rows.slice(-10);
   const recent = avgFocus(rows, 10);
-  const prior  = avgFocus(rows.slice(10), 10);
-  const hard   = rows.slice(0, 20).filter((r) => r.focus === "Poor" || r.behavior === "Challenging").length;
-  const window = Math.min(20, rows.length);
-
-  let move = "—";
-  if (recent && prior){
-    const delta = recent.value - prior.value;
-    move = (delta > 0 ? "+" : delta < 0 ? "−" : "") + Math.abs(delta).toFixed(1);
-  }
+  const start  = avgFocus([...rows].reverse(), 10);
+  const tough  = rows.slice(0, 20).filter((r) => r.focus === "Poor" || r.behavior === "Challenging").length;
 
   $("tiles").innerHTML = [
-    tile("Last 10 entries", recent ? recent.value.toFixed(1) : "—", "of 4"),
-    tile("The 10 before", prior ? prior.value.toFixed(1) : "—", "of 4"),
-    tile("Change", move, ""),
-    tile("Hard reads", String(hard), "of last " + window),
-    tile("Hardest when", commonHardTime(rows) ?? "—", ""),
+    tile("Most days lately", commonFocus(recentRows) ?? "\u2014", ""),
+    tile("Most days at the start", commonFocus(startRows) ?? "\u2014", ""),
+    tile("Tough days", String(tough), "of the last " + Math.min(20, rows.length)),
+    tile("Hardest when", commonHardTime(rows) ?? "No pattern yet", ""),
   ].join("");
 
   // --- Bars, oldest on the left so the trend reads the way time runs.
@@ -429,6 +443,10 @@ function render(rows){
   }).join("");
   // Newest day should be in view on a long log.
   $("bars").scrollLeft = $("bars").scrollWidth;
+  if (chron.length){
+    const from = dayLabel(chron[0].log_date), to = dayLabel(chron[chron.length - 1].log_date);
+    $("span").textContent = from.date + " to " + to.date + " \u00b7 oldest on the left";
+  }
 
   // --- The full list, newest first. A day with two entries shows the date
   // once and then each entry with the time it came in: a morning read and an
