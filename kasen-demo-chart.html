@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="noindex, nofollow">
+<title>Sam's Log — sample</title>
+<meta name="apple-mobile-web-app-title" content="Sam's Log">
+<style>
+  :root{
+    --bg:#f2f2f7; --card:#ffffff; --text:#000; --sub:#8e8e93;
+    --divider:rgba(60,60,67,.13); --shadow:0 1px 2px rgba(0,0,0,.04);
+    --empty:#e4e4e9;
+    --f1:#1f8f4e; --f2:#34c759; --f3:#ff9500; --f4:#ff3b30;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#000; --card:#1c1c1e; --text:#fff; --sub:#8d8d93;
+      --divider:rgba(84,84,88,.55); --shadow:none; --empty:#2c2c2e; }
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:760px; margin:0 auto; padding:12px 16px 80px; }
+  h1{ font-size:30px; font-weight:800; letter-spacing:-.5px; margin:16px 2px 4px; }
+  .sub{ color:var(--sub); font-size:15px; margin:0 2px 22px; }
+  h2{ font-size:20px; font-weight:700; letter-spacing:-.2px; margin:0 2px 10px; }
+
+  .tiles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:28px; }
+  .tile{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); padding:14px 15px; }
+  .tile small{ display:block; color:var(--sub); font-size:13px; font-weight:600; margin-bottom:6px;
+    text-transform:uppercase; letter-spacing:.4px; }
+  .tile strong{ font-size:23px; font-weight:800; letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
+  .tile em{ font-style:normal; color:var(--sub); font-size:15px; font-weight:600; margin-left:4px; }
+
+  .section{ margin-bottom:30px; }
+
+  /* Focus over time. Every school day is one bar; taller and greener is better. */
+  .strip{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); padding:16px 14px 12px; }
+  .bars{ display:flex; align-items:flex-end; gap:3px; height:104px; overflow-x:auto; padding-bottom:2px; }
+  .bar{ flex:0 0 13px; border-radius:3px 3px 0 0; background:var(--empty); position:relative; cursor:default; }
+  .legend{ display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; padding-top:12px; border-top:1px solid var(--divider); }
+  .legend span{ display:flex; align-items:center; gap:6px; font-size:13px; color:var(--sub); font-weight:600; }
+  .legend i{ width:11px; height:11px; border-radius:3px; }
+
+  .list{ background:var(--card); border-radius:12px; box-shadow:var(--shadow); overflow:hidden; }
+  .row{ display:flex; gap:12px; padding:13px 15px; position:relative; align-items:flex-start; }
+  .row + .row::before{ content:""; position:absolute; top:0; left:15px; right:0; height:1px; background:var(--divider); }
+  .row .when{ flex:0 0 96px; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .row .when span{ display:block; color:var(--sub); font-size:13px; font-weight:600; }
+  /* A second entry on the same day hangs under the date rather than repeating it. */
+  .row.sameday .when{ color:var(--sub); font-weight:600; }
+  .row.sameday .when .cont{ display:block; font-size:13px; }
+  .row.sameday::before{ left:96px !important; }
+  .pill.time, .time{ font-size:13px; font-weight:600; color:var(--sub); align-self:center; }
+  .row .body{ flex:1 1 auto; min-width:0; }
+  .pills{ display:flex; flex-wrap:wrap; gap:6px; }
+  .pill{ font-size:13px; font-weight:700; border-radius:7px; padding:4px 9px; color:#fff; }
+  .pill.beh{ background:var(--empty); color:var(--text); }
+  /* When it was hardest — an outline, not a fill, so it reads as detail about
+     the behavior beside it rather than a third rating of its own. */
+  .pill.hard{ background:none; color:var(--sub); border:1.5px solid var(--divider); padding:3px 8px; }
+  .row .other{ margin:8px 0 0; font-size:15px; line-height:1.45; color:var(--text); }
+
+  .msg{ color:var(--sub); font-size:16px; padding:34px 4px; text-align:center; line-height:1.5; }
+  .demo{ margin:0 2px 18px; font-size:14px; font-weight:600; color:#b35c00; }
+  @media (prefers-color-scheme: dark){ .demo{ color:#ff9f0a; } }
+  .msg.bad{ color:#ff3b30; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Sam&rsquo;s Log</h1>
+  <p class="demo">Sample data &mdash; not a real student.</p>
+  <p class="sub" id="sub">Loading…</p>
+  <div id="content" hidden>
+    <div class="tiles" id="tiles"></div>
+
+    <div class="section">
+      <h2>Focus, entry by entry</h2>
+      <div class="strip">
+        <div class="bars" id="bars"></div>
+        <div class="legend">
+          <span><i style="background:var(--f1)"></i>Excellent</span>
+          <span><i style="background:var(--f2)"></i>Good</span>
+          <span><i style="background:var(--f3)"></i>Fair</span>
+          <span><i style="background:var(--f4)"></i>Poor</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Every day</h2>
+      <div class="list" id="list"></div>
+    </div>
+  </div>
+  <p class="msg" id="msg" hidden></p>
+</div>
+
+<script>
+const ROWS = [
+ {
+  "log_date": "2026-05-29",
+  "focus": "Excellent",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "Really strong week.",
+  "created_at": "2026-05-29T15:13:00-05:00"
+ },
+ {
+  "log_date": "2026-05-28",
+  "focus": "Good",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-28T15:46:00-05:00"
+ },
+ {
+  "log_date": "2026-05-27",
+  "focus": "Excellent",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-27T15:39:00-05:00"
+ },
+ {
+  "log_date": "2026-05-26",
+  "focus": "Good",
+  "behavior": "Mixed",
+  "hard_time": "Early afternoon",
+  "other": "Tired end of day, but a good morning.",
+  "created_at": "2026-05-26T15:32:00-05:00"
+ },
+ {
+  "log_date": "2026-05-25",
+  "focus": "Good",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-25T15:25:00-05:00"
+ },
+ {
+  "log_date": "2026-05-22",
+  "focus": "Excellent",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "Volunteered to read aloud.",
+  "created_at": "2026-05-22T15:18:00-05:00"
+ },
+ {
+  "log_date": "2026-05-21",
+  "focus": "Good",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-21T15:11:00-05:00"
+ },
+ {
+  "log_date": "2026-05-20",
+  "focus": "Excellent",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-20T15:44:00-05:00"
+ },
+ {
+  "log_date": "2026-05-19",
+  "focus": "Good",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "Stayed with it right through to lunch today.",
+  "created_at": "2026-05-19T15:37:00-05:00"
+ },
+ {
+  "log_date": "2026-05-18",
+  "focus": "Excellent",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-18T15:30:00-05:00"
+ },
+ {
+  "log_date": "2026-05-15",
+  "focus": "Good",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-15T15:23:00-05:00"
+ },
+ {
+  "log_date": "2026-05-14",
+  "focus": "Good",
+  "behavior": "Mixed",
+  "hard_time": "Late morning",
+  "other": "",
+  "created_at": "2026-05-14T15:16:00-05:00"
+ },
+ {
+  "log_date": "2026-05-13",
+  "focus": "Excellent",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "Best day yet \u2014 finished everything independently.",
+  "created_at": "2026-05-13T15:49:00-05:00"
+ },
+ {
+  "log_date": "2026-05-13",
+  "focus": "Excellent",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "Morning check \u2014 focused straight through calendar time.",
+  "created_at": "2026-05-13T10:49:00-05:00"
+ },
+ {
+  "log_date": "2026-05-12",
+  "focus": "Good",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-12T15:42:00-05:00"
+ },
+ {
+  "log_date": "2026-05-11",
+  "focus": "Good",
+  "behavior": "Mixed",
+  "hard_time": "Late morning",
+  "other": "Strong start, faded again right before lunch.",
+  "created_at": "2026-05-11T15:35:00-05:00"
+ },
+ {
+  "log_date": "2026-05-08",
+  "focus": "Good",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-08T15:28:00-05:00"
+ },
+ {
+  "log_date": "2026-05-07",
+  "focus": "Fair",
+  "behavior": "Mixed",
+  "hard_time": "Late morning",
+  "other": "Same dip before lunch.",
+  "created_at": "2026-05-07T15:21:00-05:00"
+ },
+ {
+  "log_date": "2026-05-06",
+  "focus": "Good",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-05-06T15:14:00-05:00"
+ },
+ {
+  "log_date": "2026-05-05",
+  "focus": "Good",
+  "behavior": "Mixed",
+  "hard_time": "Late morning",
+  "other": "Great until about 11, then lost the thread.",
+  "created_at": "2026-05-05T15:47:00-05:00"
+ },
+ {
+  "log_date": "2026-05-04",
+  "focus": "Good",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "Noticeably settled this morning.",
+  "created_at": "2026-05-04T15:40:00-05:00"
+ },
+ {
+  "log_date": "2026-05-01",
+  "focus": "Poor",
+  "behavior": "Challenging",
+  "hard_time": "Late morning",
+  "other": "",
+  "created_at": "2026-05-01T15:33:00-05:00"
+ },
+ {
+  "log_date": "2026-04-30",
+  "focus": "Fair",
+  "behavior": "Mixed",
+  "hard_time": "No particular time",
+  "other": "Good group work, tough independent time.",
+  "created_at": "2026-04-30T15:26:00-05:00"
+ },
+ {
+  "log_date": "2026-04-29",
+  "focus": "Poor",
+  "behavior": "Mixed",
+  "hard_time": "Late morning",
+  "other": "",
+  "created_at": "2026-04-29T15:19:00-05:00"
+ },
+ {
+  "log_date": "2026-04-28",
+  "focus": "Fair",
+  "behavior": "Mixed",
+  "hard_time": "Early afternoon",
+  "other": "",
+  "created_at": "2026-04-28T15:12:00-05:00"
+ },
+ {
+  "log_date": "2026-04-27",
+  "focus": "Poor",
+  "behavior": "Challenging",
+  "hard_time": "Late morning",
+  "other": "Left the room twice before lunch.",
+  "created_at": "2026-04-27T15:45:00-05:00"
+ },
+ {
+  "log_date": "2026-04-24",
+  "focus": "Fair",
+  "behavior": "Positive",
+  "hard_time": null,
+  "other": "",
+  "created_at": "2026-04-24T15:38:00-05:00"
+ },
+ {
+  "log_date": "2026-04-23",
+  "focus": "Poor",
+  "behavior": "Mixed",
+  "hard_time": "No particular time",
+  "other": "Hard time getting started after specials.",
+  "created_at": "2026-04-23T15:31:00-05:00"
+ },
+ {
+  "log_date": "2026-04-22",
+  "focus": "Fair",
+  "behavior": "Mixed",
+  "hard_time": "Late morning",
+  "other": "",
+  "created_at": "2026-04-22T15:24:00-05:00"
+ },
+ {
+  "log_date": "2026-04-21",
+  "focus": "Poor",
+  "behavior": "Challenging",
+  "hard_time": "Early afternoon",
+  "other": "",
+  "created_at": "2026-04-21T15:17:00-05:00"
+ },
+ {
+  "log_date": "2026-04-20",
+  "focus": "Fair",
+  "behavior": "Mixed",
+  "hard_time": "Late morning",
+  "other": "Needed a lot of redirection during reading.",
+  "created_at": "2026-04-20T15:10:00-05:00"
+ }
+];
+
+// Focus is an ordered scale, so it can carry a height and a color. Behavior is
+// three named states, so it stays a label — averaging it would invent a number.
+const FOCUS = {
+  "Excellent": { score: 4, color: "var(--f1)" },
+  "Good":      { score: 3, color: "var(--f2)" },
+  "Fair":      { score: 2, color: "var(--f3)" },
+  "Poor":      { score: 1, color: "var(--f4)" },
+};
+const BEH_COLOR = { "Positive": "var(--f2)", "Mixed": "var(--f3)", "Challenging": "var(--f4)" };
+
+const $ = (id) => document.getElementById(id);
+
+function fail(text){
+  $("sub").hidden = true;
+  $("msg").hidden = false;
+  $("msg").className = "msg bad";
+  $("msg").textContent = text;
+}
+
+function dayLabel(iso){
+  const d = new Date(iso + "T12:00:00");
+  return {
+    date: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+    day:  d.toLocaleDateString(undefined, { weekday: "short" }),
+  };
+}
+
+/** Average focus score over the most recent `n` entries. */
+function avgFocus(rows, n){
+  const slice = rows.slice(0, n).filter((r) => FOCUS[r.focus]);
+  if (slice.length === 0) return null;
+  const total = slice.reduce((sum, r) => sum + FOCUS[r.focus].score, 0);
+  return { value: total / slice.length, days: slice.length };
+}
+
+function render(rows){
+  const days = new Set(rows.map((r) => r.log_date)).size;
+  $("sub").textContent = rows.length + (rows.length === 1 ? " entry" : " entries")
+    + " across " + days + (days === 1 ? " day." : " days.");
+  $("content").hidden = false;
+
+  // --- Tiles: recent vs. the stretch before it. Two weeks of school days is
+  // about ten entries, which is the shortest window worth reading as a trend.
+  const recent = avgFocus(rows, 10);
+  const prior  = avgFocus(rows.slice(10), 10);
+  const hard   = rows.slice(0, 20).filter((r) => r.focus === "Poor" || r.behavior === "Challenging").length;
+  const window = Math.min(20, rows.length);
+
+  let move = "—";
+  if (recent && prior){
+    const delta = recent.value - prior.value;
+    move = (delta > 0 ? "+" : delta < 0 ? "−" : "") + Math.abs(delta).toFixed(1);
+  }
+
+  $("tiles").innerHTML = [
+    tile("Last 10 entries", recent ? recent.value.toFixed(1) : "—", "of 4"),
+    tile("The 10 before", prior ? prior.value.toFixed(1) : "—", "of 4"),
+    tile("Change", move, ""),
+    tile("Hard reads", String(hard), "of last " + window),
+    tile("Hardest when", commonHardTime(rows) ?? "—", ""),
+  ].join("");
+
+  // --- Bars, oldest on the left so the trend reads the way time runs.
+  const chron = [...rows].reverse();
+  $("bars").innerHTML = chron.map((r) => {
+    const f = FOCUS[r.focus];
+    const height = f ? Math.round((f.score / 4) * 100) : 8;
+    const label = dayLabel(r.log_date);
+    return '<div class="bar" style="height:' + height + '%;background:' + (f ? f.color : "var(--empty)") + '"'
+      + ' title="' + label.day + " " + label.date + " " + timeLabel(r.created_at) + " — " + r.focus + ", " + r.behavior + '"></div>';
+  }).join("");
+  // Newest day should be in view on a long log.
+  $("bars").scrollLeft = $("bars").scrollWidth;
+
+  // --- The full list, newest first. A day with two entries shows the date
+  // once and then each entry with the time it came in: a morning read and an
+  // afternoon read of the same day are the comparison that matters.
+  let lastDate = null;
+  $("list").innerHTML = rows.map((r) => {
+    const l = dayLabel(r.log_date);
+    const f = FOCUS[r.focus];
+    const firstOfDay = r.log_date !== lastDate;
+    lastDate = r.log_date;
+    const when = firstOfDay
+      ? l.date + '<span>' + l.day + '</span>'
+      : '<span class="cont">' + timeLabel(r.created_at) + '</span>';
+    return '<div class="row' + (firstOfDay ? "" : " sameday") + '">'
+      + '<div class="when">' + when + '</div>'
+      + '<div class="body">'
+      +   '<div class="pills">'
+      +     '<span class="pill" style="background:' + (f ? f.color : "var(--empty)") + '">' + esc(r.focus) + '</span>'
+      +     '<span class="pill beh" style="background:' + (BEH_COLOR[r.behavior] || "var(--empty)") + ';color:#fff">' + esc(r.behavior) + '</span>'
+      +     (r.hard_time ? '<span class="pill hard">' + esc(r.hard_time) + '</span>' : "")
+      +     (firstOfDay && countForDay(rows, r.log_date) > 1
+              ? '<span class="time">' + timeLabel(r.created_at) + '</span>' : "")
+      +   '</div>'
+      +   (r.other ? '<p class="other">' + esc(r.other) + '</p>' : "")
+      + '</div></div>';
+  }).join("");
+}
+
+/**
+ * The time of day that comes up most across the hard entries. This is the
+ * dosing signal: the same answer over and over says something the individual
+ * days do not. Needs three before it will claim a pattern.
+ */
+function commonHardTime(rows){
+  const counts = new Map();
+  for (const r of rows){
+    if (!r.hard_time) continue;
+    counts.set(r.hard_time, (counts.get(r.hard_time) ?? 0) + 1);
+  }
+  let best = null;
+  let bestN = 0;
+  for (const [when, n] of counts){
+    if (n > bestN){ best = when; bestN = n; }
+  }
+  return bestN >= 3 ? best : null;
+}
+
+/** Local clock time an entry came in, e.g. "3:15 PM". */
+function timeLabel(iso){
+  if (!iso) return "";
+  return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
+function countForDay(rows, date){
+  return rows.reduce((n, r) => n + (r.log_date === date ? 1 : 0), 0);
+}
+
+function tile(label, value, unit){
+  return '<div class="tile"><small>' + label + '</small><strong>' + value + '</strong>'
+    + (unit ? '<em>' + unit + '</em>' : "") + '</div>';
+}
+
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, (c) => (
+    { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]
+  ));
+}
+
+render(ROWS);
+</script>
+</body>
+</html>

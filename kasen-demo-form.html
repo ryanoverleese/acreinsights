@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="noindex, nofollow">
+<title>Sam's Log</title>
+<meta name="apple-mobile-web-app-title" content="Sam's Log">
+<style>
+  :root{
+    --bg:#f2f2f7; --card:#ffffff; --text:#000; --sub:#8e8e93;
+    --divider:rgba(60,60,67,.13); --field:#e4e4e9; --shadow:0 1px 2px rgba(0,0,0,.04);
+    --accent:#bf5700; --green:#34c759; --line:#c7c7cc;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#000; --card:#1c1c1e; --text:#fff; --sub:#8d8d93;
+      --divider:rgba(84,84,88,.55); --field:#2c2c2e; --shadow:none; --line:#48484a;
+      /* Lifted a little so it still reads on black. */
+      --accent:#e2691f; }
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:520px; margin:0 auto; padding:6px 16px 24px; }
+  h1{ font-size:26px; font-weight:800; letter-spacing:-.5px; margin:8px 2px 14px; }
+
+  .block{ margin-bottom:16px; }
+  .block > label:not(.daterow){ display:block; font-size:16px; font-weight:700; margin:0 2px 7px; letter-spacing:-.2px; }
+
+  /* The date is a ROW, the same full-width card as every other control: label
+     left, value right, whole thing tappable. Left on its own it was a stubby
+     chip that lined up with nothing and didn't read as something you could tap. */
+  .daterow{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--card); box-shadow:var(--shadow); border-radius:12px;
+    padding:12px 14px; cursor:pointer;
+  }
+  .daterow > span{ font-size:16px; font-weight:700; letter-spacing:-.2px; }
+  /* The row is the card, so the field itself carries no box of its own. */
+  .daterow input[type=date]{
+    width:auto; max-width:62%; border:0; background:none; box-shadow:none; padding:0;
+    font-size:16px; color:var(--text); outline:none; text-align:right;
+    font-family:inherit; font-variant-numeric:tabular-nums;
+  }
+
+  /* One row per scale. Excellent -> Poor left to right reads as the scale it
+     actually is, and it turns ~250px of stacked rows into one 52px band, which
+     is what gets the whole form onto a single screen. Each chip still clears
+     the 44px minimum tap target by a comfortable margin. */
+  .opts{ display:grid; grid-template-columns:repeat(var(--cols,4),1fr); gap:7px; }
+  /* "Early afternoon" will not sit in a quarter of a phone. Two columns, and
+     the odd one out runs the full width rather than leaving a gap. */
+  .opts.wide{ grid-template-columns:repeat(2,1fr); }
+  .opts.wide .opt:nth-child(odd):last-child{ grid-column:1 / -1; }
+  .opt{
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    min-height:52px; padding:8px 4px; border:0; border-radius:11px;
+    background:var(--card); box-shadow:var(--shadow); color:var(--text);
+    font-size:15px; font-weight:600; line-height:1.15; letter-spacing:-.2px;
+    cursor:pointer; font-family:inherit; transition:background .12s, color .12s;
+  }
+  .opt[aria-pressed="true"]{ background:var(--accent); color:#fff; font-weight:700; }
+
+  textarea{
+    width:100%; border:0; border-radius:12px; background:var(--card); box-shadow:var(--shadow);
+    padding:11px 13px; font-size:16px; color:var(--text); outline:none; resize:vertical;
+    min-height:118px; font-family:inherit; line-height:1.4;
+  }
+  textarea::placeholder{ color:var(--sub); }
+
+  .submit{
+    width:100%; border:0; border-radius:13px; background:var(--accent); color:#fff;
+    padding:15px; font-size:18px; font-weight:700; cursor:pointer; font-family:inherit;
+    margin-top:2px;
+  }
+  .submit:disabled{ opacity:.45; cursor:default; }
+
+  /* "Already logged" belongs at the TOP. Under the Submit button it was the
+     last thing anyone would read. Tinted, not red — this is a status, not a
+     mistake she made. */
+  .already{
+    background:rgba(191,87,0,.10); color:var(--accent); border-radius:12px;
+    padding:11px 14px; margin:0 0 14px; font-size:15px; font-weight:600; line-height:1.35;
+  }
+  @media (prefers-color-scheme: dark){ .already{ background:rgba(226,105,31,.18); } }
+
+  .note{ margin:11px 2px 0; font-size:14px; line-height:1.4; }
+  .note.ok{ color:var(--green); font-weight:600; }
+  .note.bad{ color:#ff3b30; font-weight:600; }
+  .note.quiet{ color:var(--sub); }
+
+  .done{ text-align:center; padding:52px 10px; }
+  .done .tick{
+    width:74px; height:74px; border-radius:50%; background:var(--accent);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 20px;
+  }
+  .done .tick svg{ width:38px; height:38px; }
+  .done h2{ font-size:26px; font-weight:800; margin:0 0 8px; letter-spacing:-.3px; }
+  .done p{ color:var(--sub); font-size:16px; margin:0 0 26px; line-height:1.45; }
+  .again{
+    border:0; background:none; color:var(--accent); font-size:17px; font-weight:600;
+    cursor:pointer; font-family:inherit; padding:8px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="form">
+    <h1>Sam's Log</h1>
+    <p class="already" id="already" hidden></p>
+
+    <div class="block">
+      <label class="daterow" for="date">
+        <span>Date</span>
+        <input type="date" id="date">
+      </label>
+    </div>
+
+    <div class="block">
+      <label id="focusLabel">Focus &amp; Attention</label>
+      <div class="opts" id="focus" role="group" aria-labelledby="focusLabel"></div>
+    </div>
+
+    <div class="block">
+      <label id="behaviorLabel">Behavior</label>
+      <div class="opts" id="behavior" role="group" aria-labelledby="behaviorLabel"></div>
+    </div>
+
+    <div class="block" id="hardBlock" hidden>
+      <label id="hardLabel">When was it hardest?</label>
+      <div class="opts wide" id="hardTime" role="group" aria-labelledby="hardLabel"></div>
+    </div>
+
+    <div class="block">
+      <label for="other">Anything else?</label>
+      <textarea id="other" placeholder="A pattern, a hard time of day, or anything we can help with at home"></textarea>
+    </div>
+
+    <button class="submit" id="submit">Submit</button>
+    <p class="note" id="note"></p>
+  </div>
+
+  <div class="done" id="done" hidden>
+    <div class="tick">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <h2>Got it</h2>
+    <p id="doneText"></p>
+    <button class="again" id="again">Log another day</button>
+  </div>
+
+</div>
+
+<script>
+// DEMO BUILD — no network, no database, nothing is stored.
+// This link can only WRITE a day and read back that same day. It cannot read
+// the history — so forwarding it around the school leaks nothing.
+
+const FOCUS    = ["Excellent", "Good", "Fair", "Poor"];
+const BEHAVIOR = ["Positive", "Mixed", "Challenging"];
+// Only asked when the day was Mixed or Challenging. "No particular time" is a
+// real answer, not an opt-out — a day that was hard throughout looks different
+// from one that fell apart at 2pm, and she should never be made to guess.
+const HARD_TIMES = ["Early morning", "Late morning", "Early afternoon", "Late afternoon", "No particular time"];
+const NEEDS_TIME = ["Mixed", "Challenging"];
+
+let picked = { focus: null, behavior: null, hardTime: null };
+
+const $ = (id) => document.getElementById(id);
+
+/** Today in the LOCAL day, not UTC — a 7pm entry must not roll to tomorrow. */
+function todayLocal(){
+  const d = new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+
+function buildGroup(el, values, key){
+  el.innerHTML = "";
+  el.style.setProperty("--cols", String(values.length));
+  for (const value of values){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "opt";
+    b.setAttribute("aria-pressed", "false");
+    b.textContent = value;
+    b.onclick = () => {
+      picked[key] = value;
+      for (const other of el.children) other.setAttribute("aria-pressed", String(other === b));
+      $("note").textContent = "";
+      if (key === "behavior") syncHardTime();
+    };
+    el.appendChild(b);
+  }
+}
+
+/** Show the "when was it hardest" step only on a Mixed or Challenging day. */
+function syncHardTime(){
+  const needed = NEEDS_TIME.includes(picked.behavior);
+  $("hardBlock").hidden = !needed;
+  // Clear it on the way out, so a Positive day can never carry a stale time.
+  if (!needed) setPicked("hardTime", null);
+}
+
+function setPicked(key, value){
+  const el = $(key === "hardTime" ? "hardTime" : key);
+  picked[key] = value;
+  for (const b of el.children){
+    b.setAttribute("aria-pressed", String(b.textContent.trim() === value));
+  }
+}
+
+async function rpc(fn){
+  await new Promise((r) => setTimeout(r, 350));   // feels like a real save
+  return fn === "sam_day" ? [] : null;
+}
+
+/**
+ * The form always opens BLANK — a filled-in form on reopen reads as stuck.
+ * A day that already has entries just raises a notice, so she knows the first
+ * one landed and that this will be a SECOND entry, not a correction.
+ */
+async function checkDay(){
+  const date = $("date").value;
+  $("already").hidden = true;
+  if (!date) return;
+  try {
+    const rows = await rpc("sam_day", { p_date: date });
+    const count = Number(rows && rows[0] ? rows[0].entry_count : 0);
+    if (count > 0){
+      const when = date === todayLocal() ? "today" : "this day";
+      // Say the count once there is more than one, so a third entry doesn't
+      // read the same as a second.
+      const sofar = count === 1 ? "" : ` (${count} so far)`;
+      $("already").textContent =
+        `Already logged ${when}${sofar}. Filling this in again will add another entry for ${when}.`;
+      $("already").hidden = false;
+    }
+  } catch {
+    // Not worth stopping her over — Submit still works either way.
+  }
+}
+
+async function submit(){
+  const date = $("date").value;
+  const note = $("note");
+  note.className = "note bad";
+
+  if (!date)             { note.textContent = "Pick a date first.";               return; }
+  if (!picked.focus)     { note.textContent = "Choose one for Focus & Attention."; return; }
+  if (!picked.behavior)  { note.textContent = "Choose one for Behavior.";          return; }
+  if (NEEDS_TIME.includes(picked.behavior) && !picked.hardTime){
+    note.textContent = "Choose when it was hardest — or \u201cNo particular time\u201d.";
+    return;
+  }
+
+  $("submit").disabled = true;
+  $("submit").textContent = "Sending…";
+  note.textContent = "";
+  note.className = "note";
+
+  try {
+    await rpc("sam_log_day", {
+      p_date:     date,
+      p_focus:    picked.focus,
+      p_behavior: picked.behavior,
+      p_other:    $("other").value,
+      p_hard_time: picked.hardTime,
+    });
+    const pretty = new Date(date + "T12:00:00").toLocaleDateString(undefined, {
+      weekday: "long", month: "long", day: "numeric",
+    });
+    $("doneText").textContent = pretty + " is saved.";
+    // Wipe the entries NOW, not on the way back in — tapping Back or
+    // reopening the link must never show yesterday's taps still sitting there.
+    setPicked("focus", null);
+    setPicked("behavior", null);
+    setPicked("hardTime", null);
+    syncHardTime();
+    $("other").value = "";
+    $("already").hidden = true;
+    $("form").hidden = true;
+    $("done").hidden = false;
+    window.scrollTo(0, 0);
+  } catch (e) {
+    note.className = "note bad";
+    note.textContent = "That didn't save — check the connection and try again.";
+  } finally {
+    $("submit").disabled = false;
+    $("submit").textContent = "Submit";
+  }
+}
+
+/** Back to a clean form — used by "Log another day" and after every submit. */
+function reset(){
+  $("done").hidden = true;
+  $("form").hidden = false;
+  $("date").value = todayLocal();
+  $("other").value = "";
+  setPicked("focus", null);
+  setPicked("behavior", null);
+  setPicked("hardTime", null);
+  syncHardTime();
+  $("note").textContent = "";
+  $("note").className = "note";
+  checkDay();
+}
+
+buildGroup($("focus"), FOCUS, "focus");
+buildGroup($("behavior"), BEHAVIOR, "behavior");
+buildGroup($("hardTime"), HARD_TIMES, "hardTime");
+syncHardTime();
+$("date").value = todayLocal();
+$("date").max = todayLocal();
+$("date").onchange = checkDay;
+$("submit").onclick = submit;
+$("again").onclick = reset;
+checkDay();
+</script>
+</body>
+</html>
