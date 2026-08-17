@@ -172,6 +172,10 @@
   .chg .cbtns button{ flex:1; border:0; border-radius:8px; padding:8px; font:inherit; font-size:14px; font-weight:650; cursor:pointer; }
   .keep{ background:var(--accent); color:#fff; } .undo{ background:var(--field); color:var(--text); }
 
+  .allbtn{ width:100%; margin-top:14px; border:0; background:var(--card); box-shadow:var(--shadow);
+    color:var(--accent); font:inherit; font-size:15.5px; font-weight:650; padding:13px; border-radius:12px; cursor:pointer; }
+  .backbtn{ border:0; background:none; color:var(--accent); font:inherit; font-size:16px;
+    font-weight:600; padding:2px 0 6px; margin-left:-2px; cursor:pointer; }
   .empty{ text-align:center; color:var(--sub); padding:54px 24px; font-size:15.5px; line-height:1.5; }
   .banner{ background:var(--warn); color:#fff; padding:9px 13px; border-radius:10px; font-size:13.5px; margin-bottom:12px; display:none; }
   .toast{
@@ -207,7 +211,7 @@ const KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6
 const H={apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"};
 const FIELDS="id,created_at,body,done,done_at,category,kind,title,summary,priority,pinned,remind_at,tags,surfaced_reason,surfaced_on,locked_fields";
 
-let items=[], run=null, changes=[], tab="now", query="", filterCat=null;
+let items=[], run=null, changes=[], tab="now", query="", filterCat=null, showAll=false;
 const todayISO=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);};
 const $=id=>document.getElementById(id);
 
@@ -277,7 +281,7 @@ function render(){
   const pend=changes.filter(c=>c.needs_ok && c.confirmed===null).length;
   const nb=$("nowbadge");
   if(pend){ nb.textContent=pend; nb.classList.remove("hide"); } else nb.classList.add("hide");
-  $("view").innerHTML = tab==="now" ? viewNow() : tab==="dump" ? viewDump() : viewMemory();
+  $("view").innerHTML = tab==="now" ? (showAll?viewAll():viewNow()) : tab==="dump" ? viewDump() : viewMemory();
   wire();
   const c=$("composer"); if(c) grow(c);
 }
@@ -288,7 +292,30 @@ function viewNow(){
   <p class="daynote">${d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"})}</p>
   ${reviewCard()}
   ${list.length? `<div class="card">${list.map(it=>rowHtml(it,false)).join("")}</div>`
-   : `<div class="empty">Nothing needs you right now.<br>Anything you dump will come back when it matters.</div>`}`;
+   : `<div class="empty">Nothing needs you right now.<br>Anything you dump will come back when it matters.</div>`}
+  ${openCount()? `<button class="allbtn" id="showall">See all ${openCount()} open &rsaquo;</button>`:""}`;
+}
+
+const openCount=()=>items.filter(x=>!x.done && !isMemory(x)).length;
+
+// Everything still open, grouped by category. Deliberately behind Now rather
+// than beside it — Now stays the short list, this is the whole pile when you
+// want it.
+function viewAll(){
+  const live=items.filter(x=>!x.done && !isMemory(x));
+  const groups={};
+  live.forEach(it=>{ const k=it.category||"Uncategorised"; (groups[k]=groups[k]||[]).push(it); });
+  const keys=Object.keys(groups).sort((a,b)=>
+    a==="Uncategorised" ? 1 : b==="Uncategorised" ? -1 : groups[b].length-groups[a].length);
+  const rank=it=>(it.pinned?0:1);
+  return `<button class="backbtn" id="backnow">&lsaquo; Now</button>
+  <h1>Everything open</h1>
+  <p class="daynote">${live.length} ${live.length===1?"item":"items"} across ${keys.length} ${keys.length===1?"list":"lists"}</p>
+  ${keys.map(k=>{
+    const rows=groups[k].slice().sort((a,b)=>rank(a)-rank(b)||(b.priority||0)-(a.priority||0));
+    return `<div class="grouphead"><h2>${escapeHtml(k)}</h2><span class="n">${rows.length}</span></div>
+      <div class="card">${rows.map(it=>rowHtml(it,false)).join("")}</div>`;
+  }).join("")}`;
 }
 
 function reviewCard(){
@@ -493,6 +520,8 @@ function wire(){
   v.querySelectorAll("[data-edit]").forEach(el=>el.onclick=e=>{
     if(e.target.closest("[data-more]")) return; openEdit(el.dataset.edit); });
   const rv=$("openreview"); if(rv) rv.onclick=openReview;
+  const sa=$("showall"); if(sa) sa.onclick=()=>{ showAll=true; window.scrollTo(0,0); render(); };
+  const bn=$("backnow"); if(bn) bn.onclick=()=>{ showAll=false; window.scrollTo(0,0); render(); };
   const s=$("search");
   if(s) s.oninput=()=>{ const p=s.selectionStart; query=s.value; render();
     const n=$("search"); if(n){ n.focus(); n.setSelectionRange(p,p); } };
@@ -512,7 +541,7 @@ function escapeHtml(s){ return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"
 function escapeAttr(s){ return escapeHtml(s).replace(/\n/g," "); }
 
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
-  tab=t.dataset.tab; query=""; filterCat=null; window.scrollTo(0,0); render(); });
+  tab=t.dataset.tab; query=""; filterCat=null; showAll=false; window.scrollTo(0,0); render(); });
 $("stale").onclick=()=>{ $("stale").style.display="none"; load(); };
 
 load();
