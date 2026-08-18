@@ -29,9 +29,10 @@ Short version:
 capture.html -> Supabase -> capture-review agent -> brief_agent.py -> wire.html
 ```
 
-## Known issue
+## Access decision
 
-The Supabase table behind `capture.html` has row-level security **off**, and the
-anon key is in the page, which is served publicly. Anyone with the URL can read,
-edit or delete everything. The unguessable old filename was never authentication.
-Fix is Supabase Auth plus row policies.
+This is Ryan's private, convenience-first tool and intentionally has no login
+screen. The Supabase browser key is in `capture.html`, so anyone who gets the live
+page could access the reminder data. That tradeoff is accepted for the current
+one-user setup. Revisit authentication only if more people use it or the stored
+information becomes sensitive.
