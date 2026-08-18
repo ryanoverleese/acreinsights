@@ -17,7 +17,7 @@ Anything else here is a one-off report or a demo page.
 ## Where the rest of it lives
 
 `capture.html` and `wire.html` are the two visible ends of a chain that runs
-through Supabase and two scheduled agents in another repo. If you are trying to
+through a private Netlify function, Supabase, and two scheduled agents in another repo. If you are trying to
 work out why the Wire says what it says, or where a reminder went, the map is:
 
 **[`cropx-daily-brief/SYSTEM_MAP.md`](https://github.com/ryanoverleese/cropx-daily-brief/blob/main/SYSTEM_MAP.md)**
@@ -26,13 +26,12 @@ work out why the Wire says what it says, or where a reminder went, the map is:
 Short version:
 
 ```
-capture.html -> Supabase -> capture_review.py -> brief_agent.py -> wire.html
+paired capture.html -> private Netlify function -> Supabase -> capture_review.py -> brief_agent.py -> wire.html
 ```
 
 ## Access decision
 
 This is Ryan's private, convenience-first tool and intentionally has no login
-screen. The Supabase browser key is in `capture.html`, so anyone who gets the live
-page could access the reminder data. That tradeoff is accepted for the current
-one-user setup. Revisit authentication only if more people use it or the stored
-information becomes sensitive.
+screen. A one-time private link pairs Ryan's browser, then the app opens normally.
+The page contains no database key. Only the protected Netlify function and the
+morning organizer can reach the private Capture tables.

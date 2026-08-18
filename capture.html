@@ -206,53 +206,59 @@
 <div class="toast" id="toast"><span id="toasttext"></span><button id="toastbtn">Undo</button></div>
 
 <script>
-const SB="https://vqqmyjapnvmpktxikrrz.supabase.co/rest/v1";
-const KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxcW15amFwbnZtcGt0eGlrcnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5OTQzMzQsImV4cCI6MjA5OTU3MDMzNH0.6XS5-iJgnUiOx7RIEQtNxwuhLEvL9MsnzHpqjjewkL4";
-const H={apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"};
-const FIELDS="id,created_at,body,done,done_at,category,kind,title,summary,priority,pinned,remind_at,tags,surfaced_reason,surfaced_on,locked_fields";
+const CAPTURE_API="/api/capture";
 
 let items=[], run=null, changes=[], tab="now", query="", filterCat=null, showAll=false;
 const todayISO=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);};
 const $=id=>document.getElementById(id);
 
-async function api(path,opt){ const r=await fetch(SB+path,{...opt,headers:{...H,...((opt&&opt.headers)||{})}});
-  if(!r.ok) throw new Error(r.status+" "+await r.text()); return r; }
+async function api(action,payload={}){
+  const r=await fetch(CAPTURE_API,{method:"POST",credentials:"same-origin",
+    headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...payload})});
+  let data={}; try{ data=await r.json(); }catch(e){}
+  if(!r.ok){ const error=new Error(data.error||"Couldn't reach Capture"); error.status=r.status; throw error; }
+  return data;
+}
+
+async function pairFromPrivateLink(){
+  const match=location.hash.match(/(?:^#|&)pair=([^&]+)/);
+  if(!match) return false;
+  history.replaceState(null,"",location.pathname+location.search);
+  try{
+    const r=await fetch("/api/capture/pair",{method:"POST",credentials:"same-origin",
+      headers:{"Content-Type":"application/json"},body:JSON.stringify({key:decodeURIComponent(match[1])})});
+    if(!r.ok) throw new Error("Pairing failed");
+    return true;
+  }catch(e){
+    $("banner").textContent="This private setup link did not work. Ask Ryan for a new one.";
+    $("banner").style.display="block"; return false;
+  }
+}
 
 async function load(silent){
   try{
-    const r=await api(`/reminders?select=${FIELDS}&deleted_at=is.null&order=created_at.desc`);
-    const fresh=await r.json();
+    const fresh=await api("load");
     // never yank the page out from under an open sheet or a half-typed capture
     if(silent && (sheetOpen() || composerDirty())){
-      if(fresh.length!==items.length) $("stale").style.display="block";
+      if(fresh.items.length!==items.length) $("stale").style.display="block";
       return;
     }
-    items=fresh; $("banner").style.display="none"; $("stale").style.display="none";
-    try{
-      const rr=await api("/agent_runs?select=*&order=ran_at.desc&limit=1");
-      run=(await rr.json())[0]||null;
-      const latest = run ? await (await api(`/agent_changes?select=*&batch_id=eq.${run.batch_id}&reverted=eq.false&order=changed_at.desc`)).json() : [];
-      // A new empty daily run must not hide an older question Ryan has not
-      // answered yet. Keep the latest review history plus every still-pending
-      // decision, no matter which morning created it.
-      const pending = await (await api("/agent_changes?select=*&needs_ok=eq.true&confirmed=is.null&reverted=eq.false&order=changed_at.desc")).json();
-      const seen=new Set();
-      changes=[...pending,...latest].filter(c=>{
-        if(seen.has(c.id)) return false;
-        seen.add(c.id); return true;
-      });
-    }catch(e){
-      $("banner").textContent="Items loaded, but the daily review status couldn't load.";
-      $("banner").style.display="block"; }
+    items=fresh.items; run=fresh.run; changes=fresh.changes;
+    $("banner").style.display="none"; $("stale").style.display="none";
     render();
-  }catch(e){ $("banner").textContent=items.length?"Offline — showing what loaded last.":"Offline — couldn't load your captures."; $("banner").style.display="block"; }
+  }catch(e){
+    $("banner").textContent=e.status===401
+      ? "This device has not been paired with Ryan's private Capture yet."
+      : (items.length?"Offline — showing what loaded last.":"Offline — couldn't load your captures.");
+    $("banner").style.display="block";
+  }
 }
 
 async function patch(id,body){
   const i=items.findIndex(x=>x.id===id), before=i>=0?{...items[i]}:null;
   if(i>=0) Object.assign(items[i],body);
   render();
-  try{ await api(`/reminders?id=eq.${id}`,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify(body)}); return true; }
+  try{ await api("updateReminder",{id,changes:body}); return true; }
   catch(e){ if(i>=0&&before) items[i]=before; render(); toast("Couldn't save — try again.",null); return false; }
 }
 
@@ -260,9 +266,8 @@ async function patch(id,body){
 async function capture(text){
   if(!text.trim()) return false;
   try{
-    const r=await api("/reminders",{method:"POST",headers:{Prefer:"return=representation"},
-      body:JSON.stringify({body:text.replace(/\s+$/,"")})});
-    items.unshift((await r.json())[0]); render(); toast("Saved",null); return true;
+    const created=await api("createReminder",{body:text.replace(/\s+$/,"")});
+    items.unshift(created); render(); toast("Saved",null); return true;
   }catch(e){ toast("Couldn't save — your text is still here.",null); return false; }
 }
 
@@ -498,8 +503,7 @@ function openReview(){
 async function decide(cid,keep){
   const c=changes.find(x=>x.id===cid); if(!c) return;
   if(!keep && !await patch(c.entry_id,{[c.field]:c.old_value})) return;
-  try{ await api(`/agent_changes?id=eq.${cid}`,{method:"PATCH",headers:{Prefer:"return=minimal"},
-    body:JSON.stringify({confirmed:keep,reverted:!keep})}); }
+  try{ await api("updateChange",{id:cid,changes:{confirmed:keep,reverted:!keep}}); }
   catch(e){
     if(!keep) await patch(c.entry_id,{[c.field]:c.new_value});
     toast("Couldn't save that decision — try again.",null); return;
@@ -512,12 +516,10 @@ async function softDelete(id){
   const index=items.findIndex(x=>x.id===id); if(index<0) return;
   const removed=items[index];
   items=items.filter(x=>x.id!==id); render();
-  try{ await api(`/reminders?id=eq.${id}`,{method:"PATCH",headers:{Prefer:"return=minimal"},
-    body:JSON.stringify({deleted_at:new Date().toISOString()})}); }
+  try{ await api("updateReminder",{id,changes:{deleted_at:new Date().toISOString()}}); }
   catch(e){ items.splice(index,0,removed); render(); toast("Couldn't delete — try again.",null); return; }
   toast("Deleted",async()=>{
-    try{ await api(`/reminders?id=eq.${id}`,{method:"PATCH",headers:{Prefer:"return=minimal"},
-      body:JSON.stringify({deleted_at:null})}); await load(); }
+    try{ await api("updateReminder",{id,changes:{deleted_at:null}}); await load(); }
     catch(e){ toast("Couldn't restore — try again.",null); }
   });
 }
@@ -578,7 +580,7 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   tab=t.dataset.tab; query=""; filterCat=null; showAll=false; window.scrollTo(0,0); render(); });
 $("stale").onclick=()=>{ $("stale").style.display="none"; load(); };
 
-load();
+pairFromPrivateLink().then(load);
 setInterval(()=>load(true),60000);
 </script>
 </body>

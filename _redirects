@@ -1,4 +1,6 @@
 # The capture app was todos-a7k2x9.html before it had a name. Keep every old
 # bookmark and home-screen icon working — Netlify serves these before 404ing.
+/api/capture/pair  /.netlify/functions/capture-pair  200
+/api/capture       /.netlify/functions/capture-api   200
 /todos-a7k2x9        /capture   301
 /todos-a7k2x9.html   /capture   301
