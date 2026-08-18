@@ -26,7 +26,7 @@ work out why the Wire says what it says, or where a reminder went, the map is:
 Short version:
 
 ```
-capture.html -> Supabase -> capture-review agent -> brief_agent.py -> wire.html
+capture.html -> Supabase -> capture_review.py -> brief_agent.py -> wire.html
 ```
 
 ## Access decision
