@@ -261,14 +261,17 @@ function dueState(it){
 }
 
 // Now stays short on purpose. Pinned always wins over anything the agent chose.
-function nowList(){
+function attentionList(){
   const live=items.filter(x=>!x.done);
   const pin=live.filter(x=>x.pinned);
   const due=live.filter(x=>!x.pinned && ["over","today"].includes(dueState(x)))
                 .sort((a,b)=>(a.remind_at||"").localeCompare(b.remind_at||""));
   const pick=live.filter(x=>!x.pinned && !due.includes(x) && x.surfaced_on===todayISO())
                  .sort((a,b)=>(b.priority||0)-(a.priority||0));
-  const out=[...pin,...due,...pick];
+  return [...pin,...due,...pick];
+}
+function nowList(){
+  const live=items.filter(x=>!x.done), out=attentionList();
   if(out.length<4){
     const unsure=live.filter(x=>!out.includes(x) && kindOf(x)==="uncertain" && !x.remind_at);
     out.push(...unsure.slice(0,4-out.length));
@@ -322,10 +325,11 @@ function reviewCard(){
   if(!run) return `<div class="review quiet"><div class="rt">Daily review</div>
     <div class="quiettext">The agent hasn't run yet. Everything you capture waits in Dump until it does.</div></div>`;
   const pend=changes.filter(c=>c.needs_ok && c.confirmed===null).length;
+  const attention=attentionList().length;
   const when=new Date(run.ran_at).toLocaleDateString(undefined,{month:"short",day:"numeric"});
   return `<div class="review"><div class="rt">Daily review &middot; ${when}</div>
     <ul>
-      <li><b>${run.attention_ct}</b> ${run.attention_ct===1?"item needs":"items need"} attention</li>
+      <li><b>${attention}</b> ${attention===1?"item needs":"items need"} attention</li>
       <li><b>${run.organised_ct}</b> new ${run.organised_ct===1?"entry was":"entries were"} organized</li>
       ${pend?`<li><b>${pend}</b> ${pend===1?"decision needs":"decisions need"} you</li>`:""}
     </ul>
