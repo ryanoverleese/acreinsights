@@ -1,11 +1,7 @@
 const { hasCaptureSession } = require("../lib/capture-auth");
 
 const SUPABASE = "https://vqqmyjapnvmpktxikrrz.supabase.co/rest/v1";
-const REMINDER_FIELDS = [
-  "id", "created_at", "body", "done", "done_at", "category", "kind",
-  "title", "summary", "priority", "pinned", "remind_at", "tags",
-  "surfaced_reason", "surfaced_on", "locked_fields",
-].join(",");
+const SUPABASE_PUBLISHABLE = "sb_publishable_j2eKDEtVo-2CgTR4aKN6bQ_NqJvlyVB";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const KINDS = new Set(["actionable", "future", "memory", "uncertain"]);
 const REMINDER_UPDATE_FIELDS = new Set([
@@ -25,21 +21,25 @@ function reply(statusCode, value) {
   return { statusCode, headers: responseHeaders, body: JSON.stringify(value) };
 }
 
-function secret() {
-  const key = (process.env.REMINDERS_SUPABASE_SECRET || "").trim();
-  if (!key.startsWith("sb_secret_") || key.length < 24) {
-    throw new Error("REMINDERS_SUPABASE_SECRET is not configured");
+function serverKey() {
+  const key = (process.env.CAPTURE_SERVER_KEY || "").trim();
+  if (key.length < 48) {
+    throw new Error("CAPTURE_SERVER_KEY is not configured");
   }
   return key;
 }
 
-async function supabase(path, options = {}) {
+async function serverRequest(action, payload = {}) {
   const headers = {
-    apikey: secret(),
+    apikey: SUPABASE_PUBLISHABLE,
+    "x-capture-server-key": serverKey(),
     "Content-Type": "application/json",
-    ...(options.headers || {}),
   };
-  const result = await fetch(SUPABASE + path, { ...options, headers });
+  const result = await fetch(SUPABASE + "/rpc/capture_server_request", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ p_action: action, p_payload: payload }),
+  });
   const raw = await result.text();
   if (!result.ok) throw new Error(`Supabase ${result.status}: ${raw.slice(0, 300)}`);
   return raw ? JSON.parse(raw) : null;
@@ -118,22 +118,7 @@ function validateChangeDecision(input) {
 }
 
 async function loadCapture() {
-  const [items, runs, pending] = await Promise.all([
-    supabase(`/reminders?select=${REMINDER_FIELDS}&deleted_at=is.null&order=created_at.desc`),
-    supabase("/agent_runs?select=*&order=ran_at.desc&limit=1"),
-    supabase("/agent_changes?select=*&needs_ok=eq.true&confirmed=is.null&reverted=eq.false&order=changed_at.desc"),
-  ]);
-  const run = runs[0] || null;
-  const latest = run
-    ? await supabase(`/agent_changes?select=*&batch_id=eq.${encodeURIComponent(run.batch_id)}&reverted=eq.false&order=changed_at.desc`)
-    : [];
-  const seen = new Set();
-  const changes = [...pending, ...latest].filter(change => {
-    if (seen.has(change.id)) return false;
-    seen.add(change.id);
-    return true;
-  });
-  return { items, run, changes };
+  return serverRequest("load");
 }
 
 async function dispatch(message) {
@@ -143,37 +128,18 @@ async function dispatch(message) {
     case "createReminder": {
       const body = typeof message.body === "string" ? message.body.replace(/\s+$/, "") : "";
       if (!body.trim() || body.length > 50000) throw new Error("Invalid reminder");
-      const rows = await supabase("/reminders", {
-        method: "POST",
-        headers: { Prefer: "return=representation" },
-        body: JSON.stringify({ body }),
-      });
-      if (rows.length !== 1) throw new Error("Reminder was not created exactly once");
-      return rows[0];
+      return serverRequest("createReminder", { body });
     }
     case "updateReminder": {
       assertId(message.id);
       const changes = validateReminderChanges(message.changes);
-      const rows = await supabase(`/reminders?id=eq.${encodeURIComponent(message.id)}`, {
-        method: "PATCH",
-        headers: { Prefer: "return=representation" },
-        body: JSON.stringify(changes),
-      });
-      if (rows.length !== 1) throw new Error("Reminder was not updated exactly once");
+      await serverRequest("updateReminder", { id: message.id, changes });
       return { saved: true };
     }
     case "updateChange": {
       assertId(message.id);
       const changes = validateChangeDecision(message.changes);
-      const rows = await supabase(
-        `/agent_changes?id=eq.${encodeURIComponent(message.id)}&needs_ok=eq.true&confirmed=is.null`,
-        {
-          method: "PATCH",
-          headers: { Prefer: "return=representation" },
-          body: JSON.stringify(changes),
-        },
-      );
-      if (rows.length !== 1) throw new Error("Decision was not updated exactly once");
+      await serverRequest("updateChange", { id: message.id, changes });
       return { saved: true };
     }
     default:
