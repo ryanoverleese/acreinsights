@@ -231,7 +231,16 @@ async function load(silent){
     try{
       const rr=await api("/agent_runs?select=*&order=ran_at.desc&limit=1");
       run=(await rr.json())[0]||null;
-      changes = run ? await (await api(`/agent_changes?select=*&batch_id=eq.${run.batch_id}&reverted=eq.false&order=changed_at.desc`)).json() : [];
+      const latest = run ? await (await api(`/agent_changes?select=*&batch_id=eq.${run.batch_id}&reverted=eq.false&order=changed_at.desc`)).json() : [];
+      // A new empty daily run must not hide an older question Ryan has not
+      // answered yet. Keep the latest review history plus every still-pending
+      // decision, no matter which morning created it.
+      const pending = await (await api("/agent_changes?select=*&needs_ok=eq.true&confirmed=is.null&reverted=eq.false&order=changed_at.desc")).json();
+      const seen=new Set();
+      changes=[...pending,...latest].filter(c=>{
+        if(seen.has(c.id)) return false;
+        seen.add(c.id); return true;
+      });
     }catch(e){
       $("banner").textContent="Items loaded, but the daily review status couldn't load.";
       $("banner").style.display="block"; }
