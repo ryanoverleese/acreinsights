@@ -232,11 +232,11 @@ async function load(silent){
       const rr=await api("/agent_runs?select=*&order=ran_at.desc&limit=1");
       run=(await rr.json())[0]||null;
       changes = run ? await (await api(`/agent_changes?select=*&batch_id=eq.${run.batch_id}&reverted=eq.false&order=changed_at.desc`)).json() : [];
-    }catch(e){ run=null; changes=[];
+    }catch(e){
       $("banner").textContent="Items loaded, but the daily review status couldn't load.";
       $("banner").style.display="block"; }
     render();
-  }catch(e){ $("banner").textContent="Offline — showing what loaded last."; $("banner").style.display="block"; }
+  }catch(e){ $("banner").textContent=items.length?"Offline — showing what loaded last.":"Offline — couldn't load your captures."; $("banner").style.display="block"; }
 }
 
 async function patch(id,body){
