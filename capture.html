@@ -232,24 +232,29 @@ async function load(silent){
       const rr=await api("/agent_runs?select=*&order=ran_at.desc&limit=1");
       run=(await rr.json())[0]||null;
       changes = run ? await (await api(`/agent_changes?select=*&batch_id=eq.${run.batch_id}&reverted=eq.false&order=changed_at.desc`)).json() : [];
-    }catch(e){ run=null; changes=[]; }
+    }catch(e){ run=null; changes=[];
+      $("banner").textContent="Items loaded, but the daily review status couldn't load.";
+      $("banner").style.display="block"; }
     render();
   }catch(e){ $("banner").textContent="Offline — showing what loaded last."; $("banner").style.display="block"; }
 }
 
 async function patch(id,body){
-  const i=items.findIndex(x=>x.id===id); if(i>=0) Object.assign(items[i],body);
+  const i=items.findIndex(x=>x.id===id), before=i>=0?{...items[i]}:null;
+  if(i>=0) Object.assign(items[i],body);
   render();
-  try{ await api(`/reminders?id=eq.${id}`,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify(body)}); }
-  catch(e){ load(); }
+  try{ await api(`/reminders?id=eq.${id}`,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify(body)}); return true; }
+  catch(e){ if(i>=0&&before) items[i]=before; render(); toast("Couldn't save — try again.",null); return false; }
 }
 
 // capture asks for nothing: no type, no date, no category
 async function capture(text){
-  if(!text.trim()) return;
-  const r=await api("/reminders",{method:"POST",headers:{Prefer:"return=representation"},
-    body:JSON.stringify({body:text.replace(/\s+$/,"")})});
-  items.unshift((await r.json())[0]); render(); toast("Saved",null);
+  if(!text.trim()) return false;
+  try{
+    const r=await api("/reminders",{method:"POST",headers:{Prefer:"return=representation"},
+      body:JSON.stringify({body:text.replace(/\s+$/,"")})});
+    items.unshift((await r.json())[0]); render(); toast("Saved",null); return true;
+  }catch(e){ toast("Couldn't save — your text is still here.",null); return false; }
 }
 
 const kindOf=it=> it.kind || (it.done ? "memory" : "uncertain");
@@ -474,22 +479,28 @@ function openReview(){
 
 async function decide(cid,keep){
   const c=changes.find(x=>x.id===cid); if(!c) return;
-  if(!keep) await patch(c.entry_id,{[c.field]:c.old_value});
+  if(!keep && !await patch(c.entry_id,{[c.field]:c.old_value})) return;
   try{ await api(`/agent_changes?id=eq.${cid}`,{method:"PATCH",headers:{Prefer:"return=minimal"},
-    body:JSON.stringify({confirmed:keep,reverted:!keep})}); }catch(e){}
+    body:JSON.stringify({confirmed:keep,reverted:!keep})}); }
+  catch(e){
+    if(!keep) await patch(c.entry_id,{[c.field]:c.new_value});
+    toast("Couldn't save that decision — try again.",null); return;
+  }
   changes=changes.filter(x=>x.id!==cid); openReview(); render();
 }
 
 // delete is soft and always undoable
 async function softDelete(id){
-  if(!items.find(x=>x.id===id)) return;
+  const index=items.findIndex(x=>x.id===id); if(index<0) return;
+  const removed=items[index];
   items=items.filter(x=>x.id!==id); render();
   try{ await api(`/reminders?id=eq.${id}`,{method:"PATCH",headers:{Prefer:"return=minimal"},
-    body:JSON.stringify({deleted_at:new Date().toISOString()})}); }catch(e){}
+    body:JSON.stringify({deleted_at:new Date().toISOString()})}); }
+  catch(e){ items.splice(index,0,removed); render(); toast("Couldn't delete — try again.",null); return; }
   toast("Deleted",async()=>{
     try{ await api(`/reminders?id=eq.${id}`,{method:"PATCH",headers:{Prefer:"return=minimal"},
-      body:JSON.stringify({deleted_at:null})}); }catch(e){}
-    load();
+      body:JSON.stringify({deleted_at:null})}); await load(); }
+    catch(e){ toast("Couldn't restore — try again.",null); }
   });
 }
 
@@ -497,7 +508,7 @@ let toastTimer=null;
 function toast(msg,undoFn){
   $("toasttext").textContent=msg;
   $("toastbtn").style.display=undoFn?"block":"none";
-  $("toastbtn").onclick=()=>{ if(undoFn) undoFn(); $("toast").classList.remove("on"); };
+  $("toastbtn").onclick=async()=>{ $("toast").classList.remove("on"); if(undoFn) await undoFn(); };
   $("toast").classList.add("on"); clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>$("toast").classList.remove("on"), undoFn?6000:1800);
 }
@@ -533,7 +544,8 @@ function wire(){
     filterCat = filterCat===el.dataset.cat ? null : el.dataset.cat; render(); });
   const c=$("composer"), sb=$("savebtn");
   if(c){ c.oninput=()=>{ grow(c); sb.disabled=!c.value.trim(); };
-    sb.onclick=async()=>{ const t=c.value; c.value=""; grow(c); sb.disabled=true; await capture(t); }; }
+    sb.onclick=async()=>{ const t=c.value; sb.disabled=true;
+      if(await capture(t)){ c.value=""; grow(c); } else sb.disabled=!c.value.trim(); }; }
 }
 function grow(t){ t.style.height="auto"; t.style.height=Math.min(t.scrollHeight,window.innerHeight*0.46)+"px"; }
 
