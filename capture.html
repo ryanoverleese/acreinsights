@@ -470,13 +470,22 @@ function openReview(){
   $("sheetsave").style.visibility="hidden";
   const label={kind:"Filed as",category:"Category",tags:"Tags",priority:"Priority",
     summary:"Summary",title:"Title",related:"Linked to",remind_at:"Bring back on",surfaced_on:"Surfaced"};
-  const val=v=>v==null?"nothing":(typeof v==="object"?JSON.stringify(v).replace(/[\[\]"]/g,""):String(v));
+  const val=(field,v)=>{
+    if(v==null || v==="") return "nothing";
+    if(field==="kind") return ({actionable:"To do",future:"Later",memory:"Memory",uncertain:"Unsure"})[v]||v;
+    if(field==="priority") return +v>=90?"Urgent":+v>=60?"High":+v>0?"Normal":"None";
+    if(field==="related"){
+      const ids=Array.isArray(v)?v:[v];
+      return ids.map(id=>{ const linked=items.find(x=>x.id===id); return linked?firstLine(linked.title||linked.body):"Related entry"; }).join(", ");
+    }
+    return typeof v==="object"?JSON.stringify(v).replace(/[\[\]"]/g,""):String(v);
+  };
   $("sheetbody").innerHTML = changes.length ? changes.map(c=>{
     const it=items.find(x=>x.id===c.entry_id);
     return `<div class="chg">
       <div class="cf">${label[c.field]||c.field}</div>
       <div class="cv">${escapeHtml(it?firstLine(it.title||it.body):"(entry)")}</div>
-      <div class="cr">${escapeHtml(val(c.old_value))} &rarr; <b>${escapeHtml(val(c.new_value))}</b></div>
+      <div class="cr">${escapeHtml(val(c.field,c.old_value))} &rarr; <b>${escapeHtml(val(c.field,c.new_value))}</b></div>
       ${c.reason?`<div class="cr">${escapeHtml(c.reason)}</div>`:""}
       ${c.confirmed===null?`<div class="cbtns"><button class="keep" data-ok="${c.id}">Keep</button>
         <button class="undo" data-revert="${c.id}">Undo</button></div>`:""}
