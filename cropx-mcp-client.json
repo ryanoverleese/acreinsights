@@ -1,0 +1,12 @@
+{
+  "client_id": "https://acreinsights.netlify.app/cropx-mcp-client.json",
+  "client_name": "Grok Bot",
+  "client_uri": "https://acreinsights.netlify.app",
+  "redirect_uris": [
+    "https://www.cursor.com/agents/mcp/oauth/callback",
+    "http://localhost:8787/callback"
+  ],
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "token_endpoint_auth_method": "none"
+}
