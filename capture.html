@@ -394,8 +394,14 @@ function viewMemory(){
 
 function rowHtml(it,inDump){
   const memoryish=isMemory(it);
-  const heading=it.title || firstLine(it.body);
-  const rest = it.title ? it.body : it.body.slice(firstLine(it.body).length).replace(/^\n+/,"");
+  // Once Ryan edits the original text, that correction becomes the display
+  // authority. Do not let an older agent-generated title keep showing the
+  // misspelling or stale wording on the main list.
+  const bodyWasEdited=(it.locked_fields||[]).includes("body");
+  const heading=bodyWasEdited ? firstLine(it.body) : (it.title || firstLine(it.body));
+  const rest = (!bodyWasEdited && it.title)
+    ? it.body
+    : it.body.slice(firstLine(it.body).length).replace(/^\n+/,"");
   const showBody = memoryish && rest.trim();
   const ds=dueState(it), bits=[];
   if(ds==="over") bits.push(`<span class="tag due">Overdue ${fmtDate(it.remind_at)}</span>`);
