@@ -56,6 +56,8 @@ test("a paired load uses the one protected database doorway", async () => {
       httpMethod: "POST", headers: { cookie: await pairedCookie() }, body: JSON.stringify({ action: "load" }),
     });
     assert.equal(result.statusCode, 200);
+    assert.match(result.headers["Set-Cookie"], /^acre_capture=/);
+    assert.match(result.headers["Set-Cookie"], /Max-Age=31536000/);
     assert.equal(calls.length, 1);
     assert.match(calls[0].url, /\/rpc\/capture_server_request$/);
     assert.ok(calls[0].options.headers.apikey.startsWith("sb_publishable_"));

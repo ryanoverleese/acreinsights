@@ -1,4 +1,4 @@
-const { hasCaptureSession } = require("../lib/capture-auth");
+const { captureCookie, hasCaptureSession } = require("../lib/capture-auth");
 
 const SUPABASE = "https://vqqmyjapnvmpktxikrrz.supabase.co/rest/v1";
 const SUPABASE_PUBLISHABLE = "sb_publishable_j2eKDEtVo-2CgTR4aKN6bQ_NqJvlyVB";
@@ -17,8 +17,8 @@ const responseHeaders = {
   "X-Content-Type-Options": "nosniff",
 };
 
-function reply(statusCode, value) {
-  return { statusCode, headers: responseHeaders, body: JSON.stringify(value) };
+function reply(statusCode, value, extraHeaders = {}) {
+  return { statusCode, headers: { ...responseHeaders, ...extraHeaders }, body: JSON.stringify(value) };
 }
 
 function serverKey() {
@@ -152,7 +152,7 @@ exports.handler = async event => {
   try {
     if (!hasCaptureSession(event)) return reply(401, { error: "This device is not paired" });
     const message = JSON.parse(event.body || "{}");
-    return reply(200, await dispatch(message));
+    return reply(200, await dispatch(message), { "Set-Cookie": captureCookie() });
   } catch (error) {
     console.error("Capture API failed:", error.message);
     const badInput = /Invalid|Unsupported|Changes are required|Decision is required/.test(error.message);
