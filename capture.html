@@ -196,8 +196,8 @@
 <button class="stale" id="stale">New items &middot; tap to refresh</button>
 
 <div class="tabbar">
-  <button class="tab on" data-tab="now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Now<span class="badge hide" id="nowbadge"></span></button>
-  <button class="tab" data-tab="dump"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Dump</button>
+  <button class="tab" data-tab="now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Now<span class="badge hide" id="nowbadge"></span></button>
+  <button class="tab on" data-tab="dump"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Dump</button>
   <button class="tab" data-tab="memory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 015.5 4H10a2 2 0 012 2 2 2 0 012-2h4.5A1.5 1.5 0 0120 5.5v12a1.5 1.5 0 01-1.5 1.5H14a2 2 0 00-2 2 2 2 0 00-2-2H5.5A1.5 1.5 0 014 17.5z"/></svg>Memory</button>
 </div>
 
@@ -208,7 +208,7 @@
 <script>
 const CAPTURE_API="/api/capture";
 
-let items=[], run=null, changes=[], tab="now", query="", filterCat=null, showAll=false;
+let items=[], run=null, changes=[], tab="dump", query="", filterCat=null, showAll=false;
 const todayISO=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);};
 const $=id=>document.getElementById(id);
 
