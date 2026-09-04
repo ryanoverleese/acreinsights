@@ -107,19 +107,10 @@
   .clamp{ max-height:120px; overflow:hidden; -webkit-mask-image:linear-gradient(#000 65%,transparent); mask-image:linear-gradient(#000 65%,transparent); }
   .morebtn{ background:none; border:0; color:var(--accent); font:inherit; font-size:13.5px; font-weight:650; padding:5px 0 0; cursor:pointer; }
 
-  .composer{ background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:12px 13px 11px; }
-  .composer.dock{
-    position:fixed; left:0; right:0; z-index:55;
-    bottom:calc(49px + env(safe-area-inset-bottom));
-    max-width:640px; margin:0 auto; border-radius:14px 14px 0 0;
-    box-shadow:0 -6px 24px rgba(0,0,0,.12); border-top:1px solid var(--divider);
-  }
-  body.dump-open .screen{
-    padding-bottom:calc(env(safe-area-inset-bottom) + 88px + 168px);
-  }
+  .composer{ background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:12px 13px 11px; margin:0 0 4px; }
   .composer textarea{
     width:100%; border:0; background:transparent; color:var(--text); font:inherit; font-size:17px;
-    line-height:1.4; resize:none; outline:none; min-height:104px; max-height:30vh; overflow-y:auto;
+    line-height:1.4; resize:none; outline:none; min-height:104px; max-height:46vh; overflow-y:auto;
   }
   .composer textarea::placeholder{ color:var(--faint); }
   .crow{ display:flex; align-items:center; gap:10px; margin-top:8px; }
@@ -308,7 +299,7 @@ function nowList(){
 }
 
 function render(){
-  document.body.classList.toggle("dump-open", tab==="dump");
+  document.body.classList.remove("dump-open");
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===tab));
   const pend=changes.filter(c=>c.needs_ok && c.confirmed===null).length;
   const nb=$("nowbadge");
@@ -373,12 +364,12 @@ function viewDump(){
   const recent=items.slice(0,25);
   return `<h1>Dump</h1>
   <p class="daynote">Put it here now. It comes back when it matters.</p>
-  <div class="grouphead"><h2>Recent captures</h2><span class="n">${recent.length}</span></div>
-  ${recent.length?`<div class="card">${recent.map(it=>rowHtml(it,true)).join("")}</div>`:`<div class="empty">Nothing captured yet.</div>`}
-  <div class="composer dock">
+  <div class="composer">
     <textarea id="composer" placeholder="Anything at all &mdash; a job, a thought, something a customer said, a number worth keeping&hellip;" autofocus inputmode="text" enterkeyhint="enter"></textarea>
     <div class="crow"><span class="chint">Return makes a new line</span><button class="savebtn" id="savebtn" disabled>Save</button></div>
-  </div>`;
+  </div>
+  <div class="grouphead"><h2>Recent captures</h2><span class="n">${recent.length}</span></div>
+  ${recent.length?`<div class="card">${recent.map(it=>rowHtml(it,true)).join("")}</div>`:`<div class="empty">Nothing captured yet.</div>`}`;
 }
 
 function viewMemory(){
