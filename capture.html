@@ -306,11 +306,7 @@ function render(){
   if(pend){ nb.textContent=pend; nb.classList.remove("hide"); } else nb.classList.add("hide");
   $("view").innerHTML = tab==="now" ? (showAll?viewAll():viewNow()) : tab==="dump" ? viewDump() : viewMemory();
   wire();
-  const c=$("composer");
-  if(c){
-    grow(c);
-    requestAnimationFrame(()=>{ try{ c.focus({preventScroll:true}); }catch(e){ c.focus(); } });
-  }
+  if($("composer")) requestAnimationFrame(focusComposer);
 }
 
 function viewNow(){
@@ -587,8 +583,22 @@ function fmtDate(d){ if(!d) return ""; const [y,m,dd]=d.split("-");
 function escapeHtml(s){ return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function escapeAttr(s){ return escapeHtml(s).replace(/\n/g," "); }
 
+function focusComposer(){
+  const c=$("composer");
+  if(!c) return;
+  window.scrollTo(0,0);
+  grow(c);
+  try{ c.focus({preventScroll:true}); }catch(e){ c.focus(); }
+}
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
-  tab=t.dataset.tab; query=""; filterCat=null; showAll=false; window.scrollTo(0,0); render(); });
+  const next=t.dataset.tab;
+  // Second Dump tap (already on Dump): one-thumb focus into the box.
+  if(next==="dump" && tab==="dump"){
+    focusComposer();
+    return;
+  }
+  tab=next; query=""; filterCat=null; showAll=false; window.scrollTo(0,0); render();
+});
 $("stale").onclick=()=>{ $("stale").style.display="none"; load(); };
 
 pairFromPrivateLink().then(load);
