@@ -1,55 +1,109 @@
-<!doctype html><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Acre Insights Wire — plain</title><style>body{margin:0;background:#faf8f4;color:#1a1a1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55}.w{max-width:40rem;margin:0 auto;padding:2rem 1.25rem 4rem}.flag{background:#b03a0c;color:#fff;padding:.6rem .9rem;border-radius:4px;font-size:.85rem;font-weight:600;margin-bottom:1.5rem}pre{white-space:pre-wrap;word-wrap:break-word;font:inherit;margin:0}h1{font-size:1.5rem;margin:0 0 .25rem;letter-spacing:-.02em}.d{color:#6a717a;font-size:.85rem;margin:0 0 1.5rem}</style><div class='w'><div class='flag'>The writer failed this morning. This is the plain backup, not the usual Wire.</div><h1>Acre Insights</h1><p class='d'>THU 10 SEP 2026 · 6:16 AM</p><pre>(The Capture organizer did not finish; saved captures are intact but may be missing from today&#x27;s priorities.)
+<title>ACRE INSIGHTS WIRE</title>
+<style>
+  /* An ag wire, printed.
+     Dense rows and aligned figures from the Bloomberg rationale — scan a lot of
+     numbers without eye fatigue — but system sans, NOT monospace: tabular-nums
+     lines the digits up without the typewriter costume. Dateline furniture,
+     kickers and rules from the DTN market wire. No cards, no rounding, no
+     shadow, no gradient: nothing that wears off (37signals). Ink on newsprint,
+     one red, spent once. Hierarchy comes from weight and size, one family. */
+  :root{
+    --bg:#f1eee5;         /* newsprint, not white — white glares at 5am */
+    --panel:#e8e4d8;
+    --ink:#17150f;        /* the black a press actually lays down */
+    --ink-2:#4a4639;
+    --grey:#7d7869;
+    --rule:#c6c0ae;
+    --rule-hard:#17150f;
+    --red:#9c2b16;        /* one colour, spent once */
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  /* No dark mode on purpose. A wire is printed. Committing to one look is a
+     choice, not an omission — and Ryan reads this in a lit kitchen. */
 
-(The agent couldn&#x27;t write this morning — &#x27;ANTHROPIC_API_KEY&#x27;. Here is the plain version.)
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink-2);
+    font-family:var(--sans); font-size:20px; line-height:1.6;
+    font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased;
+  }
+  .wire{max-width:820px; margin:0 auto; padding:18px 16px 80px}
 
-ACRE INSIGHTS — MORNING BRIEF
-Thursday, September 10, 2026
+  /* masthead: a status bar, the way a terminal opens */
+  .bar{display:flex; gap:14px; align-items:baseline; flex-wrap:wrap;
+       border-bottom:1px solid var(--ink); padding-bottom:5px}
+  .bar .id{color:var(--ink); font-weight:800; letter-spacing:.1em; font-size:18px}
+  .bar .dt{color:var(--grey); margin-left:auto; letter-spacing:.02em; font-size:15px; font-weight:600}
+  .tape{border-bottom:1px solid var(--rule); padding:5px 0 12px; color:var(--grey);
+        font-size:17px; letter-spacing:.01em; display:flex; gap:14px 20px; flex-wrap:wrap; line-height:1.7}
+  .tape b{color:var(--ink); font-weight:700}
+  .tape .up{color:var(--ink)} .tape .dn{color:var(--red)}
 
-Good morning, Ryan. Your team worked the night shift.
+  /* wire items: kicker, headline, body — no boxes */
+  .item{border-bottom:1px solid var(--rule); padding:20px 0}
+  .kicker{font-size:15px; letter-spacing:.12em; color:var(--grey); text-transform:uppercase}
+  .item.alert .kicker{color:var(--red)}
+  h2{margin:6px 0 10px; font-size:25px; line-height:1.3; color:var(--ink); font-weight:750;
+     letter-spacing:-.012em; text-transform:none}
+  .item.alert h2{color:var(--red)}
+  .item p{margin:0 0 7px; color:var(--ink-2); max-width:74ch}
+  .item p:last-child{margin-bottom:0}
+  .item p b{color:var(--ink); font-weight:700}
+  .item p em{font-style:normal; color:var(--grey)}
 
-AGRONOMY
-- Driest across the fleet: Brad and Deb Lundeen Trust / Johnsons (25.5%), Lee’s / Lees pivot (25.7%), DK Farms / Half Pivot (26.8%), Blum / Dean&#x27;s (28.3%) (moisture read is current)
-- Day-to-water suggestions are pre-loaded on the write page for today&#x27;s reports.
+  /* figures: a fixed-width run, the way a quote line reads */
+  .run{margin-top:12px; color:var(--grey); font-size:17px; letter-spacing:.02em}
+  .run u{text-decoration:none; color:var(--red); font-weight:700}
+  .run s{text-decoration:none; color:var(--ink); font-weight:700}
 
-OPERATIONS
-- 4 open repairs. Newest:
-   * Roeder Land and Cattle Co - Volentine NW — Likely signal or battery.  18% signal, maybe just br
-   * 37 Ag, Inc. - Coe — Weather Station Issues.  Claims its cell issue
-   * Katerina White - 3/4 Pivot — Stopped reporting 8/15/26. Ryan: still down 8/24/26,
-   * Roeder Land and Cattle Co - Peterson South — Low signal (38%) — CropX Stub antenna, candidate for
-- Probes needing eyes: Gladmans / Gladmans Pivot (LowRssi); Fishell Farms / Lost Creek (LowRssi); Brad and Deb Lundeen Trust / Johnsons (LowRssi); Eugene Lundeen Trust / Oline&#x27;s (LowRssi); Dahlgren Cattle Co. / Ebmeier - Drip (LowRssi); LogLand AG / Logans west (Offline)
+  table{width:100%; border-collapse:collapse; margin-top:14px; font-size:19px}
+  th{text-align:left; color:var(--grey); font-weight:600; font-size:15px; letter-spacing:.07em;
+     text-transform:uppercase; padding:0 0 4px; border-bottom:1px solid var(--rule)}
+  th.r,td.r{text-align:right}
+  td{padding:8px 0; border-bottom:1px dotted var(--rule); color:var(--ink-2); vertical-align:baseline}
+  tr:last-child td{border-bottom:0}
+  td.r{color:var(--ink); font-weight:700; white-space:nowrap}
+  td .n{display:block; color:var(--grey); font-size:16px; letter-spacing:.02em}
+  .scroll{overflow-x:auto}
 
-FINANCE
-- Receivables $144,780 — $77,230 overdue (53%).
-- Most of the overdue sits at 91+ days ($41,930). Chase first:
-   * Brian Johnson — $19,120
-   * Carson Blum — $14,375
-   * Double BJ Farms — $12,475
-   * 37 Ag — $8,650
-   * Kyle Jensen — $5,675
-  (finance as of 2026-08-10)
+  /* source links under an item — a citation line, not a button row */
+  .refs{margin-top:12px; font-size:17px; line-height:1.75}
+  .refs a{display:block; color:var(--ink); text-decoration:underline;
+          text-decoration-color:var(--rule); text-underline-offset:3px}
+  .refs a span{color:var(--grey); text-decoration:none; font-size:15px; letter-spacing:.04em}
 
-BILLING (Amanda&#x27;s board)
-- 6 invoices still DRAFT carrying $26,975 — not marked sent:
-   * Zac Carlson — $12,975 (inv #1758)
-   * Brian Carlson — $3,900 (inv #1759)
-   * 37 Ag + Connie Stadler — $3,525 (inv #1735)
-   * Double BJ + Connie Stadler — $3,525 (inv #1736)
-   * C4 Farms, LLC — $1,625
-- 9 marked Sent but never matched in QuickBooks — either QB never got the invoice or the match box wasn&#x27;t ticked.
+  .foot{padding-top:20px; color:var(--grey); font-size:19px}
+  .foot p{margin:0 0 7px; max-width:76ch; color:var(--ink-2)}
+  .foot b{color:var(--ink); font-weight:700}
+  .end{margin-top:20px; padding-top:10px; border-top:1px solid var(--ink);
+       color:var(--grey); font-size:14px; letter-spacing:.1em}
 
-CUSTOMER
-- 7 new MeterCalc signups in the last ~10 days — nudge the empty ones.
-- Mon/Tue is report-writing; day suggestions are staged.
+  @media (max-width:520px){
+    .wire{padding:16px 15px 80px}
+    .tape{gap:10px 18px; font-size:17.5px}
+    h2{font-size:26px; line-height:1.26}
+    .item p{font-size:20.5px}
+    table{font-size:19.5px}
+    .foot{font-size:20px}
+    .kicker{font-size:15.5px}
+  }
+</style>
 
-OFFICE (your desk)
-- 53 open. 5 pinned:
-   * Pack zip ties for Friday service run
-   * Pasture pond monitor battery
-   * Jason 80-90 at Napa
-   * Homeowners insurance
-   * Valley API AGREEMENT
-- Board: Client Work 17 · Property 16 · Winter 7 · Errands 5 · Probe Moves 3 · unfiled 2 · Shop 1 · Others 1 · Home 1
+<div class="wire">
 
-Text the Reminder number anytime and it lands on my desk for tomorrow.
-— Your Acre Insights AI team</pre></div>
+
+
+  <div class="bar">
+    <span class="id">ACRE INSIGHTS WIRE</span>
+    <span class="dt">Thu 10 Sep 2026 · UPDATED 6:17 AM</span>
+  </div>
+  <div class="tape"><span>HIGH <b class="">85°F</b></span><span>ET₀ <b class="">0.18″</b></span><span>LOW SIG <b class="dn">6</b> <em>was 3</em></span><span>REPAIRS <b class="">4</b></span><span>AR &gt;90d <b class="">$77k</b> <em>snapshot 31 days old</em></span></div>
+
+  <div class="item alert"><div class="kicker">CAPTURE</div><h2>Today&#x27;s Capture organizer did not finish.</h2><p>Your saved captures are still intact, but new items may not be filed or prioritized in this morning&#x27;s Wire.</p></div><div class="item alert"><div class="kicker">SIGNAL</div><h2>Six probes showing low signal this morning — doubled overnight.</h2><p>Yesterday had 3 weak signals; today it&#x27;s 6. New additions: Fishell Farms / Lost Creek, Dahlgren / Ebmeier Drip, and LogLand / Logans west (that one went fully offline). The usual suspects — Gladmans, Brad Lundeen / Johnsons, and Eugene Lundeen / Oline&#x27;s — are still hanging on.</p><p>LogLand going offline is new. Worth a look before it becomes a repair ticket. The Johnsons probe is also your driest field right now (25.5%), so you&#x27;re flying blind on the one that matters most.</p></div><div class="item"><div class="kicker">DRY FIELDS</div><h2>Lundeen / Johnsons and Lee&#x27;s pivot are both at 25–26% and drawing down.</h2><p>Johnsons dropped from 26.6% yesterday to 25.5% today. Lee&#x27;s pivot went from 26.3% to 25.7%. Both are getting into uncomfortable territory, especially with dry weather today after yesterday&#x27;s patchy rain missed them.</p><p>DK Farms / Half Pivot jumped onto the dry list at 26.8% — it was at 30% two days ago. That&#x27;s a fast drop for a field that should have caught some of the Heartwell rain. Might be real, might be worth verifying.</p></div><div class="item"><div class="kicker">FINANCE</div><h2>The receivables snapshot is 31 days old now.</h2><p>You&#x27;re still showing $77k overdue (53% of $145k total) as of August 10. That&#x27;s a month stale. If you&#x27;ve collected anything since then, the brief can&#x27;t see it. Might be time to pull a fresh report.</p><p>Draft invoices sitting ready: $27k across 6 invoices including the Carlson pair ($12,975 and $3,900).</p></div><div class="item"><div class="kicker">AI WIRE</div><h2>DeepSeek v4.1 Flash released; small-model training getting cheap.</h2><p>DeepSeek dropped v4.1 Flash — their latest fast model. Worth checking if the API pricing beats what you&#x27;re paying now for quick tasks.</p><p>Someone trained a 3.8B parameter model to reasonable benchmark scores for under $1,000. If you ever want to fine-tune a small local model for specific farm tasks, the cost barrier is dropping fast.</p><div class="refs"><a href="https://twitter.com/deepseek_ai/status/2097930608790167907" target="_blank" rel="noopener">DeepSeek v4.1 Flash <span>· HN</span></a><a href="https://hugovergnes.github.io/little-lm-3-8b/" target="_blank" rel="noopener">Training a 3.8B LLM to 0.384 CORE for $998 <span>· HN</span></a></div></div>
+
+  <div class="foot">
+<p><b>Water.</b> Rain the last few days landed mostly around Bertrand, Loomis, and Heartwell — up to half an inch in spots. Dry today. The fields east of there didn&#x27;t get much. Nobody is desperate yet, but Lundeen and Lee&#x27;s are worth watching.</p><p><b>Shop.</b> Four repairs open, unchanged all week. Katerina White&#x27;s probe has been down since mid-August — that&#x27;s the oldest one. The other three are from September 4.</p><p><b>Ops.</b> 329 fields, 365 probes placed, 54 of 82 invoices paid. Nothing moved this week.</p>
+    <div class="end">END — ACRE INSIGHTS AI TEAM</div>
+  </div>
+
+</div>
