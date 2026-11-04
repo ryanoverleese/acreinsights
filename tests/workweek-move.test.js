@@ -19,3 +19,9 @@ test("place moves the existing row in place and keeps one per week", () => {
   assert.match(place, /isodow/);
   assert.ok(!/delete from public\.workweek_placements p\s+where p\.reminder_id = v_id\s+and p\.block_date/.test(place), "no delete-all-then-insert");
 });
+
+test("blocks with placed chips grow to fit and later blocks slide down", () => {
+  assert.match(html, /function fitBlocks\(\)/);
+  assert.match(html, /fitBlocks\(\);\s*\n\s*document\.getElementById\("hint"\)/);
+  assert.match(html, /b\.scrollHeight/);
+});

@@ -246,6 +246,28 @@ function dayColumn(d, assign) {
   return h + `</div>`;
 }
 
+// A block holding placed chips grows to fit them; later blocks in that day
+// slide down by the same amount so nothing is hidden or overlapped.
+function fitBlocks() {
+  document.querySelectorAll("#days .col").forEach(col => {
+    const blocks = [...col.querySelectorAll(":scope > .blk")].sort((a, b) => parseFloat(a.style.top) - parseFloat(b.style.top));
+    const shifts = []; let extra = 0;
+    for (const b of blocks) {
+      const top = parseFloat(b.style.top), h = parseFloat(b.style.height);
+      if (extra) b.style.top = top + extra + "px";
+      if (b.querySelector(".tasks")) {
+        b.style.height = "auto";
+        const need = b.scrollHeight;
+        b.style.height = Math.max(h, need) + "px";
+        if (need > h) { extra += need - h; shifts.push([top + h, extra]); }
+      }
+    }
+    if (!extra) return;
+    col.style.height = parseFloat(col.style.height) + extra + "px";
+    const now = col.querySelector(":scope > .now");
+    if (now) { const t = parseFloat(now.style.top); let add = 0; for (const [end, ex] of shifts) if (t >= end) add = ex; now.style.top = t + add + "px"; }
+  });
+}
 function render() {
   const all = days.map(dayBlocks);
   const weekWork = all.reduce((s, b) => s + sum(b, "work"), 0), weekFam = all.reduce((s, b) => s + sum(b, "family"), 0);
@@ -257,6 +279,7 @@ function render() {
   } else {
     daysEl.innerHTML = `<div class="grid">${days.map(d => dayColumn(d, assign)).join("")}</div>`;
   }
+  fitBlocks();
   document.getElementById("hint").textContent = picked ? (placements.some(p => p.reminder_id === picked) ? "Tap a Work block to move it" : "Tap a Work block to add it") : "Drag onto a Work block, or tap then tap a block";
   const placed = new Set(Object.values(assign).flat());
   let t = "";
