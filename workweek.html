@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Ryan's Work Week</title>
+<link rel="apple-touch-icon" href="/todos-icon-180.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/todos-icon-180.png">
+<style>
+  :root{
+    --ink:#33362E; --text:#1C1C1A; --sub:#6F6C64; --line:#DDD8CE; --bg:#FFFFFF;
+    --font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font); -webkit-text-size-adjust:100%; }
+  button,input{ font-family:var(--font); }
+  .wrap{ max-width:1280px; margin:0 auto; padding:24px 20px 48px; display:flex; flex-direction:column; gap:16px; }
+  h1{ margin:0; text-align:center; font-size:30px; font-weight:800; line-height:36px; color:var(--ink); }
+  .split{ display:flex; width:100%; overflow:hidden; color:var(--ink); text-align:center; border-radius:10px; }
+  .split.big{ max-width:520px; margin:0 auto; border-radius:12px; }
+  .seg{ display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 2px; min-width:0; }
+  .big .seg{ padding:10px 4px; }
+  .seg .n{ font-size:11px; font-weight:600; }
+  .big .seg .n{ font-size:13px; }
+  .seg .v{ font-size:20px; font-weight:800; line-height:24px; }
+  .big .seg .v{ font-size:32px; line-height:38px; }
+  .hrs{ font-size:11px; font-weight:600; opacity:.85; }
+  .grid{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:16px; }
+  .day{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .dayname{ font-size:20px; line-height:26px; color:var(--text); font-weight:800; text-align:center; }
+  .col{ position:relative; }
+  .blk{ position:absolute; left:0; right:0; border-radius:8px; padding:4px 8px; overflow:hidden; display:flex; flex-direction:column;
+        justify-content:center; align-items:center; text-align:center; font-size:12px; line-height:15px; color:var(--ink); }
+  .blk.target{ outline:2px dashed #33362E; outline-offset:-3px; cursor:pointer; }
+  .blk.over{ outline:2px solid #33362E; outline-offset:-3px; }
+  .b7{ font-weight:700; } .b8{ font-weight:800; font-size:16px; line-height:18px; }
+  .tasks{ display:flex; flex-direction:column; gap:3px; margin-top:4px; width:100%; }
+  .chip{ background:#fff; border:1px solid #C9C3B6; color:#33362E; border-radius:8px; text-align:center; position:relative; }
+  .tchip{ font-size:11px; line-height:14px; padding:2px 18px; }
+  .x{ position:absolute; right:5px; top:1px; cursor:pointer; font-weight:700; background:none; border:0; padding:0; color:inherit; font-size:12px; line-height:14px; }
+  .ok{ position:absolute; left:4px; top:50%; transform:translateY(-50%); width:13px; height:13px; border-radius:7px; border:1.5px solid #33362E;
+       background:transparent; padding:0; cursor:pointer; opacity:.55; }
+  .ok:hover{ opacity:1; background:rgba(51,54,46,.12); }
+  .now{ position:absolute; left:0; right:0; height:2px; background:#9E3B2E; z-index:5; pointer-events:none; }
+  .now i{ position:absolute; left:-4px; top:-3px; width:8px; height:8px; border-radius:4px; background:#9E3B2E; }
+  .now b{ position:absolute; left:8px; top:-15px; font-size:10px; font-weight:700; color:#9E3B2E; line-height:12px; }
+  .fam{ display:flex; flex-direction:column; gap:4px; margin-top:4px; }
+  .famh{ font-size:12px; color:var(--sub); font-weight:600; text-align:center; }
+  .famc{ border:1px solid var(--line); border-radius:8px; padding:4px 8px; font-size:12px; color:var(--text); text-align:center; }
+  .famc div:first-child{ font-weight:600; } .famc div+div{ color:var(--sub); }
+  .nav{ display:flex; justify-content:space-between; align-items:center; }
+  .nav button{ font-size:22px; padding:2px 14px; border:none; background:transparent; color:var(--text); cursor:pointer; }
+  .nav button:disabled{ opacity:.25; cursor:default; }
+  .dots{ display:flex; gap:6px; } .dots span{ width:8px; height:8px; border-radius:4px; background:#ccc; display:inline-block; cursor:pointer; }
+  .todo{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+  .todoh{ text-align:center; font-size:20px; font-weight:800; color:var(--ink); }
+  .hint{ text-align:center; font-size:12px; opacity:.7; }
+  .add{ display:flex; gap:6px; justify-content:center; }
+  .add input{ width:min(360px,100%); font-size:14px; padding:7px 10px; border:1px solid #C9C3B6; border-radius:8px; color:var(--ink); background:#fff; }
+  .add input:focus{ outline:2px solid #869EB4; outline-offset:0; }
+  .add button{ font-size:14px; font-weight:700; padding:7px 14px; border-radius:8px; border:1px solid #869EB4; background:#BECEDC; color:var(--ink); cursor:pointer; }
+  .tray{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+  .cat{ width:100%; display:flex; flex-direction:column; gap:6px; margin-top:6px; }
+  .cath{ text-align:center; font-size:13px; font-weight:700; color:var(--ink); display:flex; align-items:center; justify-content:center; gap:6px; }
+  .cath span{ width:10px; height:10px; border-radius:5px; display:inline-block; }
+  .items{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+  .item{ font-size:12px; line-height:16px; padding:5px 10px 5px 24px; cursor:grab; max-width:260px; user-select:none; -webkit-user-select:none; }
+  .item.picked{ outline:2px solid #33362E; }
+  .banner{ display:none; text-align:center; font-size:13px; color:#9E3B2E; }
+  .note{ text-align:center; font-size:11px; color:var(--sub); }
+  @media (max-width:699px){ .wrap{ padding:18px 14px 40px; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <h1>Ryan's Work Week</h1>
+  <div class="banner" id="banner"></div>
+  <div id="total"></div>
+  <div id="days"></div>
+  <div class="todo">
+    <div class="todoh">To-do</div>
+    <div class="hint" id="hint">Drag onto a Work block, or tap then tap a block</div>
+    <form class="add" id="addform" autocomplete="off">
+      <input id="addtext" maxlength="300" placeholder="Add a to-do" aria-label="Add a to-do">
+      <button type="submit">Add</button>
+    </form>
+    <div class="tray" id="tray"></div>
+  </div>
+  <div class="note" id="note"></div>
+</div>
+<script>
+const API = "/api/capture/workweek";
+
+const CAT_MAP = { "Client Work": "Client Work", "3W Farms": "Client Work", Office: "Client Work", Agronomy: "Client Work", Property: "Property", Winter: "Winter", "Probe Moves": "Probe Moves", Errands: "Errands" };
+const CAT_ORDER = ["Client Work", "Probe Moves", "Property", "Winter", "Errands", "Christmas", "Mattie Day", "Other"];
+const CAT_COLOR = { "Client Work": "#BECEDC", "Probe Moves": "#B7D4D0", Property: "#E8C4B4", Winter: "#ECD8A6", Errands: "#D1D4AC", Christmas: "#DAC4D4", "Mattie Day": "#E7C7CF", Other: "#DCD8D2" };
+const CAT_STRIPE = { "Client Work": "#869EB4", "Probe Moves": "#7BA6A0", Property: "#C38D75", Winter: "#CAAC62", Errands: "#A0A46E", Christmas: "#AC8CA4", "Mattie Day": "#C0909C", Other: "#AEA89F" };
+// Page-only regrouping of items RyMinders has no category for (RyMinders itself is unchanged)
+const TITLE_CAT = {
+  "Bill Roeder for both Peister probes": "Client Work", "Look at late summer signal data": "Client Work",
+  "Remove the sheath around CropX antennas": "Client Work", "Add probe location history": "Client Work",
+  "413840 is double booked": "Client Work", "Dielectric grease on all the antennas": "Client Work",
+  "Mark Liundeen doing all DIY installs in 2027": "Client Work",
+  "Move Pearson west probe next year": "Probe Moves", "Move both Lost Creek probes to the south side": "Probe Moves",
+  "Change location of Scott's next year": "Probe Moves", "Move Gardels east probe to the actual location": "Probe Moves",
+  "Add a 4x4 to the front of Brian's ATV trailer": "Property", "3D print a flag bracket for the scooter": "Property",
+  "Root prune the eastern white pine": "Property", "Get emergency drinking-water canisters": "Errands",
+};
+const COLORS = { work: "#A9C4B0", family: "#C9C3B6", break: "#C9C3B6", other: "#D3C4C0" };
+const TOTAL_BG = "#B4C7D4";
+const DAY_START = 7.75, WORK_START = 8.5, DAY_END = 17, PX = 64;
+const SKIP = ["Dishwasher Repair"];
+const NO_MATTIE = ["2026-11-04"];
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const addDays = (s, n) => { const d = new Date(s + "T12:00:00"); d.setDate(d.getDate() + n); return iso(d); };
+const mondayOf = d => { const x = new Date(d); x.setHours(12, 0, 0, 0); const k = (x.getDay() + 6) % 7; x.setDate(x.getDate() - k); return iso(x); };
+const WEEK = mondayOf(new Date());
+const days = [0, 1, 2, 3, 4].map(n => addDays(WEEK, n));
+const todayIso = () => iso(new Date());
+
+let ryanCal = [], amandaEvents = [], items = [], placements = [];
+let picked = null, idx = 0, loaded = false, dragging = null;
+let narrow = window.innerWidth < 700;
+
+const textOf = it => (it.title || it.body || "").split("\n")[0].trim().slice(0, 140);
+function catOf(it) {
+  const t = textOf(it);
+  if (TITLE_CAT[t]) return TITLE_CAT[t];
+  if (CAT_MAP[it.category]) return CAT_MAP[it.category];
+  if (/christmas/i.test(t)) return "Christmas";
+  if (/^mattie day/i.test(t)) return "Mattie Day";
+  return "Other";
+}
+const byId = id => items.find(x => x.id === id);
+
+function fixed(d) {
+  const out = [
+    { start: 7.75, end: 8.5, title: "Kasen school drop-off", kind: "family" },
+    { start: 12, end: 12.5, title: "Lunch", kind: "break" },
+    { start: 15.25, end: 16, title: "Pick up Kasen", kind: "family" },
+  ];
+  if (!NO_MATTIE.includes(d)) out.push({ start: 10.5, end: 11.5, title: "Mattie time", kind: "family" });
+  for (const e of amandaEvents.filter(x => x.date === d)) {
+    const name = e.title === "Amanda: Elite" ? "Mattie OT (Elite)" : e.title.replace("Amanda: ", "");
+    out.push({ start: e.start - 0.33, end: e.end + 0.33, title: `${name} + drive`, kind: "family" });
+  }
+  for (const e of ryanCal.filter(x => x.date === d && !SKIP.includes(x.title))) out.push({ start: e.start, end: e.end, title: e.title, kind: "other" });
+  return out;
+}
+function dayEnd(d) { const a = amandaEvents.find(e => e.date === d && e.title.includes("Awana")); return a ? a.end : DAY_END; }
+function dayBlocks(d) {
+  const end = dayEnd(d);
+  const busy = fixed(d).filter(b => b.start < end).sort((a, b) => a.start - b.start);
+  const out = [];
+  let t = DAY_START;
+  for (const b of busy) {
+    const s = Math.max(b.start, t), ws = Math.max(t, WORK_START);
+    if (s - ws > 0.26) out.push({ start: ws, end: s, title: "Work", kind: "work" });
+    if (b.end > s) out.push({ start: s, end: Math.min(b.end, end), title: b.title, kind: b.kind });
+    t = Math.max(t, b.end);
+  }
+  const ws2 = Math.max(t, WORK_START);
+  if (end - ws2 > 0.26) out.push({ start: ws2, end, title: "Work", kind: "work" });
+  return out;
+}
+const sum = (bs, k) => bs.filter(b => b.kind === k).reduce((s, b) => s + (b.end - b.start), 0);
+const num = n => `${Number((Math.round(n * 4) / 4).toFixed(2))}`;
+const r2 = n => Math.round(n * 100) / 100;
+const fmt = x => { const h = Math.floor(x), m = Math.round((x - h) * 60); return `${h > 12 ? h - 12 : h}:${String(m).padStart(2, "0")}`; };
+const label = (d, o) => new Date(d + "T12:00:00").toLocaleDateString("en-US", o);
+const slotKey = (d, s) => `${d}|${r2(s)}`;
+
+function liveSlots() {
+  const set = new Set();
+  for (const d of days) for (const b of dayBlocks(d)) if (b.kind === "work") set.add(slotKey(d, b.start));
+  return set;
+}
+function assignMap() {
+  const live = liveSlots(), map = {};
+  for (const p of placements) {
+    const k = slotKey(p.date, p.start);
+    if (!live.has(k) || !byId(p.reminder_id)) continue;
+    (map[k] = map[k] || []).push(p.reminder_id);
+  }
+  return map;
+}
+
+function splitBar(work, fam, big) {
+  const t = work + fam || 1, wp = (work / t) * 100;
+  const seg = (bg, pct, name, v) => `<div class="seg" style="width:${pct}%;background:${bg}"><div class="n">${name}</div><div class="v">${num(v)}</div><div class="hrs">Hours</div></div>`;
+  return `<div class="split${big ? " big" : ""}">${seg(TOTAL_BG, wp, "Work", work)}${seg("#D8C7A6", 100 - wp, big ? "Family and Transportation" : "Family", fam)}</div>`;
+}
+
+function chipStyle(cat) { return `background:${CAT_COLOR[cat]};border-left:5px solid ${CAT_STRIPE[cat]}`; }
+
+function dayColumn(d, assign) {
+  const today = d === todayIso();
+  const bs = dayBlocks(d);
+  let h = `<div class="day"><div class="dayname">${label(d, { weekday: "short" })} ${label(d, { month: "numeric", day: "numeric" })}${today ? " · Today" : ""}</div>`;
+  h += splitBar(sum(bs, "work"), sum(bs, "family"), false);
+  h += `<div class="col" style="height:${(DAY_END - DAY_START) * PX}px">`;
+  for (const b of bs) {
+    const len = b.end - b.start, work = b.kind === "work", key = slotKey(d, b.start);
+    const tasks = work ? assign[key] || [] : [];
+    h += `<div class="blk${work && picked ? " target" : ""}" ${work ? `data-slot="${key}"` : ""} style="top:${(b.start - DAY_START) * PX + 1}px;height:${len * PX - 3}px;background:${COLORS[b.kind]}">`;
+    if (work && len < 0.75) h += `<div class="b7">Work · ${num(len)} Hours</div>`;
+    else if (work) h += `<div class="b7">Work</div><div class="b8">${num(len)}</div><div class="hrs">Hours</div>`;
+    else h += `<div class="b7">${esc(b.title)}</div>`;
+    if (len >= (work ? 1.25 : 0.75)) h += `<div>${fmt(b.start)}–${fmt(b.end)}</div>`;
+    if (tasks.length) {
+      h += `<div class="tasks">`;
+      for (const id of tasks) {
+        const it = byId(id), cat = catOf(it);
+        h += `<div class="chip tchip" style="${chipStyle(cat)}"><button class="ok" title="Done" aria-label="Mark done" data-done="${id}"></button>${esc(textOf(it))}<button class="x" aria-label="Remove" data-unplace="${key}|${id}">×</button></div>`;
+      }
+      h += `</div>`;
+    }
+    h += `</div>`;
+  }
+  if (today) {
+    const n = new Date(), nowH = n.getHours() + n.getMinutes() / 60;
+    if (nowH >= DAY_START && nowH <= DAY_END) h += `<div class="now" style="top:${(nowH - DAY_START) * PX - 1}px"><i></i><b>Now</b></div>`;
+  }
+  h += `</div>`;
+  const fam = amandaEvents.filter(e => e.date === d).sort((a, b) => a.start - b.start);
+  if (fam.length) {
+    h += `<div class="fam"><div class="famh">Family calendar</div>`;
+    for (const e of fam) h += `<div class="famc"><div>${esc(e.title.replace("Amanda: ", ""))}</div><div>${fmt(e.start)}–${fmt(e.end)}</div></div>`;
+    h += `</div>`;
+  }
+  return h + `</div>`;
+}
+
+function render() {
+  const all = days.map(dayBlocks);
+  const weekWork = all.reduce((s, b) => s + sum(b, "work"), 0), weekFam = all.reduce((s, b) => s + sum(b, "family"), 0);
+  document.getElementById("total").innerHTML = splitBar(weekWork, weekFam, true);
+  const assign = assignMap();
+  const daysEl = document.getElementById("days");
+  if (narrow) {
+    daysEl.innerHTML = `<div class="nav"><button data-go="-1" ${idx === 0 ? "disabled" : ""} aria-label="Previous day">‹</button><div class="dots">${days.map((d, i) => `<span data-idx="${i}" style="background:${i === idx ? COLORS.work : "#ccc"}"></span>`).join("")}</div><button data-go="1" ${idx === 4 ? "disabled" : ""} aria-label="Next day">›</button></div>` + dayColumn(days[idx], assign);
+  } else {
+    daysEl.innerHTML = `<div class="grid">${days.map(d => dayColumn(d, assign)).join("")}</div>`;
+  }
+  document.getElementById("hint").textContent = picked ? "Tap a Work block to add it" : "Drag onto a Work block, or tap then tap a block";
+  const placed = new Set(Object.values(assign).flat());
+  let t = "";
+  for (const cat of CAT_ORDER) {
+    const list = items.filter(it => catOf(it) === cat && !placed.has(it.id));
+    if (!list.length) continue;
+    t += `<div class="cat"><div class="cath"><span style="background:${CAT_STRIPE[cat]}"></span>${cat} · ${list.length}</div><div class="items">`;
+    for (const it of list) t += `<div class="chip item${picked === it.id ? " picked" : ""}" draggable="true" data-id="${it.id}" style="${chipStyle(cat)}"><button class="ok" title="Done" aria-label="Mark done" data-done="${it.id}"></button>${esc(textOf(it))}</div>`;
+    t += `</div></div>`;
+  }
+  document.getElementById("tray").innerHTML = loaded && !t ? `<div class="hint">Nothing left on the list.</div>` : t;
+}
+
+async function api(action, payload = {}) {
+  const r = await fetch(API, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, ...payload }) });
+  let data = {}; try { data = await r.json(); } catch (e) {}
+  if (!r.ok) { const err = new Error(data.error || "Couldn't reach Work Week"); err.status = r.status; throw err; }
+  return data;
+}
+function banner(msg) { const b = document.getElementById("banner"); b.textContent = msg || ""; b.style.display = msg ? "block" : "none"; }
+
+async function pairFromPrivateLink() {
+  const m = location.hash.match(/(?:^#|&)pair=([^&]+)/);
+  if (!m) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  try {
+    const r = await fetch("/api/capture/pair", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key: decodeURIComponent(m[1]) }) });
+    if (!r.ok) throw new Error();
+  } catch (e) { banner("This private setup link did not work."); }
+}
+
+async function load(silent) {
+  try {
+    const data = await api("load", { week: WEEK });
+    const evs = data.events || [];
+    ryanCal = evs.filter(e => e.calendar === "ryan").map(e => ({ date: e.date, start: +e.start, end: +e.end, title: e.title }));
+    amandaEvents = evs.filter(e => e.calendar === "amanda").map(e => ({ date: e.date, start: +e.start, end: +e.end, title: e.title }));
+    items = (data.items || []).filter(it => it.kind !== "memory");
+    placements = (data.placements || []).map(p => ({ date: p.date, start: +p.start, reminder_id: p.reminder_id }));
+    loaded = true;
+    banner(evs.length ? "" : "No calendar for this week yet. It fills in at the 6 AM refresh.");
+    render();
+  } catch (e) {
+    if (!silent) banner(e.status === 401 ? "This device isn't paired yet. Open your Capture setup link on this device, then come back." : "Offline. Couldn't load the week.");
+    render();
+  }
+}
+
+async function place(key, id) {
+  const [d, s] = key.split("|");
+  const start = +s;
+  const before = placements.slice();
+  placements = placements.filter(p => !(p.reminder_id === id)).concat([{ date: d, start, reminder_id: id }]);
+  picked = null; render();
+  try { await api("place", { date: d, start, reminder_id: id }); }
+  catch (e) { placements = before; render(); banner("Couldn't save that. Try again."); }
+}
+async function unplace(key, id) {
+  const [d, s] = key.split("|");
+  const start = +s;
+  const before = placements.slice();
+  placements = placements.filter(p => !(p.reminder_id === id && p.date === d && r2(p.start) === r2(start)));
+  render();
+  try { await api("unplace", { date: d, start, reminder_id: id }); }
+  catch (e) { placements = before; render(); banner("Couldn't save that. Try again."); }
+}
+async function complete(id) {
+  const before = items.slice();
+  items = items.filter(x => x.id !== id);
+  if (picked === id) picked = null;
+  render();
+  try { await api("complete", { id }); }
+  catch (e) { items = before; render(); banner("Couldn't check that off. Try again."); }
+}
+
+document.getElementById("addform").addEventListener("submit", async e => {
+  e.preventDefault();
+  const input = document.getElementById("addtext"), text = input.value.trim();
+  if (!text) return;
+  input.disabled = true;
+  try {
+    const row = await api("createReminder", { body: text });
+    items.push(row); input.value = ""; banner(""); render();
+  } catch (err) { banner("Couldn't add that. Your text is still there."); }
+  input.disabled = false; input.focus();
+});
+
+const app = document.getElementById("app");
+app.addEventListener("click", e => {
+  const done = e.target.closest("[data-done]");
+  if (done) { e.stopPropagation(); complete(done.dataset.done); return; }
+  const un = e.target.closest("[data-unplace]");
+  if (un) { e.stopPropagation(); const v = un.dataset.unplace, i = v.lastIndexOf("|"); unplace(v.slice(0, i), v.slice(i + 1)); return; }
+  const go = e.target.closest("[data-go]");
+  if (go) { idx = Math.min(4, Math.max(0, idx + +go.dataset.go)); render(); return; }
+  const dot = e.target.closest("[data-idx]");
+  if (dot) { idx = +dot.dataset.idx; render(); return; }
+  const item = e.target.closest(".item[data-id]");
+  if (item) { picked = picked === item.dataset.id ? null : item.dataset.id; render(); return; }
+  const blk = e.target.closest("[data-slot]");
+  if (blk && picked) { place(blk.dataset.slot, picked); }
+});
+app.addEventListener("dragstart", e => {
+  const item = e.target.closest && e.target.closest(".item[data-id]");
+  if (!item) return;
+  dragging = item.dataset.id;
+  e.dataTransfer.setData("text/plain", item.dataset.id); e.dataTransfer.effectAllowed = "copy";
+});
+app.addEventListener("dragend", () => { dragging = null; document.querySelectorAll(".blk.over").forEach(x => x.classList.remove("over")); });
+app.addEventListener("dragover", e => {
+  const blk = e.target.closest("[data-slot]");
+  if (!blk) return;
+  e.preventDefault();
+  document.querySelectorAll(".blk.over").forEach(x => x !== blk && x.classList.remove("over"));
+  blk.classList.add("over");
+});
+app.addEventListener("drop", e => {
+  const blk = e.target.closest("[data-slot]");
+  if (!blk) return;
+  e.preventDefault();
+  const id = e.dataTransfer.getData("text/plain") || dragging;
+  if (id && byId(id)) place(blk.dataset.slot, id);
+});
+
+// phone: swipe between days (not when the swipe starts in the to-do tray)
+let touchX = null;
+const daysEl = document.getElementById("days");
+daysEl.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
+daysEl.addEventListener("touchend", e => {
+  if (touchX === null || !narrow) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 40) { idx = Math.min(4, Math.max(0, idx + (dx < 0 ? 1 : -1))); render(); }
+  touchX = null;
+});
+window.addEventListener("resize", () => { const n = window.innerWidth < 700; if (n !== narrow) { narrow = n; render(); } });
+
+const ti = days.indexOf(todayIso());
+idx = ti >= 0 ? ti : 0;
+setInterval(render, 60000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) load(true); });
+render();
+pairFromPrivateLink().then(() => load());
+</script>
+</body>
+</html>
