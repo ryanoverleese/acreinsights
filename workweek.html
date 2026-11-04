@@ -67,7 +67,7 @@
   .cath span{ width:10px; height:10px; border-radius:5px; display:inline-block; }
   .items{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
   .item{ font-size:12px; line-height:16px; padding:5px 10px 5px 24px; cursor:grab; max-width:260px; user-select:none; -webkit-user-select:none; }
-  .item.picked{ outline:2px solid #33362E; }
+  .item.picked, .tchip.picked{ outline:2px solid #33362E; }
   .trayempty{ width:100%; max-width:520px; margin:4px auto; padding:22px 16px; border:1px dashed #c9c3b8; border-radius:8px; text-align:center; font-size:13px; color:#6b6459; box-sizing:border-box; }
   .login{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin:6px auto 14px; max-width:320px; font-family:inherit; }
   .login[hidden]{ display:none; }
@@ -226,7 +226,7 @@ function dayColumn(d, assign) {
       h += `<div class="tasks">`;
       for (const id of tasks) {
         const it = byId(id), cat = catOf(it);
-        h += `<div class="chip tchip" style="${chipStyle(cat)}"><button class="ok" title="Done" aria-label="Mark done" data-done="${id}"></button>${esc(textOf(it))}<button class="x" aria-label="Remove" data-unplace="${key}|${id}">×</button></div>`;
+        h += `<div class="chip tchip${picked === id ? " picked" : ""}" draggable="true" data-id="${id}" style="${chipStyle(cat)}"><button class="ok" title="Done" aria-label="Mark done" data-done="${id}"></button>${esc(textOf(it))}<button class="x" aria-label="Remove" data-unplace="${key}|${id}">×</button></div>`;
       }
       h += `</div>`;
     }
@@ -257,7 +257,7 @@ function render() {
   } else {
     daysEl.innerHTML = `<div class="grid">${days.map(d => dayColumn(d, assign)).join("")}</div>`;
   }
-  document.getElementById("hint").textContent = picked ? "Tap a Work block to add it" : "Drag onto a Work block, or tap then tap a block";
+  document.getElementById("hint").textContent = picked ? (placements.some(p => p.reminder_id === picked) ? "Tap a Work block to move it" : "Tap a Work block to add it") : "Drag onto a Work block, or tap then tap a block";
   const placed = new Set(Object.values(assign).flat());
   let t = "";
   for (const cat of CAT_ORDER) {
@@ -373,16 +373,16 @@ app.addEventListener("click", e => {
   if (go) { idx = Math.min(4, Math.max(0, idx + +go.dataset.go)); render(); return; }
   const dot = e.target.closest("[data-idx]");
   if (dot) { idx = +dot.dataset.idx; render(); return; }
-  const item = e.target.closest(".item[data-id]");
-  if (item) { picked = picked === item.dataset.id ? null : item.dataset.id; render(); return; }
+  const item = e.target.closest(".chip[data-id]");
+  if (item) { e.stopPropagation(); picked = picked === item.dataset.id ? null : item.dataset.id; render(); return; }
   const blk = e.target.closest("[data-slot]");
   if (blk && picked) { place(blk.dataset.slot, picked); }
 });
 app.addEventListener("dragstart", e => {
-  const item = e.target.closest && e.target.closest(".item[data-id]");
+  const item = e.target.closest && e.target.closest(".chip[data-id]");
   if (!item) return;
   dragging = item.dataset.id;
-  e.dataTransfer.setData("text/plain", item.dataset.id); e.dataTransfer.effectAllowed = "copy";
+  e.dataTransfer.setData("text/plain", item.dataset.id); e.dataTransfer.effectAllowed = "move";
 });
 app.addEventListener("dragend", () => { dragging = null; document.querySelectorAll(".blk.over").forEach(x => x.classList.remove("over")); });
 app.addEventListener("dragover", e => {
