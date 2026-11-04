@@ -1,3 +1,7 @@
+# Capture's pairing cookie lives on acreinsights.netlify.app (RyMinders sends
+# there). Cookies are per-host, so keep Work Week on that same host.
+https://acreinsights.com/workweek      https://acreinsights.netlify.app/workweek  301!
+https://www.acreinsights.com/workweek  https://acreinsights.netlify.app/workweek  301!
 # The capture app was todos-a7k2x9.html before it had a name. Keep every old
 # bookmark and home-screen icon working — Netlify serves these before 404ing.
 /api/capture/workweek  /.netlify/functions/workweek-api  200
