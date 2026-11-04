@@ -10,7 +10,7 @@ pretty URLs drop the `.html`.
 |---|---|---|
 | `/capture` | `capture.html` | The capture app. Dump anything, an agent files it and decides what comes back. Was `todos-a7k2x9.html`; `_redirects` keeps the old link alive. |
 | `/wire` | `wire.html` | The morning brief. **Generated — never hand-edit.** Written by `brief_agent.py` in the cropx-daily-brief repo, 5:47am. |
-| `/workweek` | `workweek.html` | Ryan's Work Week: calendar work blocks + the RyMinders to-do tray. Same paired cookie as Capture; talks to `/api/capture/workweek`. Placements live in `public.workweek_placements`; calendar in `public.workweek_events` (written by the 6 AM refresh). |
+| `/workweek` | `workweek.html` | Ryan's Work Week: calendar work blocks + the RyMinders to-do tray. Same paired cookie as Capture, or type the `WORKWEEK_PASSWORD` once per device (`/api/capture/workweek-login`); talks to `/api/capture/workweek`. Placements live in `public.workweek_placements`; calendar in `public.workweek_events` (written by the 6 AM refresh). |
 | `/soiltemps` | `soiltemps.html` | Soil temperature history. |
 
 Anything else here is a one-off report or a demo page.

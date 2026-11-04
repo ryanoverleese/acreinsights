@@ -69,6 +69,11 @@
   .item{ font-size:12px; line-height:16px; padding:5px 10px 5px 24px; cursor:grab; max-width:260px; user-select:none; -webkit-user-select:none; }
   .item.picked{ outline:2px solid #33362E; }
   .trayempty{ width:100%; max-width:520px; margin:4px auto; padding:22px 16px; border:1px dashed #c9c3b8; border-radius:8px; text-align:center; font-size:13px; color:#6b6459; box-sizing:border-box; }
+  .login{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin:6px auto 14px; max-width:320px; font-family:inherit; }
+  .login[hidden]{ display:none; }
+  .login input{ flex:1; min-width:0; font:inherit; font-size:15px; padding:8px 10px; border:1px solid #c9c3b8; border-radius:6px; }
+  .login button{ font:inherit; font-size:14px; padding:8px 14px; border:0; border-radius:6px; background:#B5C7D3; color:#2f2a24; cursor:pointer; }
+  .loginmsg{ width:100%; text-align:center; font-size:13px; color:#9E3B2E; min-height:0; }
   .banner{ display:none; text-align:center; font-size:13px; color:#9E3B2E; }
   .note{ text-align:center; font-size:11px; color:var(--sub); }
   @media (max-width:699px){ .wrap{ padding:18px 14px 40px; } }
@@ -78,6 +83,11 @@
 <div class="wrap" id="app">
   <h1>Ryan's Work Week</h1>
   <div class="banner" id="banner"></div>
+  <form class="login" id="login" autocomplete="on" hidden>
+    <input type="password" id="pw" name="password" autocomplete="current-password" placeholder="Password" aria-label="Password">
+    <button type="submit">Open</button>
+    <div class="loginmsg" id="loginmsg"></div>
+  </form>
   <div id="total"></div>
   <div id="days"></div>
   <div class="todo">
@@ -257,7 +267,7 @@ function render() {
     for (const it of list) t += `<div class="chip item${picked === it.id ? " picked" : ""}" draggable="true" data-id="${it.id}" style="${chipStyle(cat)}"><button class="ok" title="Done" aria-label="Mark done" data-done="${it.id}"></button>${esc(textOf(it))}</div>`;
     t += `</div></div>`;
   }
-  document.getElementById("tray").innerHTML = unpaired ? `<div class="trayempty">This device isn't paired yet, so your to-dos can't load here. Open your Capture setup link on this device, then come back.</div>` : loaded && !t ? `<div class="hint">Nothing left on the list.</div>` : t;
+  document.getElementById("tray").innerHTML = unpaired ? `<div class="trayempty">Enter the password above to see your to-dos.</div>` : loaded && !t ? `<div class="hint">Nothing left on the list.</div>` : t;
 }
 
 async function api(action, payload = {}) {
@@ -278,6 +288,23 @@ async function pairFromPrivateLink() {
   } catch (e) { banner("This private setup link did not work."); }
 }
 
+function showLogin(on) {
+  const f = document.getElementById("login");
+  const was = f.hidden; f.hidden = !on;
+  if (on && was) setTimeout(() => document.getElementById("pw").focus(), 0);
+}
+document.getElementById("login").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const pw = document.getElementById("pw"), msg = document.getElementById("loginmsg"), btn = ev.target.querySelector("button");
+  if (!pw.value) return;
+  btn.disabled = true; msg.textContent = "";
+  try {
+    const r = await fetch("/api/capture/workweek-login", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw.value }) });
+    if (r.ok) { pw.value = ""; await load(); }
+    else msg.textContent = r.status === 429 ? "Too many tries. Wait 15 minutes." : "That password didn't work.";
+  } catch (e) { msg.textContent = "Couldn't reach the server."; }
+  btn.disabled = false;
+});
 async function load(silent) {
   try {
     const data = await api("load", { week: WEEK });
@@ -286,12 +313,13 @@ async function load(silent) {
     amandaEvents = evs.filter(e => e.calendar === "amanda").map(e => ({ date: e.date, start: +e.start, end: +e.end, title: e.title }));
     items = (data.items || []).filter(it => it.kind !== "memory");
     placements = (data.placements || []).map(p => ({ date: p.date, start: +p.start, reminder_id: p.reminder_id }));
-    loaded = true; unpaired = false;
+    loaded = true; unpaired = false; showLogin(false);
     banner(evs.length ? "" : "No calendar for this week yet. It fills in at the 6 AM refresh.");
     render();
   } catch (e) {
     if (e.status === 401) unpaired = true;
-    if (!silent) banner(e.status === 401 ? "This device isn't paired yet. Open your Capture setup link on this device, then come back." : "Offline. Couldn't load the week.");
+    if (e.status === 401) { showLogin(true); banner(""); }
+    else if (!silent) banner("Offline. Couldn't load the week.");
     render();
   }
 }

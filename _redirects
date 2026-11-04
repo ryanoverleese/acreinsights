@@ -4,6 +4,7 @@ https://acreinsights.com/workweek      https://acreinsights.netlify.app/workweek
 https://www.acreinsights.com/workweek  https://acreinsights.netlify.app/workweek  301!
 # The capture app was todos-a7k2x9.html before it had a name. Keep every old
 # bookmark and home-screen icon working — Netlify serves these before 404ing.
+/api/capture/workweek-login  /.netlify/functions/workweek-login  200
 /api/capture/workweek  /.netlify/functions/workweek-api  200
 /api/capture/pair  /.netlify/functions/capture-pair  200
 /api/capture       /.netlify/functions/capture-api   200
