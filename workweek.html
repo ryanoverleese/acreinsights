@@ -149,14 +149,15 @@ function catOf(it) {
 const byId = id => items.find(x => x.id === id);
 
 function fixed(d) {
-  // Fri school lets out at 2:30; Mon–Thu stay on the 3:15–4 leave/back window.
-  const kasenPickup = new Date(d + "T12:00:00").getDay() === 5
-    ? { start: 14.25, end: 15, title: "Pick up Kasen", kind: "family" }
+  // Fri pickup is 2:30 (not 3:30); same 45-min trip as Mon–Thu 3:15–4.
+  const isFri = new Date(d + "T12:00:00").getDay() === 5;
+  const pickup = isFri
+    ? { start: 14.5, end: 15.25, title: "Pick up Kasen", kind: "family" }
     : { start: 15.25, end: 16, title: "Pick up Kasen", kind: "family" };
   const out = [
     { start: 7.75, end: 8.5, title: "Kasen school drop-off", kind: "family" },
     { start: 12, end: 12.5, title: "Lunch", kind: "break" },
-    kasenPickup,
+    pickup,
   ];
   if (!NO_MATTIE.includes(d)) out.push({ start: 10.5, end: 11.5, title: "Mattie time", kind: "family" });
   for (const e of amandaEvents.filter(x => x.date === d)) {
