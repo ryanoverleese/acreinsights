@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://acreinsights.com/sitemap.xml
