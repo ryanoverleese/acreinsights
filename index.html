@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Acre Insights — Soil Moisture Monitoring & Weather Stations</title>
 <meta name="description" content="Soil moisture probes, weather stations and local support for south-central Nebraska farms.">
+<link rel="canonical" href="https://acreinsights.com/">
+<meta property="og:title" content="Acre Insights — Soil Moisture Monitoring & Weather Stations">
+<meta property="og:description" content="Soil moisture probes, weather stations and local support for south-central Nebraska farms.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://acreinsights.com/">
+<meta property="og:image" content="https://acreinsights.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Acre Insights logo">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
 
 :root { --black:#243e30; --gray-1:#37433a; --gray-2:#536154; --gray-3:#59675b; --gray-4:#99a596; --gray-5:#edf1e9; --white:#fff; --blue:#3e5d48; --blue-hover:#254431; --green:#3e5d48; --green-pale:#e9eee5; --blue-pale:#e9eee5; --sage:#687d6b; --line:#cbd3c7; }
@@ -313,6 +325,42 @@ footer { padding:36px 5%; display:flex; justify-content:space-between; align-ite
 </footer>
 
 <script>
+const pageMeta = {
+  home: {
+    title: "Acre Insights — Soil Moisture Monitoring & Weather Stations",
+    description: "Soil moisture probes, weather stations and local support for south-central Nebraska farms."
+  },
+  services: {
+    title: "Services — Acre Insights",
+    description: "Soil moisture probes and on-farm weather stations, installed and managed for south-central Nebraska farms."
+  },
+  funding: {
+    title: "EQIP & CSP — Acre Insights",
+    description: "Hardware and reporting for farms approved through EQIP or CSP for soil moisture and irrigation water management."
+  },
+  about: {
+    title: "About — Acre Insights",
+    description: "Ryan, owner of Acre Insights, on making soil-moisture data useful for Nebraska farmers."
+  },
+  contact: {
+    title: "Contact — Acre Insights",
+    description: "Talk with Acre Insights about a monitoring plan for your farm."
+  },
+  apps: {
+    title: "Apps — Acre Insights",
+    description: "In-house tools built for the way farmers work."
+  }
+};
+function applyPageMeta(name) {
+  const meta = pageMeta[name] || pageMeta.home;
+  document.title = meta.title;
+  const desc = document.querySelector('meta[name="description"]');
+  if (desc) desc.setAttribute("content", meta.description);
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  const ogDesc = document.querySelector('meta[property="og:description"]');
+  if (ogTitle) ogTitle.setAttribute("content", meta.title);
+  if (ogDesc) ogDesc.setAttribute("content", meta.description);
+}
 function closeMenu() {
   document.getElementById('navLinks').classList.remove('open');
   const button = document.getElementById('menuBtn');
@@ -329,6 +377,7 @@ function showPage(name) {
     else a.removeAttribute('aria-current');
   });
   closeMenu();
+  applyPageMeta(name);
   page.setAttribute('tabindex', '-1');
   page.focus({preventScroll:true});
   window.scrollTo(0, 0);
