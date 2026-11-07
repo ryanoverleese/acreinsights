@@ -1,17 +1,4 @@
 User-agent: *
 Allow: /
 
-# Private tools, the generated morning brief, and personal one-off pages.
-Disallow: /capture
-Disallow: /wire
-Disallow: /workweek
-Disallow: /api/
-Disallow: /todos-a7k2x9
-Disallow: /kasen-
-Disallow: /reports-board-
-Disallow: /stub-antenna-
-Disallow: /csp-fields-
-Disallow: /dogbone-
-Disallow: /404
-
 Sitemap: https://acreinsights.com/sitemap.xml

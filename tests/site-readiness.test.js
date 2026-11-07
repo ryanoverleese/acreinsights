@@ -111,20 +111,83 @@ test("sitemap lists only the public canonical URLs", () => {
   const xml = read("sitemap.xml");
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
   assert.deepEqual(locs, SITEMAP_URLS);
-  const banned = ["netlify.app", ".html", "/capture", "/wire", "/workweek", "/api/", "kasen", "storm-rain", "soiltemps-history", "#", "404"];
-  for (const term of banned) assert.equal(xml.includes(term), false, term);
+  assert.equal(xml.includes("Disallow:"), false);
 });
 
-test("robots.txt points at the sitemap and keeps private tools out of crawl", () => {
+test("robots.txt is a generic public policy and does not name other paths", () => {
   const robots = read("robots.txt");
-  assert.match(robots, /^User-agent: \*$/m);
-  assert.match(robots, /^Sitemap: https:\/\/acreinsights\.com\/sitemap\.xml$/m);
-  for (const path of ["/capture", "/wire", "/workweek", "/api/", "/todos-a7k2x9", "/kasen-", "/404"]) {
-    assert.match(robots, new RegExp(`^Disallow: ${path}$`, "m"));
+  assert.equal(robots, [
+    "User-agent: *",
+    "Allow: /",
+    "",
+    "Sitemap: https://acreinsights.com/sitemap.xml",
+    "",
+  ].join("\n"));
+  assert.equal(robots.includes("Disallow:"), false);
+});
+
+function headerRules(text) {
+  const rules = [];
+  let current = null;
+  for (const line of text.split(/\r?\n/)) {
+    if (!line.trim() || line.trim().startsWith("#")) continue;
+    if (!line.startsWith(" ") && !line.startsWith("\t")) {
+      current = { path: line.trim(), headers: {} };
+      rules.push(current);
+    } else if (current) {
+      const split = line.trim().split(/:\s*/);
+      current.headers[split[0].toLowerCase()] = split.slice(1).join(":").trim();
+    }
   }
-  assert.doesNotMatch(robots, /Disallow: \/$/);
-  assert.doesNotMatch(robots, /Disallow: \/soiltemps$/);
-  assert.doesNotMatch(robots, /Disallow: \/updates/);
+  return rules;
+}
+
+function headerPatternMatches(pattern, pathname) {
+  const patternParts = pattern.split("/").filter(Boolean);
+  const pathParts = pathname.split("/").filter(Boolean);
+  if (patternParts.length !== pathParts.length) return false;
+  return patternParts.every((part, index) => {
+    const re = new RegExp(`^${part.split("*").map((piece) => piece.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".*")}$`);
+    return re.test(pathParts[index]);
+  });
+}
+
+function noindexHeaderFor(rules, pathname) {
+  return rules.some((rule) => headerPatternMatches(rule.path, pathname) && /noindex/i.test(rule.headers["x-robots-tag"] || ""));
+}
+
+test("private HTML responses carry noindex without listing those paths in robots or the sitemap", () => {
+  const rules = headerRules(read("_headers"));
+  const robots = read("robots.txt");
+  const sitemap = read("sitemap.xml");
+  const indexable = new Set([
+    "index.html",
+    "soiltemps.html",
+    "updates.html",
+    "probes-dont-show-first-rains.html",
+    "soiltemps-history.html",
+    "storm-rain.html",
+  ]);
+  const htmlFiles = fs.readdirSync(root).filter((name) => name.endsWith(".html"));
+
+  for (const file of htmlFiles) {
+    const html = read(file);
+    const pretty = `/${file.replace(/\.html$/, "")}`;
+    const exact = `/${file}`;
+    if (indexable.has(file)) {
+      assert.doesNotMatch(html, /name="robots"[^>]*noindex/, `${file} stays indexable`);
+      assert.equal(noindexHeaderFor(rules, pretty), false, pretty);
+      assert.equal(noindexHeaderFor(rules, exact), false, exact);
+      continue;
+    }
+    const covered = noindexHeaderFor(rules, pretty) && noindexHeaderFor(rules, exact);
+    assert.equal(covered, true, `${file} response header`);
+    if (file !== "wire.html") assert.match(html, /name="robots"[^>]*noindex/, file);
+    assert.equal(robots.includes(pretty), false, pretty);
+    assert.equal(robots.includes(exact), false, exact);
+    assert.equal(sitemap.includes(pretty), false, pretty);
+    assert.equal(sitemap.includes(exact), false, exact);
+  }
 });
 
 test("there is no catch-all rewrite that would turn a missing page into a 200", () => {
