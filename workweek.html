@@ -129,7 +129,8 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const addDays = (s, n) => { const d = new Date(s + "T12:00:00"); d.setDate(d.getDate() + n); return iso(d); };
 const mondayOf = d => { const x = new Date(d); x.setHours(12, 0, 0, 0); const k = (x.getDay() + 6) % 7; x.setDate(x.getDate() - k); return iso(x); };
-const WEEK = mondayOf(new Date());
+// On Saturday and Sunday, show the coming week.
+const WEEK = (() => { const d = new Date(); const day = d.getDay(); if (day === 6) d.setDate(d.getDate() + 2); if (day === 0) d.setDate(d.getDate() + 1); return mondayOf(d); })();
 const days = [0, 1, 2, 3, 4].map(n => addDays(WEEK, n));
 const todayIso = () => iso(new Date());
 
