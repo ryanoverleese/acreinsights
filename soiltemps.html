@@ -221,7 +221,7 @@ async function loadData() {
     if (!sites.length) throw new Error('No sites');
     content.innerHTML = summary(sites[0]) + sites.map(siteCard).join('');
   } catch (e) {
-    content.innerHTML = '<div class="no-data">No probe readings right now.</div>';
+    content.innerHTML = '<div class="no-data">Coming soon</div>';
   }
 }
 
