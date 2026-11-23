@@ -72,7 +72,8 @@ test("/soiltemps reads /api/soil, not soil_temp.json, and carries no database ke
   assert.match(html, /fetch\('\/api\/soil'\)/);
   assert.doesNotMatch(html, /soil_temp\.json/);
   assert.doesNotMatch(html, /supabase|sb_publishable|apikey/i);
-  assert.match(html, /uncalibrated/);
+  assert.doesNotMatch(html, /uncalibrated|Learn more|Last updated|Readings come from/);
+  assert.match(html, /2&Prime;&ndash;6&Prime; avg/);
   assert.match(read("_redirects"), /^\/api\/soil\s+\/\.netlify\/functions\/soil-public\s+200$/m);
 });
 

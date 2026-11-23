@@ -23,13 +23,13 @@
 .soil-summary { border-top:1px solid var(--line); padding-top:26px; display:grid; grid-template-columns:1fr 1.3fr; gap:56px; align-items:end; }
 .summary-label { color:var(--sage); font-size:16px; }
 .summary-value { font-size:92px; line-height:1; color:var(--black); font-weight:300; letter-spacing:-.03em; margin-top:12px; font-variant-numeric:tabular-nums; }
-.summary-sub { font-size:16px; color:var(--gray-2); margin-top:14px; max-width:38ch; }
 .summary-stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); }
 .stat { padding-top:16px; }
 .stat + .stat { border-left:1px solid var(--line); padding-left:22px; }
 .stat-v { display:block; font-size:36px; line-height:1.1; color:var(--black); font-variant-numeric:tabular-nums; }
 .stat-l { display:block; font-size:15px; color:var(--gray-2); margin-top:4px; }
 .site { margin-top:64px; }
+.ct { padding-bottom:90px; }
 .site-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px 24px; flex-wrap:wrap; }
 .site-head h2 { font-size:34px; line-height:1.2; color:var(--sage); }
 .site-meta { font-size:16px; color:var(--gray-2); }
@@ -43,10 +43,7 @@
 .chart text { font-size:12px; fill:var(--gray-2); font-family:inherit; }
 .legend { display:flex; flex-wrap:wrap; gap:6px 16px; list-style:none; font-size:14px; color:var(--gray-2); margin-top:12px; }
 .legend i { display:inline-block; width:16px; height:2px; vertical-align:middle; margin-right:6px; }
-.fine-print { font-size:14px; color:var(--gray-2); margin-top:20px; max-width:70ch; }
-.soil-info { border-top:1px solid var(--line); margin-top:64px; padding-top:26px; max-width:68ch; }
-.soil-info p { font-size:16px; color:var(--gray-2); margin-bottom:12px; }
-.updated-at { font-size:14px; color:var(--gray-2); margin-top:18px; }
+.chart-empty { font-size:15px; color:var(--gray-2); }
 .loading,.no-data { padding:40px 0; color:var(--gray-2); border-top:1px solid var(--line); }
 @media(max-width:760px) {
   .soil-summary,.site-body { grid-template-columns:1fr; gap:26px; }
@@ -77,21 +74,12 @@
 
 <main id="main">
   <header class="ph">
-    <p class="kicker">Soil Temps</p>
-    <h1>Soil temperature and soil water, by depth.</h1>
-    <p>Live readings from Acre Insights soil probes, updated every hour.</p>
+    <h1>Soil Temps</h1>
   </header>
 
   <div class="ct">
     <div id="content">
       <div class="loading">Loading...</div>
-    </div>
-
-    <div class="soil-info" id="info" hidden>
-      <p>Readings come from Sentek soil probes with sensors at nine depths, from 2&Prime; down to 33&Prime;. Each probe logs every 30 minutes, and this page picks up new readings every hour. Temperatures are in &deg;F.</p>
-      <p>The probes don&rsquo;t have a 4&Prime; sensor, so the top number is the average of the 2&Prime; and 6&Prime; sensors.</p>
-      <p><a href="/">Learn more about Acre Insights &rarr;</a></p>
-      <p class="updated-at" id="updated-at"></p>
     </div>
   </div>
 </main>
@@ -134,9 +122,8 @@ function summary(site) {
     return `
       <section class="soil-summary" aria-label="Daily soil temperature">
         <div>
-          <p class="summary-label">${esc(dayLabel(day.date))} &middot; daily average</p>
+          <p class="summary-label">${esc(dayLabel(day.date))} &middot; 2&Prime;&ndash;6&Prime; avg</p>
           <p class="summary-value">${deg(day.avg_f)}</p>
-          <p class="summary-sub">Average of the 2&Prime; and 6&Prime; sensors at ${esc(site.name)}.</p>
         </div>
         <div class="summary-stats">
           <div class="stat"><span class="stat-v">${deg(day.high_f)}</span><span class="stat-l">High</span></div>
@@ -151,9 +138,8 @@ function summary(site) {
   return `
     <section class="soil-summary" aria-label="Latest soil temperature">
       <div>
-        <p class="summary-label">Latest reading &middot; ${esc(ct(site.last_read_at))}</p>
+        <p class="summary-label">${esc(ct(site.last_read_at))} &middot; 2&Prime;&ndash;6&Prime; avg</p>
         <p class="summary-value">${deg(avg)}</p>
-        <p class="summary-sub">Average of the 2&Prime; and 6&Prime; sensors at ${esc(site.name)}. A full day&rsquo;s high and low show up after the first full day of readings.</p>
       </div>
     </section>`;
 }
@@ -161,7 +147,7 @@ function summary(site) {
 function chart(series) {
   const pts = (series && series.points) || [];
   const depths = (series && series.depths_in) || [];
-  if (pts.length < 2 || !depths.length) return '<p class="fine-print">Not enough readings yet for a chart.</p>';
+  if (pts.length < 2 || !depths.length) return '<p class="chart-empty">Not enough readings yet.</p>';
   const W = 640, H = 250, L = 40, R = 8, T = 10, B = 28;
   const t0 = Date.parse(pts[0].t), t1 = Date.parse(pts[pts.length - 1].t);
   let max = 0;
@@ -222,13 +208,11 @@ function siteCard(site) {
           ${chart(site.water_series)}
         </div>
       </div>
-      <p class="fine-print">Water % uses Sentek&rsquo;s default calibration and hasn&rsquo;t been checked against this site&rsquo;s soil yet (uncalibrated). Read it as a trend, not an exact number.</p>
     </section>`;
 }
 
 async function loadData() {
   const content = document.getElementById('content');
-  const info = document.getElementById('info');
   try {
     const resp = await fetch('/api/soil');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -236,11 +220,9 @@ async function loadData() {
     const sites = (data.sites || []).filter(s => s.last_read_at);
     if (!sites.length) throw new Error('No sites');
     content.innerHTML = summary(sites[0]) + sites.map(siteCard).join('');
-    if (data.generated_at) document.getElementById('updated-at').textContent = 'Last updated ' + ct(data.generated_at);
   } catch (e) {
-    content.innerHTML = '<div class="no-data">No probe readings to show right now. Check back soon.</div>';
+    content.innerHTML = '<div class="no-data">No probe readings right now.</div>';
   }
-  info.hidden = false;
 }
 
 loadData();
