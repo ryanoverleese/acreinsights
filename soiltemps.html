@@ -1,391 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Soil Temps | Acre Insights</title>
-  <meta name="description" content="Daily 4 inch soil temperature readings from 3 miles NW of Axtell, NE." />
-  <link rel="canonical" href="https://acreinsights.com/soiltemps" />
-  <meta property="og:title" content="Soil Temps | Acre Insights" />
-  <meta property="og:description" content="Daily 4 inch soil temperature readings from 3 miles NW of Axtell, NE." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://acreinsights.com/soiltemps" />
-  <meta property="og:image" content="https://acreinsights.com/og-soiltemps.jpg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Line drawing of a soil thermometer with a signal above the ground." />
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <style>
-    :root {
-      --black: #1a1a1d;
-      --gray-1: #3a3a3f;
-      --gray-2: #62626a;
-      --gray-3: #8a8a93;
-      --gray-4: #c8c8cf;
-      --gray-5: #f3f3f5;
-      --white: #ffffff;
-      --blue: #1570EF;
-      --blue-hover: #1260cc;
-      --green: #1a7a3a;
-      --bg: #ffffff;
-      --text: #1a1a1d;
-      --text-secondary: #62626a;
-      --accent: #2d5a27;
-      --accent-light: #e8f0e7;
-      --border: #e8e8ed;
-      --card-bg: #f8f8fa;
-      --warm: #c44b1a;
-      --cool: #2563eb;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    main { flex: 1; }
-
-    /* NAV — matches main site */
-    nav {
-      height: 52px; display: flex; align-items: center; justify-content: space-between;
-      padding: 0 clamp(1.5rem, 4vw, 3rem);
-      background: var(--white); border-bottom: 1px solid var(--gray-5);
-      position: sticky; top: 0; z-index: 100;
-    }
-    .n-logo { display: flex; align-items: center; text-decoration: none; }
-    .n-logo img { height: 28px; width: auto; }
-    .n-links { display: flex; gap: 0.1rem; list-style: none; }
-    .n-links a {
-      font-size: 0.78rem; font-weight: 500; color: var(--gray-2);
-      text-decoration: none; padding: 0.4rem 0.55rem; border-radius: 6px;
-      transition: color 0.2s, background 0.2s; white-space: nowrap;
-    }
-    .n-links a:hover { color: var(--black); background: var(--gray-5); }
-    .n-links a.active { color: var(--black); font-weight: 600; }
-    .n-cta {
-      font-size: 0.78rem; font-weight: 600; color: var(--white);
-      background: var(--blue); text-decoration: none;
-      padding: 0.42rem 0.9rem; border-radius: 6px;
-      transition: background 0.2s; white-space: nowrap;
-    }
-    .n-cta:hover { background: var(--blue-hover); }
-    .n-mobile-toggle {
-      display: none; background: none; border: none; cursor: pointer;
-      width: 28px; height: 28px; position: relative;
-    }
-    .n-mobile-toggle span {
-      display: block; width: 18px; height: 1.5px; background: var(--black);
-      position: absolute; left: 5px; transition: all 0.2s;
-    }
-    .n-mobile-toggle span:nth-child(1) { top: 9px; }
-    .n-mobile-toggle span:nth-child(2) { top: 14px; }
-    .n-mobile-toggle span:nth-child(3) { top: 19px; }
-
-    /* FOOTER */
-    footer {
-      border-top: 1px solid var(--gray-5);
-      padding: 2rem clamp(1.5rem, 4vw, 3rem);
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 1rem; flex-wrap: wrap;
-    }
-    .f-copy { font-size: 0.78rem; color: var(--gray-3); }
-    .f-nav { display: flex; gap: 1.25rem; list-style: none; }
-    .f-nav a { font-size: 0.78rem; color: var(--gray-3); text-decoration: none; transition: color 0.2s; }
-    .f-nav a:hover { color: var(--black); }
-
-    .container {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 60px 24px 80px;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 38px;
-      font-weight: 700;
-      letter-spacing: -0.025em;
-      line-height: 1.1;
-      margin-bottom: 8px;
-    }
-
-    .page-subtitle {
-      font-size: 17px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      margin-bottom: 48px;
-    }
-
-    /* Temp display */
-    .temp-card {
-      text-align: center;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 36px 36px 28px;
-      margin-bottom: 24px;
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 28px;
-    }
-
-    .depth-badge {
-      background: var(--accent-light);
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 20px;
-      letter-spacing: 0.03em;
-    }
-
-    .card-date {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-secondary);
-    }
-
-    .temp-avg-row {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      margin-bottom: 28px;
-    }
-
-    .temp-avg-value {
-      font-size: 80px;
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      line-height: 1;
-      color: var(--text);
-    }
-
-    .temp-avg-label {
-      font-size: 14px;
-      color: var(--text-secondary);
-      font-weight: 500;
-      letter-spacing: 0.01em;
-    }
-
-    .temp-stats {
-      display: flex;
-      align-items: stretch;
-      border-top: 1px solid var(--border);
-      margin: 0 -8px;
-      padding-top: 20px;
-    }
-
-    .temp-stat {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      padding: 0 8px;
-    }
-
-    .temp-stat + .temp-stat {
-      border-left: 1px solid var(--border);
-    }
-
-    .temp-stat-value {
-      font-size: 30px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      line-height: 1;
-    }
-
-    .temp-stat-value.high { color: var(--warm); }
-    .temp-stat-value.low { color: var(--cool); }
-
-    .temp-stat-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
-    }
-
-    /* Info section */
-    .info-section {
-      border-top: 1px solid var(--border);
-      padding-top: 32px;
-      margin-top: 8px;
-    }
-
-    .info-section p {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 12px;
-    }
-
-    .info-section a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .info-section a:hover { text-decoration: underline; }
-
-    .updated-at {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 24px;
-      opacity: 0.6;
-    }
-
-    /* Loading / Error */
-    .loading {
-      text-align: center;
-      padding: 60px 0;
-      color: var(--text-secondary);
-      font-size: 15px;
-    }
-
-    .no-data {
-      text-align: center;
-      padding: 60px 0;
-      color: var(--text-secondary);
-      font-size: 15px;
-    }
-
-    /* Fade in */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(12px);
-      animation: fadeUp 0.5s ease forwards;
-    }
-
-    @keyframes fadeUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 640px) {
-      .n-links, .n-cta { display: none; }
-      .n-mobile-toggle { display: block; }
-    }
-    @media (max-width: 500px) {
-      .container { padding: 40px 20px 60px; }
-      h1 { font-size: 30px; }
-      .temp-avg-value { font-size: 64px; }
-      .temp-stat-value { font-size: 24px; }
-      .temp-card { padding: 24px 24px 20px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soil Temps | Acre Insights</title>
+<meta name="description" content="Live soil temperature and soil water by depth from Acre Insights soil probes in south-central Nebraska, updated hourly.">
+<link rel="canonical" href="https://acreinsights.com/soiltemps">
+<meta property="og:title" content="Soil Temps | Acre Insights">
+<meta property="og:description" content="Live soil temperature and soil water by depth from Acre Insights soil probes in south-central Nebraska, updated hourly.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://acreinsights.com/soiltemps">
+<meta property="og:image" content="https://acreinsights.com/og-soiltemps.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Line drawing of a soil thermometer with a signal above the ground.">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+/* Soil Temps only. Everything else comes from /assets/site.css (the home page styles). */
+.soil-summary { border-top:1px solid var(--line); padding-top:26px; display:grid; grid-template-columns:1fr 1.3fr; gap:56px; align-items:end; }
+.summary-label { color:var(--sage); font-size:16px; }
+.summary-value { font-size:92px; line-height:1; color:var(--black); font-weight:300; letter-spacing:-.03em; margin-top:12px; font-variant-numeric:tabular-nums; }
+.summary-sub { font-size:16px; color:var(--gray-2); margin-top:14px; max-width:38ch; }
+.summary-stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); }
+.stat { padding-top:16px; }
+.stat + .stat { border-left:1px solid var(--line); padding-left:22px; }
+.stat-v { display:block; font-size:36px; line-height:1.1; color:var(--black); font-variant-numeric:tabular-nums; }
+.stat-l { display:block; font-size:15px; color:var(--gray-2); margin-top:4px; }
+.site { margin-top:64px; }
+.site-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px 24px; flex-wrap:wrap; }
+.site-head h2 { font-size:34px; line-height:1.2; color:var(--sage); }
+.site-meta { font-size:16px; color:var(--gray-2); }
+.site-body { display:grid; grid-template-columns:minmax(250px,.8fr) 1.3fr; gap:56px; margin-top:26px; }
+.depths { width:100%; border-collapse:collapse; font-size:17px; font-variant-numeric:tabular-nums; }
+.depths th { text-align:left; font-weight:400; font-size:15px; color:var(--sage); padding:0 0 10px; border-bottom:1px solid var(--line); }
+.depths td { padding:7px 0; border-bottom:1px solid var(--gray-5); color:var(--gray-1); }
+.depths .n { text-align:right; }
+.chart-label { font-size:15px; color:var(--sage); margin-bottom:10px; }
+.chart svg { display:block; width:100%; height:auto; overflow:visible; }
+.chart text { font-size:12px; fill:var(--gray-2); font-family:inherit; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 16px; list-style:none; font-size:14px; color:var(--gray-2); margin-top:12px; }
+.legend i { display:inline-block; width:16px; height:2px; vertical-align:middle; margin-right:6px; }
+.fine-print { font-size:14px; color:var(--gray-2); margin-top:20px; max-width:70ch; }
+.soil-info { border-top:1px solid var(--line); margin-top:64px; padding-top:26px; max-width:68ch; }
+.soil-info p { font-size:16px; color:var(--gray-2); margin-bottom:12px; }
+.updated-at { font-size:14px; color:var(--gray-2); margin-top:18px; }
+.loading,.no-data { padding:40px 0; color:var(--gray-2); border-top:1px solid var(--line); }
+@media(max-width:760px) {
+  .soil-summary,.site-body { grid-template-columns:1fr; gap:26px; }
+  .summary-value { font-size:68px; }
+  .stat-v { font-size:28px; }
+  .stat + .stat { padding-left:14px; }
+  .site { margin-top:48px; }
+  .site-head h2 { font-size:28px; }
+}
+</style>
 </head>
 <body>
-  <nav>
-    <a href="/" class="n-logo"><img src="LOGO.jpg" alt="Acre Insights" /></a>
-    <ul class="n-links">
-      <li><a href="/#services">Services</a></li>
-      <li><a href="/#funding">EQIP &amp; CSP</a></li>
-      <li><a href="/#apps">Apps</a></li>
-      <li><a href="/#about">About</a></li>
-      <li><a href="/#contact">Contact</a></li>
-      <li><a href="soiltemps.html" class="active">Soil Temps</a></li>
-    </ul>
-    <a href="/#contact" class="n-cta">Get in Touch</a>
-    <button class="n-mobile-toggle" onclick="this.classList.toggle('open');document.getElementById('mobileNav').classList.toggle('open')" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
+<a class="skip" href="#main">Skip to content</a>
 
-  <main>
-  <div class="container">
-    <h1>Soil Temps</h1>
-    <p class="page-subtitle">Daily 4" soil temperature readings from 3 miles NW of Axtell, NE.</p>
+<nav aria-label="Main navigation">
+  <a class="n-logo" href="/"><img src="/LOGO.jpg" alt="Acre Insights" style="height:28px;"></a>
+  <button class="n-mobile-toggle" id="menuBtn" aria-label="Open navigation" aria-controls="navLinks" aria-expanded="false"><span></span><span></span><span></span></button>
+  <ul class="n-links" id="navLinks">
+    <li><a href="/#services">Services</a></li>
+    <li><a href="/#funding">EQIP &amp; CSP</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#contact">Contact</a></li>
+    <li><a href="/soiltemps" class="active" aria-current="page">Soil Temps</a></li>
+    <li><a href="/updates">Updates</a></li>
+  </ul>
+  <a class="n-cta" href="/#contact">Get in Touch</a>
+</nav>
 
+<main id="main">
+  <header class="ph">
+    <p class="kicker">Soil Temps</p>
+    <h1>Soil temperature and soil water, by depth.</h1>
+    <p>Live readings from Acre Insights soil probes, updated every hour.</p>
+  </header>
+
+  <div class="ct">
     <div id="content">
       <div class="loading">Loading...</div>
     </div>
 
-    <div class="info-section" id="info" style="display: none;">
-      <p>Readings are collected from a CropX soil sensor at the 4" depth. Data updates each morning with the previous day's high, low, and average temperatures, plus a rolling 7-day average.</p>
-<p><a href="/">Learn more about Acre Insights &rarr;</a></p>
-      <div class="updated-at" id="updated-at"></div>
+    <div class="soil-info" id="info" hidden>
+      <p>Readings come from Sentek soil probes with sensors at nine depths, from 2&Prime; down to 33&Prime;. Each probe logs every 30 minutes, and this page picks up new readings every hour. Temperatures are in &deg;F.</p>
+      <p>The probes don&rsquo;t have a 4&Prime; sensor, so the top number is the average of the 2&Prime; and 6&Prime; sensors.</p>
+      <p><a href="/">Learn more about Acre Insights &rarr;</a></p>
+      <p class="updated-at" id="updated-at"></p>
     </div>
   </div>
-  </main>
+</main>
 
-  <footer>
-    <span class="f-copy">&copy; 2026 Acre Insights, LLC</span>
-    <ul class="f-nav">
-      <li><a href="/#services">Services</a></li>
-      <li><a href="/#about">About</a></li>
-      <li><a href="/#contact">Contact</a></li>
-    </ul>
-  </footer>
+<footer>
+  <div class="f-brand"><img src="/LOGO.jpg" alt="Acre Insights" style="height:18px;"></div>
+  <ul class="f-nav">
+    <li><a href="/#services">Services</a></li>
+    <li><a href="/#funding">EQIP &amp; CSP</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#contact">Contact</a></li>
+    <li><a href="/updates">Updates</a></li>
+  </ul>
+  <div class="f-legal">&copy; 2026 Acre Insights LLC &middot; Nebraska</div>
+</footer>
+<script src="/assets/nav.js" defer></script>
 
-  <script>
-    async function loadData() {
-      try {
-        const resp = await fetch('soil_temp.json?' + Date.now());
-        if (!resp.ok) throw new Error('No data');
-        const data = await resp.json();
+<script>
+const TZ = 'America/Chicago';
+const COLORS = ['#c39a2b', '#b0712f', '#94502f', '#77404d', '#56546f', '#3e6a85', '#3b7b6b', '#4e7639', '#2e472b'];
+const fmtTime = new Intl.DateTimeFormat('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+const fmtDay = new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short' });
+const fmtDayKey = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
 
-        if (!data.avg && data.avg !== 0) throw new Error('Empty data');
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+const isNum = v => typeof v === 'number' && Number.isFinite(v);
+const deg = v => isNum(v) ? Math.round(v) + '&deg;' : '&ndash;';
+const pct = v => isNum(v) ? v.toFixed(1) + '%' : '&ndash;';
+const ct = iso => fmtTime.format(new Date(iso)) + ' CT';
+function dayLabel(ymd) {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
+}
 
-        const content = document.getElementById('content');
-        const dateStr = new Date(data.date + 'T12:00:00').toLocaleDateString('en-US', {
-          month: 'numeric', day: 'numeric', year: '2-digit'
-        });
+function summary(site) {
+  const day = site.surface_day;
+  if (day && isNum(day.avg_f)) {
+    return `
+      <section class="soil-summary" aria-label="Daily soil temperature">
+        <div>
+          <p class="summary-label">${esc(dayLabel(day.date))} &middot; daily average</p>
+          <p class="summary-value">${deg(day.avg_f)}</p>
+          <p class="summary-sub">Average of the 2&Prime; and 6&Prime; sensors at ${esc(site.name)}.</p>
+        </div>
+        <div class="summary-stats">
+          <div class="stat"><span class="stat-v">${deg(day.high_f)}</span><span class="stat-l">High</span></div>
+          <div class="stat"><span class="stat-v">${deg(day.low_f)}</span><span class="stat-l">Low</span></div>
+          <div class="stat"><span class="stat-v">${deg(day.avg_7day_f)}</span><span class="stat-l">7-day average</span></div>
+        </div>
+      </section>`;
+  }
+  const near = (site.latest || []).filter(r => (r.depth_in === 2 || r.depth_in === 6) && isNum(r.temp_f));
+  if (near.length !== 2) return '';
+  const avg = (near[0].temp_f + near[1].temp_f) / 2;
+  return `
+    <section class="soil-summary" aria-label="Latest soil temperature">
+      <div>
+        <p class="summary-label">Latest reading &middot; ${esc(ct(site.last_read_at))}</p>
+        <p class="summary-value">${deg(avg)}</p>
+        <p class="summary-sub">Average of the 2&Prime; and 6&Prime; sensors at ${esc(site.name)}. A full day&rsquo;s high and low show up after the first full day of readings.</p>
+      </div>
+    </section>`;
+}
 
-        content.innerHTML = `
-          <div class="temp-card fade-in">
-            <div class="card-header">
-              <span class="depth-badge">4" Depth</span>
-              <span class="card-date">${dateStr}</span>
-            </div>
-            <div class="temp-avg-row">
-              <span class="temp-avg-value">${Math.round(data.avg)}&deg;</span>
-              <span class="temp-avg-label">Yesterday's Average</span>
-            </div>
-            <div class="temp-stats">
-              <div class="temp-stat">
-                <span class="temp-stat-value high">${Math.round(data.high)}&deg;</span>
-                <span class="temp-stat-label">High</span>
-              </div>
-              <div class="temp-stat">
-                <span class="temp-stat-value low">${Math.round(data.low)}&deg;</span>
-                <span class="temp-stat-label">Low</span>
-              </div>
-              <div class="temp-stat">
-                <span class="temp-stat-value">${data.avg_7day != null ? Math.round(data.avg_7day) + '&deg;' : '--'}</span>
-                <span class="temp-stat-label">7-Day Avg</span>
-              </div>
-            </div>
-          </div>
-        `;
-
-        document.getElementById('info').style.display = 'block';
-
-        if (data.updated) {
-          const updated = new Date(data.updated);
-          document.getElementById('updated-at').textContent =
-            'Last updated ' + updated.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) +
-            ' at ' + updated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-        }
-
-      } catch (e) {
-        document.getElementById('content').innerHTML =
-          '<div class="no-data">No soil temperature data available yet. Check back tomorrow morning.</div>';
-        document.getElementById('info').style.display = 'block';
-      }
+function chart(series) {
+  const pts = (series && series.points) || [];
+  const depths = (series && series.depths_in) || [];
+  if (pts.length < 2 || !depths.length) return '<p class="fine-print">Not enough readings yet for a chart.</p>';
+  const W = 640, H = 250, L = 40, R = 8, T = 10, B = 28;
+  const t0 = Date.parse(pts[0].t), t1 = Date.parse(pts[pts.length - 1].t);
+  let max = 0;
+  pts.forEach(p => p.w.forEach(v => { if (isNum(v) && v > max) max = v; }));
+  const top = Math.max(10, Math.ceil(max / 10) * 10);
+  const x = t => L + (W - L - R) * (t - t0) / Math.max(1, t1 - t0);
+  const y = v => T + (H - T - B) * (1 - v / top);
+  let grid = '';
+  for (let i = 0; i <= 5; i++) {
+    const v = top * i / 5, yy = y(v).toFixed(1);
+    grid += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="${i ? '#edf1e9' : '#cbd3c7'}"/>`;
+    grid += `<text x="${L - 8}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${Math.round(v)}%</text>`;
+  }
+  let lastKey = fmtDayKey.format(new Date(t0));
+  pts.forEach(p => {
+    const key = fmtDayKey.format(new Date(p.t));
+    if (key !== lastKey) {
+      const xx = x(Date.parse(p.t)).toFixed(1);
+      grid += `<line x1="${xx}" x2="${xx}" y1="${T}" y2="${H - B}" stroke="#edf1e9"/>`;
+      grid += `<text x="${(+xx + 4).toFixed(1)}" y="${H - 8}">${esc(fmtDay.format(new Date(p.t)))}</text>`;
+      lastKey = key;
     }
+  });
+  let lines = '';
+  depths.forEach((d, i) => {
+    let path = '', pen = false;
+    pts.forEach(p => {
+      const v = p.w[i];
+      if (!isNum(v)) { pen = false; return; }
+      path += `${pen ? 'L' : 'M'}${x(Date.parse(p.t)).toFixed(1)},${y(v).toFixed(1)}`;
+      pen = true;
+    });
+    if (path) lines += `<path d="${path}" fill="none" stroke="${COLORS[i % COLORS.length]}" stroke-width="1.6" stroke-linejoin="round"/>`;
+  });
+  const legend = depths.map((d, i) => `<li><i style="background:${COLORS[i % COLORS.length]}"></i>${esc(d)}&Prime;</li>`).join('');
+  return `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Soil water percent by depth over the last 7 days">${grid}${lines}</svg>
+    <ul class="legend" aria-label="Depths">${legend}</ul>`;
+}
 
-    loadData();
-  </script>
+function siteCard(site) {
+  const rows = (site.latest || []).map(r => `
+        <tr><td>${esc(r.depth_in)}&Prime;</td><td class="n">${isNum(r.temp_f) ? Math.round(r.temp_f) + '&deg;F' : '&ndash;'}</td><td class="n">${pct(r.water_pct)}</td></tr>`).join('');
+  return `
+    <section class="site card" aria-label="${esc(site.name)}">
+      <div class="site-head">
+        <h2>${esc(site.name)}</h2>
+        <p class="site-meta">${site.location ? esc(site.location) + ' &middot; ' : ''}Last reading ${esc(ct(site.last_read_at))}</p>
+      </div>
+      <div class="site-body">
+        <table class="depths">
+          <thead><tr><th scope="col">Depth</th><th scope="col" class="n">Soil temp</th><th scope="col" class="n">Water</th></tr></thead>
+          <tbody>${rows}
+          </tbody>
+        </table>
+        <div class="chart">
+          <p class="chart-label">Soil water, last 7 days</p>
+          ${chart(site.water_series)}
+        </div>
+      </div>
+      <p class="fine-print">Water % uses Sentek&rsquo;s default calibration and hasn&rsquo;t been checked against this site&rsquo;s soil yet (uncalibrated). Read it as a trend, not an exact number.</p>
+    </section>`;
+}
+
+async function loadData() {
+  const content = document.getElementById('content');
+  const info = document.getElementById('info');
+  try {
+    const resp = await fetch('/api/soil');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    const sites = (data.sites || []).filter(s => s.last_read_at);
+    if (!sites.length) throw new Error('No sites');
+    content.innerHTML = summary(sites[0]) + sites.map(siteCard).join('');
+    if (data.generated_at) document.getElementById('updated-at').textContent = 'Last updated ' + ct(data.generated_at);
+  } catch (e) {
+    content.innerHTML = '<div class="no-data">No probe readings to show right now. Check back soon.</div>';
+  }
+  info.hidden = false;
+}
+
+loadData();
+</script>
 </body>
 </html>
