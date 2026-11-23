@@ -17,156 +17,73 @@
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
   <style>
-    :root{
-      --paper:#FDFCFA;
-      --ink:#1B1E18;
-      --body:#33362D;
-      --muted:#5B5F52;
-      --green:#2F5D34;
-      --line:#E3E0D5;
-      --sans:'Libre Franklin',ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    html{-webkit-text-size-adjust:100%;}
-    body{
-      background:var(--paper);
-      color:var(--body);
-      font-family:var(--sans);
-      font-size:18px;
-      line-height:1.62;
-    }
-
-    .wrap{
-      max-width:680px;
-      margin:0 auto;
-      padding:clamp(34px,6vw,72px) clamp(20px,5vw,36px) 96px;
-    }
-
-    .masthead{
-      border-bottom:1px solid var(--line);
-      padding-bottom:26px;
-      margin-bottom:8px;
-    }
-    .eyebrow{
-      font-weight:600;
-      font-size:.7rem;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      color:var(--muted);
-      margin-bottom:16px;
-    }
-    .masthead h1{
-      font-weight:700;
-      font-size:clamp(2rem,5.5vw,2.7rem);
-      line-height:1.1;
-      letter-spacing:-.018em;
-      color:var(--ink);
-    }
-    .masthead .sub{
-      font-size:1.05rem;
-      color:var(--muted);
-      margin-top:12px;
-      max-width:46ch;
-    }
-
-    .note{
-      padding:34px 0;
-      border-bottom:1px solid var(--line);
-      scroll-margin-top:20px;
-    }
-    .note.is-target .note-title{ color:var(--green); }
-
-    .note-date{
-      font-weight:600;
-      font-size:.72rem;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color:var(--muted);
-      margin-bottom:10px;
-    }
-    .note-title{
-      font-weight:700;
-      font-size:clamp(1.35rem,3.2vw,1.7rem);
-      line-height:1.22;
-      letter-spacing:-.012em;
-      color:var(--ink);
-      transition:color .25s ease;
-    }
-    .note-title a{ color:inherit; text-decoration:none; }
-    .note-title a:hover{ color:var(--green); }
-
-    .note-brief{
-      font-size:1.06rem;
-      color:var(--body);
-      margin-top:12px;
-      max-width:54ch;
-    }
-
-    .note-body p{ margin-top:14px; color:var(--body); }
-    .note-body p:first-child{ margin-top:14px; }
-
-    .note-foot{
-      display:flex;
-      align-items:center;
-      gap:22px;
-      margin-top:18px;
-    }
-    .note-more{
-      font-weight:600;
-      font-size:.98rem;
-      color:var(--green);
-      text-decoration:none;
-      border-bottom:1px solid rgba(47,93,52,.35);
-      padding-bottom:1px;
-    }
-    .note-more:hover{ border-bottom-color:var(--green); }
-    .note-copy{
-      background:none;
-      border:none;
-      padding:0;
-      font-family:var(--sans);
-      font-size:.86rem;
-      font-weight:500;
-      color:var(--muted);
-      cursor:pointer;
-      letter-spacing:.01em;
-    }
-    .note-copy:hover{ color:var(--green); }
-    .note-copy.copied{ color:var(--green); }
-
-    .feed-state{
-      padding:48px 0;
-      font-size:.98rem;
-      color:var(--muted);
-    }
-    .feed-state.error{ color:#9A3B2E; }
-
-    .foot{
-      margin-top:40px;
-      font-size:.74rem;
-      letter-spacing:.03em;
-      color:var(--muted);
-    }
+    /* Field Notes only. Everything else comes from /assets/site.css (the home page styles). */
+    .notes-feed { border-bottom:1px solid var(--line); max-width:760px; }
+    .note { padding:30px 0; border-top:1px solid var(--line); scroll-margin-top:20px; }
+    .note.is-target .note-title { color:var(--sage); }
+    .note-date { font-size:15px; color:var(--sage); margin-bottom:10px; }
+    .note-title { font-weight:400; font-size:30px; line-height:1.25; color:var(--black); transition:color .25s ease; }
+    .note-title a { color:inherit; text-decoration:none; }
+    .note-title a:hover { text-decoration:underline; }
+    .note-brief { margin-top:12px; max-width:56ch; }
+    .note-body p { margin-top:14px; max-width:62ch; }
+    .note-foot { display:flex; align-items:center; gap:24px; margin-top:18px; }
+    .note-more { font-size:17px; }
+    .note-copy { background:none; border:0; padding:0; font-family:inherit; font-size:15px; color:var(--gray-2); cursor:pointer; }
+    .note-copy:hover,.note-copy.copied { color:var(--green); text-decoration:underline; text-underline-offset:5px; }
+    .feed-state { padding:40px 0; color:var(--gray-2); border-top:1px solid var(--line); }
+    .feed-state.error { color:#9a3b2e; }
+    .notes-foot { margin-top:28px; font-size:14px; color:var(--gray-2); }
+    @media(max-width:760px) { .note-title { font-size:25px; } }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <div class="masthead">
-      <p class="eyebrow">Acre Insights &nbsp;/&nbsp; Field Notes</p>
-      <h1>Field Notes</h1>
-      <p class="sub">The full version of the notes behind your seasonal texts. Newest first.</p>
-    </div>
+<a class="skip" href="#main">Skip to content</a>
 
-    <div id="feed">
+<nav aria-label="Main navigation">
+  <a class="n-logo" href="/"><img src="/LOGO.jpg" alt="Acre Insights" style="height:28px;"></a>
+  <button class="n-mobile-toggle" id="menuBtn" aria-label="Open navigation" aria-controls="navLinks" aria-expanded="false"><span></span><span></span><span></span></button>
+  <ul class="n-links" id="navLinks">
+    <li><a href="/#services">Services</a></li>
+    <li><a href="/#funding">EQIP &amp; CSP</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#contact">Contact</a></li>
+    <li><a href="/soiltemps">Soil Temps</a></li>
+    <li><a href="/updates" class="active" aria-current="page">Updates</a></li>
+  </ul>
+  <a class="n-cta" href="/#contact">Get in Touch</a>
+</nav>
+
+<main id="main">
+  <header class="ph">
+    <p class="kicker">Acre Insights / Field Notes</p>
+    <h1>Field Notes</h1>
+    <p>The full version of the notes behind your seasonal texts. Newest first.</p>
+  </header>
+
+  <div class="ct">
+    <div id="feed" class="notes-feed">
       <div class="feed-state">Loading notes…</div>
     </div>
 
-    <p class="foot">Acre Insights &nbsp;/&nbsp; Precision soil moisture monitoring &nbsp;/&nbsp; South-Central Nebraska</p>
-  </main>
+    <p class="notes-foot">Acre Insights &nbsp;/&nbsp; Precision soil moisture monitoring &nbsp;/&nbsp; South-Central Nebraska</p>
+  </div>
+</main>
+
+<footer>
+  <div class="f-brand"><img src="/LOGO.jpg" alt="Acre Insights" style="height:18px;"></div>
+  <ul class="f-nav">
+    <li><a href="/#services">Services</a></li>
+    <li><a href="/#funding">EQIP &amp; CSP</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#contact">Contact</a></li>
+    <li><a href="/updates">Updates</a></li>
+  </ul>
+  <div class="f-legal">&copy; 2026 Acre Insights LLC &middot; Nebraska</div>
+</footer>
+<script src="/assets/nav.js" defer></script>
 
 <script>
 function formatDate(ymd) {
