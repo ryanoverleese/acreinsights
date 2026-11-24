@@ -130,8 +130,6 @@ function esc(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 const isNum = v => typeof v === 'number' && Number.isFinite(v);
-// Sensors sit about 1 in shallower than the nominal stored depth. Display only.
-const displayDepth = d => isNum(d) ? d - 1 : d;
 const deg = v => isNum(v) ? Math.round(v) + '&deg;' : '&ndash;';
 const pct = v => isNum(v) ? v.toFixed(1) + '%' : '&ndash;';
 const ct = iso => fmtTime.format(new Date(iso)) + ' CT';
@@ -146,7 +144,7 @@ function summary(site) {
     return `
       <section class="soil-summary" aria-label="Daily soil temperature">
         <div>
-          <p class="summary-label">${esc(dayLabel(day.date))} &middot; 1&Prime;&ndash;5&Prime; avg</p>
+          <p class="summary-label">${esc(dayLabel(day.date))} &middot; 2&Prime;&ndash;6&Prime; avg</p>
           <p class="summary-value">${deg(day.avg_f)}</p>
         </div>
         <div class="summary-stats">
@@ -162,7 +160,7 @@ function summary(site) {
   return `
     <section class="soil-summary" aria-label="Latest soil temperature">
       <div>
-        <p class="summary-label">${esc(ct(site.last_read_at))} &middot; 1&Prime;&ndash;5&Prime; avg</p>
+        <p class="summary-label">${esc(ct(site.last_read_at))} &middot; 2&Prime;&ndash;6&Prime; avg</p>
         <p class="summary-value">${deg(avg)}</p>
       </div>
     </section>`;
@@ -206,17 +204,17 @@ function chart(series) {
     });
     if (path) lines += `<path d="${path}" fill="none" stroke="${colorForDepth(d)}" stroke-width="1.6" stroke-linejoin="round"/>`;
   });
-  const legend = depths.map((d, i) => `<li><i style="background:${colorForDepth(d)}"></i>${esc(displayDepth(d))}&Prime;</li>`).join('');
+  const legend = depths.map((d, i) => `<li><i style="background:${colorForDepth(d)}"></i>${esc(d)}&Prime;</li>`).join('');
   return `
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Soil water percent by depth over the last 7 days">${grid}${lines}</svg>
     <ul class="legend" aria-label="Depths">${legend}</ul>`;
 }
 
 
-const TEMP_DEPTH = 2;
 const WATER_DEPTHS = [2, 10, 30];
-const TEMP_LINE = '#D9480F';
-const TEMP_BAND = '#D9480F';
+const TEMP_DEPTHS = [2, 10, 30];
+const TEMP_COLORS = { 2: '#F08C5A', 10: '#D9480F', 30: '#8A2A06' };
+const colorForTemp = d => TEMP_COLORS[d] || '#D9480F';
 const fmtMonth = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short' });
 const fmtTipDay = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -305,34 +303,30 @@ function oneSeasonPlot(seriesList, range, opts) {
   for (let month = nextMonth(first); parseYmd(month) <= t1; month = nextMonth(month)) addMonth(month);
 
   let plots = '';
-  seriesList.forEach(s => {
-    if (kind === 'temp') {
+  if (kind === 'temp') {
+    const shallow = seriesList.find(s => s.depth === 2);
+    if (shallow) {
       let top = '', bottom = [];
-      s.points.forEach(pt => {
+      shallow.points.forEach(pt => {
         if (!isNum(pt.high) || !isNum(pt.low)) return;
         const xx = x(parseYmd(pt.date)).toFixed(1);
         top += `${top ? 'L' : 'M'}${xx},${yFn(pt.high).toFixed(1)}`;
         bottom.push(`${xx},${yFn(pt.low).toFixed(1)}`);
       });
       if (top && bottom.length) {
-        plots += `<path d="${top}L${bottom.reverse().join('L')}Z" fill="${TEMP_BAND}" fill-opacity="0.15" stroke="none"/>`;
+        plots += `<path d="${top}L${bottom.reverse().join('L')}Z" fill="${shallow.color}" fill-opacity="0.15" stroke="none"/>`;
       }
-      let path = '', pen = false;
-      s.points.forEach(pt => {
-        if (!isNum(pt.avg)) { pen = false; return; }
-        path += `${pen ? 'L' : 'M'}${x(parseYmd(pt.date)).toFixed(1)},${yFn(pt.avg).toFixed(1)}`;
-        pen = true;
-      });
-      if (path) plots += `<path d="${path}" fill="none" stroke="${TEMP_LINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-      return;
     }
+  }
+  seriesList.forEach(s => {
     let path = '', pen = false;
     s.points.forEach(pt => {
       if (!isNum(pt.avg)) { pen = false; return; }
       path += `${pen ? 'L' : 'M'}${x(parseYmd(pt.date)).toFixed(1)},${yFn(pt.avg).toFixed(1)}`;
       pen = true;
     });
-    if (path) plots += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const sw = kind === 'temp' ? 2 : 1.75;
+    if (path) plots += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
   });
 
   const daySpan = Math.max(1, (t1 - t0) / 86400000);
@@ -344,7 +338,7 @@ function oneSeasonPlot(seriesList, range, opts) {
     hits += `<rect class="hit" data-day="${encodeURIComponent(JSON.stringify(tip))}" data-x="${xx.toFixed(1)}" x="${(xx - hitW / 2).toFixed(1)}" y="${T}" width="${hitW.toFixed(1)}" height="${plotH}" fill="transparent"/>`;
   });
   const hair = `<line class="crosshair" x1="0" x2="0" y1="${T}" y2="${T + plotH}" stroke="#536154" stroke-width="1" stroke-opacity="0.55" display="none"/>`;
-  const legend = seriesList.map(s => `<li><i style="background:${s.color}"></i>${esc(displayDepth(s.depth))}&Prime;</li>`).join('');
+  const legend = seriesList.map(s => `<li><i style="background:${s.color}"></i>${esc(s.depth)}&Prime;</li>`).join('');
   return `
     <div class="season-plot" data-kind="${kind}">
       <p class="chart-label">${title}</p>
@@ -361,11 +355,11 @@ function seasonChart(season) {
   const days = season.days || [];
   if (!days.length) return '';
   const water = depthSeries(season, WATER_DEPTHS, 'w_avg', 'w_high', 'w_low', WATER_DEPTHS.map(colorForDepth));
-  const temp = depthSeries(season, [TEMP_DEPTH], 't_avg', 't_high', 't_low', [TEMP_LINE]);
+  const temp = depthSeries(season, TEMP_DEPTHS, 't_avg', 't_high', 't_low', TEMP_DEPTHS.map(colorForTemp));
   const range = seasonRange(days);
   return `<div class="season-charts">
       ${water.length ? oneSeasonPlot(water, range, { kind: 'water', unit: '%', digits: 1, title: 'Soil water, season', yBot: 0, yTop: 50, height: 300 }) : ''}
-      ${temp.length ? oneSeasonPlot(temp, range, { kind: 'temp', unit: '&deg;', digits: 0, title: 'Soil temp at 1&Prime;, season', yBot: 30, yTop: 90, height: 260 }) : ''}
+      ${temp.length ? oneSeasonPlot(temp, range, { kind: 'temp', unit: '&deg;', digits: 0, title: 'Soil temp, season', yBot: 30, yTop: 90, height: 260 }) : ''}
     </div>`;
 }
 
@@ -381,7 +375,7 @@ function tipText(d) {
   const f = (v, unit, digits) => isNum(v) ? v.toFixed(digits) + unit : '&ndash;';
   const day = fmtTipDay.format(new Date(parseYmd(d.date)));
   const unit = d.unit || '', digits = d.digits ?? 1;
-  const lines = (d.items || []).map(it => `${esc(displayDepth(it.depth))}&Prime; ${f(it.avg, unit, digits)} (${f(it.low, unit, digits)}&ndash;${f(it.high, unit, digits)})`);
+  const lines = (d.items || []).map(it => `${esc(it.depth)}&Prime; ${f(it.avg, unit, digits)} (${f(it.low, unit, digits)}&ndash;${f(it.high, unit, digits)})`);
   return `<strong>${esc(day)}</strong>${lines.length ? '<br>' + lines.join('<br>') : ''}`;
 }
 
@@ -462,7 +456,7 @@ contentEl.addEventListener('mouseleave', hideSeasonHover);
 
 function siteCard(site, i) {
   const rows = (site.latest || []).map(r => `
-        <tr><td>${esc(displayDepth(r.depth_in))}&Prime;</td><td class="n">${isNum(r.temp_f) ? Math.round(r.temp_f) + '&deg;F' : '&ndash;'}</td><td class="n">${pct(r.water_pct)}</td></tr>`).join('');
+        <tr><td>${esc(r.depth_in)}&Prime;</td><td class="n">${isNum(r.temp_f) ? Math.round(r.temp_f) + '&deg;F' : '&ndash;'}</td><td class="n">${pct(r.water_pct)}</td></tr>`).join('');
   return `
     <section class="site card" aria-label="${esc(site.name)}">
       <div class="site-head">
