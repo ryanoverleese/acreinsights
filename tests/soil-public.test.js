@@ -131,7 +131,12 @@ test("/soiltemps reads /api/soil, not soil_temp.json, and carries no database ke
   assert.match(html, /TEMP_DEPTHS = \[2, 10, 30\]/);
   assert.match(html, /Soil water, season/);
   assert.match(html, /Soil temp, season/);
+  assert.doesNotMatch(html, /Soil water, last 7 days/);
   assert.doesNotMatch(html, /Soil temp at /);
+  assert.match(html, />Temp<\/th>/);
+  assert.doesNotMatch(html, /&deg;F/);
+  assert.match(html, /startYear \+ '-01-01'/);
+
   assert.match(html, /#4FA3E0/);
   assert.match(html, /#1F6FB2/);
   assert.match(html, /#0B3C6E/);

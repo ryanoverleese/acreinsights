@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="/assets/site.css">
 <style>
 /* Soil Temps only. Everything else comes from /assets/site.css (the home page styles). */
+.ph { padding-bottom:8px; }
 .soil-summary { border-top:1px solid var(--line); padding-top:26px; display:grid; grid-template-columns:1fr 1.3fr; gap:56px; align-items:end; }
 .summary-label { color:var(--sage); font-size:16px; }
 .summary-value { font-size:92px; line-height:1; color:var(--black); font-weight:300; letter-spacing:-.03em; margin-top:12px; font-variant-numeric:tabular-nums; }
@@ -33,21 +34,24 @@
 .site-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px 24px; flex-wrap:wrap; }
 .site-head h2 { font-size:34px; line-height:1.2; color:var(--sage); }
 .site-meta { font-size:16px; color:var(--gray-2); }
-.site-body { display:grid; grid-template-columns:minmax(250px,.8fr) 1.3fr; gap:56px; margin-top:26px; }
-.depths { width:100%; border-collapse:collapse; font-size:17px; font-variant-numeric:tabular-nums; }
-.depths th { text-align:left; font-weight:400; font-size:15px; color:var(--sage); padding:0 0 10px; border-bottom:1px solid var(--line); }
+.site-meta .when { white-space:nowrap; }
+.site-body { margin-top:26px; }
+.depths { width:100%; max-width:560px; border-collapse:collapse; font-size:17px; font-variant-numeric:tabular-nums; }
+.depths th { text-align:left; font-weight:400; font-size:16px; color:var(--black); padding:0 0 10px; border-bottom:1px solid var(--line); }
 .depths td { padding:7px 0; border-bottom:1px solid var(--gray-5); color:var(--gray-1); }
 .depths .n { text-align:right; }
 .chart-label { font-size:16px; color:var(--black); margin-bottom:10px; }
+.chart .chart-label { margin-bottom:6px; }
+.chart .legend { margin-top:0; margin-bottom:10px; }
 .chart svg { display:block; width:100%; height:auto; overflow:visible; }
 .chart text { font-size:12px; fill:var(--gray-2); font-family:inherit; }
 .legend { display:flex; flex-wrap:wrap; gap:6px 16px; list-style:none; font-size:14px; color:var(--gray-2); margin-top:12px; }
 .legend i { display:inline-block; width:16px; height:2px; vertical-align:middle; margin-right:6px; }
 .chart-empty { font-size:15px; color:var(--gray-2); }
-.loading,.no-data { padding:40px 0; color:var(--gray-2); border-top:1px solid var(--line); }
+.loading,.no-data { padding:26px 0 80px; color:var(--gray-2); border-top:1px solid var(--line); }
 
 .ph,.ct { max-width:1240px; overflow:visible; }
-.season { margin-top:40px; padding-top:40px; border-top:1px solid #E5E5E5; overflow:visible; }
+.season { margin-top:40px; padding-top:40px; border-top:1px solid var(--line); overflow:visible; }
 .season-charts { display:flex; flex-direction:column; gap:32px; }
 .season-plot { position:relative; overflow:visible; }
 .season-plot .chart-label { margin-bottom:6px; }
@@ -55,19 +59,20 @@
 .season-frame { position:relative; overflow:visible; }
 .season-y { position:absolute; left:0; width:0; list-style:none; pointer-events:none; }
 .season-y li { position:absolute; right:8px; transform:translateY(-50%); text-align:right; font-size:12px; line-height:1; color:var(--gray-2); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.season-x { position:absolute; left:0; right:0; bottom:0; height:34px; list-style:none; pointer-events:none; }
+.season-x li { position:absolute; top:24px; font-size:12px; line-height:1; color:var(--gray-2); white-space:nowrap; }
 .season-plot svg { display:block; width:100%; overflow:visible; }
 .season-plot[data-kind="water"] svg { height:300px; }
 .season-plot[data-kind="temp"] svg { height:260px; }
-.season-plot text { font-size:12px; fill:var(--gray-2); font-family:inherit; }
 .season-tip { position:absolute; pointer-events:none; display:none; background:#fff; border:1px solid var(--line); padding:8px 10px; font-size:13px; color:var(--gray-1); font-variant-numeric:tabular-nums; white-space:nowrap; z-index:2; }
 @media(max-width:760px) {
-  .ph,.ct { padding-left:40px; padding-right:40px; }
-  .season-y li { font-size:11px; right:6px; }
+  .ph,.ct { width:calc(100% - 64px); padding-left:0; padding-right:0; }
+  .site-meta { font-size:15px; }
+  .season-y li,.season-x li { font-size:11px; }
+  .season-y li { right:6px; }
   .season-plot[data-kind="water"] svg { height:240px; }
   .season-plot[data-kind="temp"] svg { height:220px; }
-}
-@media(max-width:760px) {
-  .soil-summary,.site-body { grid-template-columns:1fr; gap:26px; }
+  .soil-summary { grid-template-columns:1fr; gap:26px; }
   .summary-value { font-size:68px; }
   .stat-v { font-size:28px; }
   .stat + .stat { padding-left:14px; }
@@ -123,7 +128,6 @@ const TZ = 'America/Chicago';
 const DEPTH_COLORS = { 2: '#4FA3E0', 6: '#3590C9', 10: '#1F6FB2', 14: '#1A62A0', 18: '#165890', 22: '#124E80', 26: '#0E4574', 30: '#0B3C6E', 33: '#082A4E' };
 const colorForDepth = d => DEPTH_COLORS[d] || '#1F6FB2';
 const fmtTime = new Intl.DateTimeFormat('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-const fmtDay = new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short' });
 const fmtDayKey = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
 
 function esc(s) {
@@ -179,51 +183,6 @@ function summary(site) {
     </section>`;
 }
 
-function chart(series) {
-  const pts = (series && series.points) || [];
-  const depths = (series && series.depths_in) || [];
-  if (pts.length < 2 || !depths.length) return '<p class="chart-empty">Not enough readings yet.</p>';
-  const W = 640, H = 250, L = 40, R = 8, T = 10, B = 28;
-  const t0 = Date.parse(pts[0].t), t1 = Date.parse(pts[pts.length - 1].t);
-  let max = 0;
-  pts.forEach(p => p.w.forEach(v => { if (isNum(v) && v > max) max = v; }));
-  const top = Math.max(10, Math.ceil(max / 10) * 10);
-  const x = t => L + (W - L - R) * (t - t0) / Math.max(1, t1 - t0);
-  const y = v => T + (H - T - B) * (1 - v / top);
-  let grid = '';
-  for (let i = 0; i <= 5; i++) {
-    const v = top * i / 5, yy = y(v).toFixed(1);
-    grid += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="${i ? '#edf1e9' : '#cbd3c7'}"/>`;
-    grid += `<text x="${L - 8}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${Math.round(v)}%</text>`;
-  }
-  let lastKey = fmtDayKey.format(new Date(t0));
-  pts.forEach(p => {
-    const key = fmtDayKey.format(new Date(p.t));
-    if (key !== lastKey) {
-      const xx = x(Date.parse(p.t)).toFixed(1);
-      grid += `<line x1="${xx}" x2="${xx}" y1="${T}" y2="${H - B}" stroke="#edf1e9"/>`;
-      grid += `<text x="${(+xx + 4).toFixed(1)}" y="${H - 8}">${esc(fmtDay.format(new Date(p.t)))}</text>`;
-      lastKey = key;
-    }
-  });
-  let lines = '';
-  depths.forEach((d, i) => {
-    let path = '', pen = false;
-    pts.forEach(p => {
-      const v = p.w[i];
-      if (!isNum(v)) { pen = false; return; }
-      path += `${pen ? 'L' : 'M'}${x(Date.parse(p.t)).toFixed(1)},${y(v).toFixed(1)}`;
-      pen = true;
-    });
-    if (path) lines += `<path d="${path}" fill="none" stroke="${colorForDepth(d)}" stroke-width="1.6" stroke-linejoin="round"/>`;
-  });
-  const legend = depths.map((d, i) => `<li><i style="background:${colorForDepth(d)}"></i>${esc(d)}&Prime;</li>`).join('');
-  return `
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Soil water percent by depth over the last 7 days">${grid}${lines}</svg>
-    <ul class="legend" aria-label="Depths">${legend}</ul>`;
-}
-
-
 const WATER_DEPTHS = [2, 10, 30];
 const TEMP_DEPTHS = [2, 10, 30];
 const TEMP_COLORS = { 2: '#F08C5A', 10: '#D9480F', 30: '#8A2A06' };
@@ -263,10 +222,12 @@ function niceStep(v, step) { return Math.ceil(v / step) * step; }
 function niceFloor(v, step) { return Math.floor(v / step) * step; }
 
 function seasonRange(days) {
-  const first = days[0].date;
-  const last = days[days.length - 1].date;
-  let end = addDays(first, 365);
-  if (parseYmd(last) > parseYmd(end)) end = last;
+  const firstData = days[0].date;
+  const lastData = days[days.length - 1].date;
+  const startYear = +firstData.slice(0, 4);
+  const endYear = +lastData.slice(0, 4);
+  const first = startYear + '-01-01';
+  const end = (endYear + 1) + '-01-01';
   return { first, end, t0: parseYmd(first), t1: parseYmd(end) };
 }
 
@@ -285,7 +246,7 @@ function oneSeasonPlot(seriesList, range, opts) {
   const futureX = Math.min(W - R, Math.max(L, x(parseYmd(lastData))));
   let art = '';
   if (futureX < W - R) {
-    art += `<rect class="season-future" x="${futureX.toFixed(1)}" y="${T}" width="${(W - R - futureX).toFixed(1)}" height="${plotH}" fill="#FAFAF7"/>`;
+    art += `<rect class="season-future" x="${futureX.toFixed(1)}" y="${T}" width="${(W - R - futureX).toFixed(1)}" height="${plotH}" fill="#F6F7F5"/>`;
   }
 
   const ticks = [];
@@ -294,7 +255,7 @@ function oneSeasonPlot(seriesList, range, opts) {
     const yy = yFn(v).toFixed(1);
     art += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="#EEE" stroke-width="1"/>`;
   });
-  const yLabel = v => kind === 'water' ? `${Math.round(v)}%` : `${Math.round(v)}`;
+  const yLabel = v => kind === 'water' ? `${Math.round(v)}%` : `${Math.round(v)}&deg;`;
   const yTicks = ticks.map(v => `<li style="top:${((yTop - v) / (yTop - yBot) * 100).toFixed(3)}%">${yLabel(v)}</li>`).join('');
 
   const labelMonth = ymd => {
@@ -303,14 +264,19 @@ function oneSeasonPlot(seriesList, range, opts) {
     const year = dt.getUTCFullYear();
     return (ymd === first || dt.getUTCMonth() === 0) ? `${mon} ${year}` : mon;
   };
+  const xTicks = [];
+  const narrow = window.matchMedia('(max-width:760px)').matches;
   const addMonth = ymd => {
     if (parseYmd(ymd) < t0 || parseYmd(ymd) > t1) return;
     if (ymd !== first && parseYmd(ymd) - t0 < 12 * 86400000) return;
+    const mon = new Date(parseYmd(ymd)).getUTCMonth();
+    if (narrow && ymd !== first && mon !== 0 && mon % 3 !== 0) return;
     const xx = x(parseYmd(ymd));
-    let anchor = 'middle';
-    if (xx < L + 28) anchor = 'start';
-    else if (xx > W - R - 28) anchor = 'end';
-    art += `<text x="${xx.toFixed(1)}" y="${H - 10}" text-anchor="${anchor}">${esc(labelMonth(ymd))}</text>`;
+    let xf = 'translate(-50%,0)';
+    if (xx < L + 28) xf = 'translate(0,0)';
+    else if (xx > W - R - 28) xf = 'translate(-100%,0)';
+    const left = ((xx - L) / Math.max(1, plotW) * 100).toFixed(3);
+    xTicks.push(`<li style="left:${left}%;transform:${xf}">${esc(labelMonth(ymd))}</li>`);
   };
   addMonth(first);
   for (let month = nextMonth(first); parseYmd(month) <= t1; month = nextMonth(month)) addMonth(month);
@@ -340,6 +306,8 @@ function oneSeasonPlot(seriesList, range, opts) {
     });
     const sw = kind === 'temp' ? 2 : 1.75;
     if (path) plots += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const last = [...s.points].reverse().find(pt => isNum(pt.avg));
+    if (last) plots += `<circle cx="${x(parseYmd(last.date)).toFixed(1)}" cy="${yFn(last.avg).toFixed(1)}" r="3.5" fill="${s.color}"/>`;
   });
 
   const daySpan = Math.max(1, (t1 - t0) / 86400000);
@@ -359,6 +327,7 @@ function oneSeasonPlot(seriesList, range, opts) {
       <div class="season-frame">
         <ul class="season-y" style="top:${(T / H * 100).toFixed(3)}%;height:${((H - T - B) / H * 100).toFixed(3)}%">${yTicks}</ul>
         <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${title}">${art}${plots}${hits}${hair}</svg>
+        <ul class="season-x">${xTicks.join('')}</ul>
       </div>
       <div class="season-tip"></div>
     </div>`;
@@ -370,8 +339,12 @@ function seasonChart(season) {
   const water = depthSeries(season, WATER_DEPTHS, 'w_avg', 'w_high', 'w_low', WATER_DEPTHS.map(colorForDepth));
   const temp = depthSeries(season, TEMP_DEPTHS, 't_avg', 't_high', 't_low', TEMP_DEPTHS.map(colorForTemp));
   const range = seasonRange(days);
+  let waterTop = 50;
+  water.forEach(s => s.points.forEach(pt => {
+    [pt.avg, pt.high].forEach(v => { if (isNum(v) && v > waterTop) waterTop = niceStep(v, 10); });
+  }));
   return `<div class="season-charts">
-      ${water.length ? oneSeasonPlot(water, range, { kind: 'water', unit: '%', digits: 1, title: 'Soil water, season', yBot: 0, yTop: 50, height: 300 }) : ''}
+      ${water.length ? oneSeasonPlot(water, range, { kind: 'water', unit: '%', digits: 1, title: 'Soil water, season', yBot: 0, yTop: waterTop, height: 300 }) : ''}
       ${temp.length ? oneSeasonPlot(temp, range, { kind: 'temp', unit: '&deg;', digits: 0, title: 'Soil temp, season', yBot: 30, yTop: 90, height: 260 }) : ''}
     </div>`;
 }
@@ -469,23 +442,19 @@ contentEl.addEventListener('mouseleave', hideSeasonHover);
 
 function siteCard(site, i) {
   const rows = (site.latest || []).map(r => `
-        <tr><td>${esc(r.depth_in)}&Prime;</td><td class="n">${isNum(r.temp_f) ? Math.round(r.temp_f) + '&deg;F' : '&ndash;'}</td><td class="n">${pct(r.water_pct)}</td></tr>`).join('');
+        <tr><td>${esc(r.depth_in)}&Prime;</td><td class="n">${isNum(r.temp_f) ? Math.round(r.temp_f) + '&deg;' : '&ndash;'}</td><td class="n">${pct(r.water_pct)}</td></tr>`).join('');
   return `
     <section class="site card" aria-label="${esc(site.name)}">
       <div class="site-head">
         <h2>${esc(site.name)}</h2>
-        <p class="site-meta">${site.location ? esc(site.location) + ' &middot; ' : ''}Last reading ${esc(ct(site.last_read_at))}</p>
+        <p class="site-meta">${site.location && String(site.location).trim().toLowerCase() !== String(site.name||'').trim().toLowerCase() ? esc(site.location) + ' &middot; ' : ''}Last reading <span class="when">${esc(ct(site.last_read_at))}</span></p>
       </div>
       <div class="site-body">
         <table class="depths">
-          <thead><tr><th scope="col">Depth</th><th scope="col" class="n">Soil temp</th><th scope="col" class="n">Water</th></tr></thead>
+          <thead><tr><th scope="col">Depth</th><th scope="col" class="n">Temp</th><th scope="col" class="n">Water</th></tr></thead>
           <tbody>${rows}
           </tbody>
         </table>
-        <div class="chart">
-          <p class="chart-label">Soil water, last 7 days</p>
-          ${chart(site.water_series)}
-        </div>
       </div>
       ${seasonBlock(site, i)}
     </section>`;
