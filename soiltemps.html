@@ -20,76 +20,79 @@
 <link rel="stylesheet" href="/assets/site.css">
 <style>
 /* Soil Temps only. Everything else comes from /assets/site.css (the home page styles). */
+.ph,.ct { width:calc(100% - 64px); max-width:2000px; overflow:visible; }
 .ph { padding-bottom:8px; }
-.soil-summary { border-top:1px solid var(--line); padding-top:26px; display:grid; grid-template-columns:1fr 1.3fr; gap:56px; align-items:end; }
-.summary-label { color:var(--sage); font-size:16px; }
-.summary-value { font-size:92px; line-height:1; color:var(--black); font-weight:300; letter-spacing:-.03em; margin-top:12px; font-variant-numeric:tabular-nums; }
-.summary-stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); }
-.stat { padding-top:16px; }
+.ph h1 { color:#222; }
+.site { margin-top:28px; }
+.site-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px 24px; flex-wrap:wrap; }
+.site-head h2 { font-size:32px; line-height:1.2; color:#222; }
+.site-meta { font-size:16px; color:var(--gray-2); }
+.site-meta .when { white-space:nowrap; }
+.soil-summary { padding-top:22px; display:grid; grid-template-columns:1fr 1.3fr; gap:32px 56px; align-items:end; }
+.soil-summary p.summary-label { color:var(--sage); font-size:16px; }
+.soil-summary p.summary-value { font-size:92px; line-height:1; color:var(--black); font-weight:300; letter-spacing:-.03em; margin-top:10px; font-variant-numeric:tabular-nums; display:flex; align-items:flex-start; gap:10px; }
+.soil-summary p.summary-unit { font-size:16px; color:var(--gray-2); margin-top:8px; }
+.soil-summary p.today-label { font-size:16px; color:var(--gray-2); margin-bottom:8px; }
+.summary-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-top:1px solid var(--line); }
+.stat { padding-top:16px; min-width:0; }
 .stat + .stat { border-left:1px solid var(--line); padding-left:22px; }
 .stat-v { display:block; font-size:36px; line-height:1.1; color:var(--black); font-variant-numeric:tabular-nums; }
 .stat-l { display:block; font-size:15px; color:var(--gray-2); margin-top:4px; }
-.site { margin-top:64px; }
-.ct { padding-bottom:90px; }
-.site-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px 24px; flex-wrap:wrap; }
-.site-head h2 { font-size:34px; line-height:1.2; color:var(--sage); }
-.site-meta { font-size:16px; color:var(--gray-2); }
-.site-meta .when { white-space:nowrap; }
-.site-body { margin-top:26px; display:grid; grid-template-columns:380px minmax(0,1fr); gap:48px 56px; align-items:start; }
-.depths { width:100%; max-width:420px; table-layout:fixed; border-collapse:collapse; font-size:17px; font-variant-numeric:tabular-nums; }
+.trend { display:inline-flex; align-items:center; width:28px; height:28px; margin-top:14px; flex-shrink:0; color:#222; }
+.trend svg { width:100%; height:100%; display:block; }
+.site-body { margin-top:32px; display:grid; grid-template-columns:380px minmax(0,1fr); gap:48px 56px; align-items:start; }
+.depths { width:100%; table-layout:fixed; border-collapse:collapse; font-size:15px; color:#222; font-variant-numeric:tabular-nums; }
 .depths col.c-d { width:76px; }
 .depths col.c-t { width:80px; }
 .depths col.c-w { width:92px; }
 .depths thead { border-bottom:1px solid var(--line); }
 .depths tbody tr { border-bottom:1px solid var(--gray-5); }
-.depths th { text-align:left; font-weight:400; font-size:16px; color:var(--black); padding:0 16px 10px 0; }
-.depths td { padding:7px 16px 7px 0; color:var(--gray-1); white-space:nowrap; }
+.depths th { text-align:left; font-weight:400; font-size:15px; color:#222; line-height:1.2; padding:0 16px 10px 0; }
+.depths td { padding:7px 16px 7px 0; color:#222; white-space:nowrap; line-height:1.3; }
 .depths .n { text-align:right; }
 .depths th:last-child,.depths td:last-child { padding-right:0; }
-.chart-label { font-size:16px; color:var(--black); margin-bottom:10px; }
-.chart .chart-label { margin-bottom:6px; }
-.chart .legend { margin-top:0; margin-bottom:10px; }
-.chart svg { display:block; width:100%; height:auto; overflow:visible; }
-.chart text { font-size:12px; fill:var(--gray-2); font-family:inherit; }
-.legend { display:flex; flex-wrap:wrap; gap:6px 16px; list-style:none; font-size:14px; color:var(--gray-2); margin-top:12px; }
-.legend i { display:inline-block; width:16px; height:2px; vertical-align:middle; margin-right:6px; }
+p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0 0 8px; }
 .chart-empty { font-size:15px; color:var(--gray-2); }
 .loading,.no-data { padding:26px 0 80px; color:var(--gray-2); border-top:1px solid var(--line); }
-
-.ph,.ct { max-width:1240px; overflow:visible; }
-.season { overflow:visible; }
-.season-charts { display:flex; flex-direction:column; gap:32px; }
-.season-plot { position:relative; overflow:visible; }
-.season-plot .chart-label { margin-bottom:6px; }
-.season-plot .legend { margin-top:0; margin-bottom:10px; }
-.season-frame { position:relative; overflow:visible; }
-.season-y { position:absolute; left:0; width:0; list-style:none; pointer-events:none; }
-.season-y li { position:absolute; right:8px; transform:translateY(-50%); text-align:right; font-size:12px; line-height:1; color:var(--gray-2); font-variant-numeric:tabular-nums; white-space:nowrap; }
-.season-x { position:absolute; left:0; right:0; bottom:0; height:34px; list-style:none; pointer-events:none; }
-.season-x li { position:absolute; top:24px; font-size:12px; line-height:1; color:var(--gray-2); white-space:nowrap; }
-.season-plot svg { display:block; width:100%; overflow:visible; }
-.season-plot[data-kind="water"] svg { height:300px; }
-.season-plot[data-kind="temp"] svg { height:260px; }
+.ct { padding-bottom:90px; }
+.season { overflow:visible; min-width:0; }
+.season-charts { display:flex; flex-direction:column; gap:36px; }
+.season-plot { position:relative; overflow:visible; min-width:0; }
+.season-plot .legend { margin:0 0 10px; }
+.season-frame { position:relative; overflow:visible; padding-left:40px; padding-right:28px; }
+.season-y { position:absolute; left:40px; width:0; list-style:none; pointer-events:none; }
+.season-y li { position:absolute; right:8px; transform:translateY(-50%); text-align:right; font-size:13px; line-height:1; color:#666; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.season-x { position:absolute; left:40px; right:28px; bottom:0; height:34px; list-style:none; pointer-events:none; }
+.season-x li { position:absolute; top:24px; font-size:13px; line-height:1; color:#666; white-space:nowrap; }
+.season-ref { position:absolute; right:0; transform:translateY(-50%); font-size:13px; line-height:1; color:#666; font-variant-numeric:tabular-nums; white-space:nowrap; pointer-events:none; padding-left:6px; }
+.season-plot svg { display:block; width:100%; overflow:visible; height:300px; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 16px; list-style:none; font-size:13px; color:#666; }
+.legend i { display:inline-block; width:16px; height:2px; vertical-align:middle; margin-right:6px; }
 .season-tip { position:absolute; pointer-events:none; display:none; background:#fff; border:1px solid var(--line); padding:8px 10px; font-size:13px; color:var(--gray-1); font-variant-numeric:tabular-nums; white-space:nowrap; z-index:2; }
 @media(max-width:960px) {
-  .site-body { grid-template-columns:1fr; gap:36px; }
-  .depths { max-width:none; }
+  .site { display:flex; flex-direction:column; }
+  .site-head { order:1; flex-direction:column; align-items:flex-start; gap:4px; }
+  .soil-summary { order:2; grid-template-columns:1fr; gap:22px; align-items:start; }
+  .site-body { order:3; grid-template-columns:1fr; gap:32px; display:flex; flex-direction:column; }
+  .site-body .season { order:1; }
+  .site-body .depths { order:2; width:100%; max-width:none; }
+  .season-plot[data-kind="temp"] { order:1; }
+  .season-plot[data-kind="water"] { order:2; }
+  .season-plot svg { height:240px; }
+  .soil-summary p.summary-value { font-size:80px; }
+  .stat + .stat { padding-left:12px; }
+  .stat-v { font-size:26px; }
+  .stat-l { font-size:13px; }
+  .summary-stats { width:100%; }
+  .legend li { display:flex; align-items:center; min-height:44px; padding:8px 8px 8px 0; }
 }
 @media(max-width:760px) {
   .ph,.ct { width:calc(100% - 64px); padding-left:0; padding-right:0; }
   .site-meta { font-size:15px; }
-  .season-y li,.season-x li { font-size:11px; }
-  .season-y li { right:6px; }
-  .season-plot[data-kind="water"] svg { height:240px; }
-  .season-plot[data-kind="temp"] svg { height:220px; }
-  .soil-summary { grid-template-columns:1fr; gap:26px; }
-  .site-body { grid-template-columns:1fr; gap:32px; }
-  .depths { max-width:none; }
-  .summary-value { font-size:68px; }
-  .stat-v { font-size:28px; }
-  .stat + .stat { padding-left:14px; }
-  .site { margin-top:48px; }
-  .site-head h2 { font-size:28px; }
+  .site-head h2 { font-size:26px; }
+  .soil-summary p.summary-value { font-size:76px; }
+  .trend { width:24px; height:24px; margin-top:10px; }
+  .site { margin-top:24px; }
 }
 </style>
 </head>
@@ -149,12 +152,13 @@ const isNum = v => typeof v === 'number' && Number.isFinite(v);
 const deg = v => isNum(v) ? Math.round(v) + '&deg;' : '&ndash;';
 const pct = v => isNum(v) ? v.toFixed(1) + '%' : '&ndash;';
 const ct = iso => fmtTime.format(new Date(iso)) + ' CT';
-function dayAtDepth(season, depth) {
+
+function dayAtDepth(season, depth, todayOnly) {
   const i = ((season && season.depths_in) || []).indexOf(depth);
   if (i < 0) return null;
   const today = fmtDayKey.format(new Date());
-  const days = (season.days || []).filter(d => d.date < today);
-  const pool = days.length ? days : (season.days || []);
+  const days = season.days || [];
+  const pool = todayOnly ? days.filter(d => d.date === today) : days;
   for (let n = pool.length - 1; n >= 0; n--) {
     const d = pool[n];
     const avg = (d.t_avg || [])[i], high = (d.t_high || [])[i], low = (d.t_low || [])[i];
@@ -163,31 +167,77 @@ function dayAtDepth(season, depth) {
   return null;
 }
 
+const TREND_WINDOW_MS = 3 * 3600 * 1000;
+function tempAtDepthNear(site, depth, atMs) {
+  const series = site.temp_series || {};
+  const depths = series.depths_in || [];
+  const i = depths.indexOf(depth);
+  const points = series.points || [];
+  if (i >= 0 && points.length) {
+    let best = null, bestD = Infinity;
+    points.forEach(p => {
+      if (!p.t) return;
+      const v = Array.isArray(p.t_f) ? p.t_f[i] : (Array.isArray(p.temp) ? p.temp[i] : null);
+      if (!isNum(v)) return;
+      const d = Math.abs(new Date(p.t).getTime() - atMs);
+      if (d < bestD) { bestD = d; best = { temp_f: v, t: p.t }; }
+    });
+    if (best && bestD <= TREND_WINDOW_MS) return best;
+  }
+  const wdepths = ((site.water_series || {}).depths_in) || [];
+  const wi = wdepths.indexOf(depth);
+  const wpoints = ((site.water_series || {}).points) || [];
+  if (wi >= 0 && wpoints.length) {
+    let best = null, bestD = Infinity;
+    wpoints.forEach(p => {
+      if (!p.t) return;
+      const v = Array.isArray(p.t_f) ? p.t_f[wi] : (Array.isArray(p.temp) ? p.temp[wi] : (isNum(p.temp_f) ? p.temp_f : null));
+      if (!isNum(v)) return;
+      const d = Math.abs(new Date(p.t).getTime() - atMs);
+      if (d < bestD) { bestD = d; best = { temp_f: v, t: p.t }; }
+    });
+    if (best && bestD <= TREND_WINDOW_MS) return best;
+  }
+  return null;
+}
+
+function trendArrow(site, current) {
+  if (!isNum(current) || !site.last_read_at) return '';
+  const then = tempAtDepthNear(site, 2, new Date(site.last_read_at).getTime() - 24 * 3600 * 1000);
+  if (!then || !isNum(then.temp_f)) return '';
+  const delta = current - then.temp_f;
+  if (Math.abs(delta) < 0.25) return '';
+  const up = delta > 0;
+  const label = up ? 'Warmer than 24 hours ago' : 'Cooler than 24 hours ago';
+  const path = up ? 'M4 16 L12 6 L20 16' : 'M4 8 L12 18 L20 8';
+  return `<span class="trend trend-${up ? 'up' : 'down'}" aria-label="${esc(label)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${path}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg></span>`;
+}
+
 function summary(site) {
-  const day = dayAtDepth(site.season, 2);
-  if (day && (isNum(day.avg_f) || isNum(day.high_f) || isNum(day.low_f))) {
-    return `
-      <section class="soil-summary" aria-label="Daily soil temperature at 2 inches">
+  const latest = (site.latest || []).find(r => r.depth_in === 2 && isNum(r.temp_f));
+  const today = dayAtDepth(site.season, 2, true);
+  const current = latest ? latest.temp_f : (today && isNum(today.avg_f) ? today.avg_f : null);
+  if (!isNum(current) && !(today && (isNum(today.high_f) || isNum(today.low_f) || isNum(today.avg_f)))) return '';
+  const value = isNum(current) ? deg(current) : '&ndash;';
+  const arrow = isNum(current) ? trendArrow(site, current) : '';
+  const stats = (today && (isNum(today.high_f) || isNum(today.avg_f) || isNum(today.low_f))) ? `
+        <div class="summary-today">
+          <p class="today-label">Today</p>
+          <div class="summary-stats">
+            <div class="stat"><span class="stat-v">${deg(today.high_f)}</span><span class="stat-l">High</span></div>
+            <div class="stat"><span class="stat-v">${deg(today.avg_f)}</span><span class="stat-l">Average</span></div>
+            <div class="stat"><span class="stat-v">${deg(today.low_f)}</span><span class="stat-l">Low</span></div>
+          </div>
+        </div>` : '';
+  return `
+      <section class="soil-summary" aria-label="Current soil temperature at 2 inches">
         <div>
           <p class="summary-label">Current</p>
-          <p class="summary-value">${deg(day.avg_f)}</p>
+          <p class="summary-value">${value}${arrow}</p>
+          <p class="summary-unit">2&Prime; soil temp &deg;F</p>
         </div>
-        <div class="summary-stats">
-          <div class="stat"><span class="stat-v">${deg(day.high_f)}</span><span class="stat-l">High</span></div>
-          <div class="stat"><span class="stat-v">${deg(day.avg_f)}</span><span class="stat-l">Average</span></div>
-          <div class="stat"><span class="stat-v">${deg(day.low_f)}</span><span class="stat-l">Low</span></div>
-        </div>
+        ${stats}
       </section>`;
-  }
-  const latest = (site.latest || []).find(r => r.depth_in === 2 && isNum(r.temp_f));
-  if (!latest) return '';
-  return `
-    <section class="soil-summary" aria-label="Latest soil temperature at 2 inches">
-      <div>
-        <p class="summary-label">Current</p>
-        <p class="summary-value">${deg(latest.temp_f)}</p>
-      </div>
-    </section>`;
 }
 
 const WATER_DEPTHS = [2, 10, 30];
@@ -195,6 +245,7 @@ const TEMP_DEPTHS = [2, 10, 30];
 const TEMP_COLORS = { 2: '#F08C5A', 10: '#D9480F', 30: '#8A2A06' };
 const colorForTemp = d => TEMP_COLORS[d] || '#D9480F';
 const fmtMonth = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short' });
+const fmtTickDay = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
 const fmtTipDay = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
 
 function parseYmd(ymd) {
@@ -228,14 +279,71 @@ function depthSeries(season, depths, avgKey, highKey, lowKey, colors) {
 function niceStep(v, step) { return Math.ceil(v / step) * step; }
 function niceFloor(v, step) { return Math.floor(v / step) * step; }
 
+const YEAR_AXIS_DAYS = 30;
+const MIN_SPAN_DAYS = 14;
+const AXIS_PAD_DAYS = 1;
+
 function seasonRange(days) {
   const firstData = days[0].date;
   const lastData = days[days.length - 1].date;
-  const startYear = +firstData.slice(0, 4);
-  const endYear = +lastData.slice(0, 4);
-  const first = startYear + '-01-01';
-  const end = (endYear + 1) + '-01-01';
-  return { first, end, t0: parseYmd(first), t1: parseYmd(end) };
+  const today = fmtDayKey.format(new Date());
+  const last = lastData > today ? lastData : today;
+  const spanDays = (parseYmd(lastData) - parseYmd(firstData)) / 86400000;
+  if (days.length >= YEAR_AXIS_DAYS || spanDays >= YEAR_AXIS_DAYS - 1) {
+    const startYear = +firstData.slice(0, 4);
+    const endYear = +last.slice(0, 4);
+    const first = startYear + '-01-01';
+    const end = (endYear + 1) + '-01-01';
+    return { first, end, t0: parseYmd(first), t1: parseYmd(end), lastTick: end, zoomed: false };
+  }
+  let t0 = parseYmd(firstData) - AXIS_PAD_DAYS * 86400000;
+  let t1 = parseYmd(last) + (AXIS_PAD_DAYS + 1) * 86400000;
+  const minMs = MIN_SPAN_DAYS * 86400000;
+  if (t1 - t0 < minMs) t0 = t1 - minMs;
+  return { first: ymdFromUtc(t0), end: ymdFromUtc(t1), t0, t1, lastTick: last, zoomed: true };
+}
+
+function xAxisDates(range, narrow) {
+  const { first, t0, t1, zoomed } = range;
+  if (!zoomed) {
+    const dates = [first];
+    for (let month = nextMonth(first); parseYmd(month) <= t1; month = nextMonth(month)) dates.push(month);
+    if (narrow) return dates.filter((ymd, i) => i === 0 || i === dates.length - 1 || new Date(parseYmd(ymd)).getUTCMonth() % 3 === 0);
+    return dates;
+  }
+  const lastTick = range.lastTick || ymdFromUtc(t1 - 86400000);
+  const endMs = parseYmd(lastTick);
+  const spanDays = Math.max(1, Math.round((endMs - t0) / 86400000));
+  const target = narrow ? 3 : 5;
+  const step = Math.max(1, Math.round(spanDays / (target - 1)));
+  const dates = [];
+  for (let i = 0; i <= spanDays; i += step) dates.push(ymdFromUtc(t0 + i * 86400000));
+  if (dates[dates.length - 1] !== lastTick) dates.push(lastTick);
+  return dates.filter(ymd => parseYmd(ymd) <= endMs);
+}
+
+function placeXTicks(dates, range, x, L, W, R, plotW, labelFn) {
+  const items = dates.map(ymd => {
+    const xx = x(parseYmd(ymd));
+    return { ymd, xx, label: labelFn(ymd), pct: (xx - L) / Math.max(1, plotW) * 100 };
+  }).filter(it => it.xx >= L - 1 && it.xx <= W - R + 1);
+  if (!items.length) return [];
+  const minPct = 10;
+  const chosen = [];
+  const tryAdd = it => {
+    if (chosen.some(c => Math.abs(c.pct - it.pct) < minPct)) return;
+    chosen.push(it);
+  };
+  tryAdd(items[0]);
+  if (items.length > 1) tryAdd(items[items.length - 1]);
+  items.slice(1, -1).forEach(tryAdd);
+  chosen.sort((a, b) => a.xx - b.xx);
+  return chosen.map(it => {
+    let xf = 'translate(-50%,0)';
+    if (it.xx < L + 28) xf = 'translate(0,0)';
+    else if (it.xx > W - R - 28) xf = 'translate(-100%,0)';
+    return `<li style="left:${it.pct.toFixed(3)}%;transform:${xf}">${esc(it.label)}</li>`;
+  });
 }
 
 function oneSeasonPlot(seriesList, range, opts) {
@@ -243,17 +351,20 @@ function oneSeasonPlot(seriesList, range, opts) {
   const dates = (seriesList[0] && seriesList[0].points) || [];
   if (!dates.length) return '';
   const W = 1100, H = height, L = 0, R = 0, T = 10, B = 34;
-  const { first, t0, t1 } = range;
+  const { first, t0, t1, zoomed } = range;
   const x = t => L + (W - L - R) * (t - t0) / Math.max(1, t1 - t0);
   const yFn = v => T + (H - T - B) * (1 - (v - yBot) / (yTop - yBot));
   const plotW = W - L - R, plotH = H - T - B;
+  const narrow = window.matchMedia('(max-width:960px)').matches;
 
   let lastData = first;
   seriesList.forEach(s => s.points.forEach(pt => { if (isNum(pt.avg) || isNum(pt.high) || isNum(pt.low)) lastData = pt.date; }));
-  const futureX = Math.min(W - R, Math.max(L, x(parseYmd(lastData))));
   let art = '';
-  if (futureX < W - R) {
-    art += `<rect class="season-future" x="${futureX.toFixed(1)}" y="${T}" width="${(W - R - futureX).toFixed(1)}" height="${plotH}" fill="#F6F7F5"/>`;
+  if (!zoomed) {
+    const futureX = Math.min(W - R, Math.max(L, x(parseYmd(lastData))));
+    if (futureX < W - R) {
+      art += `<rect class="season-future" x="${futureX.toFixed(1)}" y="${T}" width="${(W - R - futureX).toFixed(1)}" height="${plotH}" fill="#F6F7F5"/>`;
+    }
   }
 
   const ticks = [];
@@ -265,28 +376,22 @@ function oneSeasonPlot(seriesList, range, opts) {
   const yLabel = v => kind === 'water' ? `${Math.round(v)}%` : `${Math.round(v)}&deg;`;
   const yTicks = ticks.map(v => `<li style="top:${((yTop - v) / (yTop - yBot) * 100).toFixed(3)}%">${yLabel(v)}</li>`).join('');
 
+  let refLabel = '';
+  if (kind === 'temp' && yBot < 50 && 50 < yTop) {
+    const yy = yFn(50);
+    art += `<line x1="${L}" x2="${W - R}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" stroke="#666" stroke-opacity="0.4" stroke-width="1" stroke-dasharray="4 4"/>`;
+    const topPct = (T / H * 100) + ((yTop - 50) / (yTop - yBot) * ((H - T - B) / H * 100));
+    refLabel = `<span class="season-ref" style="top:${topPct.toFixed(3)}%">50&deg;</span>`;
+  }
+
   const labelMonth = ymd => {
     const dt = new Date(parseYmd(ymd));
     const mon = fmtMonth.format(dt);
     const year = dt.getUTCFullYear();
     return (ymd === first || dt.getUTCMonth() === 0) ? `${mon} ${year}` : mon;
   };
-  const xTicks = [];
-  const narrow = window.matchMedia('(max-width:760px)').matches;
-  const addMonth = ymd => {
-    if (parseYmd(ymd) < t0 || parseYmd(ymd) > t1) return;
-    if (ymd !== first && parseYmd(ymd) - t0 < 12 * 86400000) return;
-    const mon = new Date(parseYmd(ymd)).getUTCMonth();
-    if (narrow && ymd !== first && mon !== 0 && mon % 3 !== 0) return;
-    const xx = x(parseYmd(ymd));
-    let xf = 'translate(-50%,0)';
-    if (xx < L + 28) xf = 'translate(0,0)';
-    else if (xx > W - R - 28) xf = 'translate(-100%,0)';
-    const left = ((xx - L) / Math.max(1, plotW) * 100).toFixed(3);
-    xTicks.push(`<li style="left:${left}%;transform:${xf}">${esc(labelMonth(ymd))}</li>`);
-  };
-  addMonth(first);
-  for (let month = nextMonth(first); parseYmd(month) <= t1; month = nextMonth(month)) addMonth(month);
+  const labelDay = ymd => fmtTickDay.format(new Date(parseYmd(ymd)));
+  const xTicks = placeXTicks(xAxisDates(range, narrow), range, x, L, W, R, plotW, zoomed ? labelDay : labelMonth);
 
   let plots = '';
   if (kind === 'temp') {
@@ -304,6 +409,8 @@ function oneSeasonPlot(seriesList, range, opts) {
       }
     }
   }
+  const nPts = Math.max(...seriesList.map(s => s.points.filter(pt => isNum(pt.avg)).length), 0);
+  const r = nPts > 60 ? 2 : 3;
   seriesList.forEach(s => {
     let path = '', pen = false;
     s.points.forEach(pt => {
@@ -313,12 +420,14 @@ function oneSeasonPlot(seriesList, range, opts) {
     });
     const sw = kind === 'temp' ? 2 : 1.75;
     if (path) plots += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
-    const last = [...s.points].reverse().find(pt => isNum(pt.avg));
-    if (last) plots += `<circle cx="${x(parseYmd(last.date)).toFixed(1)}" cy="${yFn(last.avg).toFixed(1)}" r="3.5" fill="${s.color}"/>`;
+    s.points.forEach(pt => {
+      if (!isNum(pt.avg)) return;
+      plots += `<circle cx="${x(parseYmd(pt.date)).toFixed(1)}" cy="${yFn(pt.avg).toFixed(1)}" r="${r}" fill="${s.color}"/>`;
+    });
   });
 
   const daySpan = Math.max(1, (t1 - t0) / 86400000);
-  const hitW = Math.max(6, Math.min(18, plotW / daySpan));
+  const hitW = Math.max(narrow ? 32 : 8, Math.min(44, plotW / daySpan));
   let hits = '';
   dates.forEach((pt, di) => {
     const xx = x(parseYmd(pt.date));
@@ -335,6 +444,7 @@ function oneSeasonPlot(seriesList, range, opts) {
         <ul class="season-y" style="top:${(T / H * 100).toFixed(3)}%;height:${((H - T - B) / H * 100).toFixed(3)}%">${yTicks}</ul>
         <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${title}">${art}${plots}${hits}${hair}</svg>
         <ul class="season-x">${xTicks.join('')}</ul>
+        ${refLabel}
       </div>
       <div class="season-tip"></div>
     </div>`;
@@ -352,7 +462,7 @@ function seasonChart(season) {
   }));
   return `<div class="season-charts">
       ${water.length ? oneSeasonPlot(water, range, { kind: 'water', unit: '%', digits: 1, title: 'Soil water, season', yBot: 0, yTop: waterTop, height: 300 }) : ''}
-      ${temp.length ? oneSeasonPlot(temp, range, { kind: 'temp', unit: '&deg;', digits: 0, title: 'Soil temp, season', yBot: 30, yTop: 90, height: 260 }) : ''}
+      ${temp.length ? oneSeasonPlot(temp, range, { kind: 'temp', unit: '&deg;', digits: 0, title: 'Soil temp, season', yBot: 30, yTop: 90, height: 300 }) : ''}
     </div>`;
 }
 
@@ -456,6 +566,7 @@ function siteCard(site, i) {
         <h2>${esc(site.name)}</h2>
         <p class="site-meta">${site.location && String(site.location).trim().toLowerCase() !== String(site.name||'').trim().toLowerCase() ? esc(site.location) + ' &middot; ' : ''}Last reading <span class="when">${esc(ct(site.last_read_at))}</span></p>
       </div>
+      ${summary(site)}
       <div class="site-body">
         <table class="depths">
           <colgroup><col class="c-d"><col class="c-t"><col class="c-w"><col></colgroup>
@@ -477,7 +588,7 @@ async function loadData() {
     const sites = (data.sites || []).filter(s => s.last_read_at);
     if (!sites.length) throw new Error('No sites');
     sitesCache = sites;
-    content.innerHTML = summary(sites[0]) + sites.map(siteCard).join('');
+    content.innerHTML = sites.map((site, i) => siteCard(site, i)).join('');
   } catch (e) {
     sitesCache = [];
     content.innerHTML = '<div class="no-data">Coming soon</div>';
