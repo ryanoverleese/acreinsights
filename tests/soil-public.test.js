@@ -127,9 +127,13 @@ test("/soiltemps reads /api/soil, not soil_temp.json, and carries no database ke
   assert.match(html, /TEMP_DEPTH = 2/);
   assert.match(html, /Soil water, season/);
   assert.match(html, /Soil temp at 1&Prime;, season/);
-  assert.match(html, /#C9A227/);
-  assert.match(html, /#5E7F3A/);
-  assert.match(html, /#2F3B45/);
+  assert.match(html, /#4FA3E0/);
+  assert.match(html, /#1F6FB2/);
+  assert.match(html, /#0B3C6E/);
+  assert.match(html, /#D9480F/);
+  assert.doesNotMatch(html, /#C9A227|#5E7F3A|#A8841A/);
+  assert.match(html, /0%|\$\{Math\.round\(v\)\}%/);
+  assert.doesNotMatch(html, /season-head/);
   assert.match(html, /syncSeasonHover/);
   assert.match(html, /displayDepth/);
   assert.doesNotMatch(html, /depth-toggle|depthToggle|1&ndash;17&Prime;/);

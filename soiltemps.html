@@ -38,7 +38,7 @@
 .depths th { text-align:left; font-weight:400; font-size:15px; color:var(--sage); padding:0 0 10px; border-bottom:1px solid var(--line); }
 .depths td { padding:7px 0; border-bottom:1px solid var(--gray-5); color:var(--gray-1); }
 .depths .n { text-align:right; }
-.chart-label { font-size:15px; color:var(--sage); margin-bottom:10px; }
+.chart-label { font-size:16px; color:var(--black); margin-bottom:10px; }
 .chart svg { display:block; width:100%; height:auto; overflow:visible; }
 .chart text { font-size:12px; fill:var(--gray-2); font-family:inherit; }
 .legend { display:flex; flex-wrap:wrap; gap:6px 16px; list-style:none; font-size:14px; color:var(--gray-2); margin-top:12px; }
@@ -46,22 +46,23 @@
 .chart-empty { font-size:15px; color:var(--gray-2); }
 .loading,.no-data { padding:40px 0; color:var(--gray-2); border-top:1px solid var(--line); }
 
-.ph,.ct { max-width:1240px; }
-.season { margin-top:40px; padding-top:40px; border-top:1px solid #E5E5E5; }
+.ph,.ct { max-width:1240px; overflow:visible; }
+.season { margin-top:40px; padding-top:40px; border-top:1px solid #E5E5E5; overflow:visible; }
 .season-charts { display:flex; flex-direction:column; gap:32px; }
-.season-head { display:flex; align-items:baseline; justify-content:space-between; gap:16px 24px; flex-wrap:wrap; margin-bottom:10px; }
-.season-head .chart-label { margin-bottom:0; }
-.season-head .legend { margin-top:0; }
-.season-plot { position:relative; }
-.season-plot svg { display:block; width:100%; overflow:hidden; }
+.season-plot { position:relative; overflow:visible; }
+.season-plot .chart-label { margin-bottom:6px; }
+.season-plot .legend { margin-top:0; margin-bottom:10px; }
+.season-frame { position:relative; overflow:visible; }
+.season-y { position:absolute; left:0; width:0; list-style:none; pointer-events:none; }
+.season-y li { position:absolute; right:8px; transform:translateY(-50%); text-align:right; font-size:12px; line-height:1; color:var(--gray-2); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.season-plot svg { display:block; width:100%; overflow:visible; }
 .season-plot[data-kind="water"] svg { height:300px; }
 .season-plot[data-kind="temp"] svg { height:260px; }
 .season-plot text { font-size:12px; fill:var(--gray-2); font-family:inherit; }
 .season-tip { position:absolute; pointer-events:none; display:none; background:#fff; border:1px solid var(--line); padding:8px 10px; font-size:13px; color:var(--gray-1); font-variant-numeric:tabular-nums; white-space:nowrap; z-index:2; }
-@media(min-width:1280px) {
-  .season { width:calc(100vw - 64px); max-width:1800px; margin-left:calc(50% - min(900px, calc(50vw - 32px))); }
-}
 @media(max-width:760px) {
+  .ph,.ct { padding-left:40px; padding-right:40px; }
+  .season-y li { font-size:11px; right:6px; }
   .season-plot[data-kind="water"] svg { height:240px; }
   .season-plot[data-kind="temp"] svg { height:220px; }
 }
@@ -119,9 +120,8 @@
 
 <script>
 const TZ = 'America/Chicago';
-const DEPTH_COLORS = { 2: '#C9A227', 10: '#5E7F3A', 30: '#2F3B45' };
-const DEPTH_COLOR_FALLBACK = { 6: '#B0712F', 14: '#7A5A44', 18: '#3E6A85', 22: '#3B7B6B', 26: '#4A6740', 33: '#243E30' };
-const colorForDepth = d => DEPTH_COLORS[d] || DEPTH_COLOR_FALLBACK[d] || '#687d6b';
+const DEPTH_COLORS = { 2: '#4FA3E0', 6: '#3590C9', 10: '#1F6FB2', 14: '#1A62A0', 18: '#165890', 22: '#124E80', 26: '#0E4574', 30: '#0B3C6E', 33: '#082A4E' };
+const colorForDepth = d => DEPTH_COLORS[d] || '#1F6FB2';
 const fmtTime = new Intl.DateTimeFormat('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 const fmtDay = new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short' });
 const fmtDayKey = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -215,8 +215,8 @@ function chart(series) {
 
 const TEMP_DEPTH = 2;
 const WATER_DEPTHS = [2, 10, 30];
-const TEMP_LINE = '#A8841A';
-const TEMP_BAND = '#C9A227';
+const TEMP_LINE = '#D9480F';
+const TEMP_BAND = '#D9480F';
 const fmtMonth = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short' });
 const fmtTipDay = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -263,7 +263,7 @@ function oneSeasonPlot(seriesList, range, opts) {
   const { kind, unit, digits, title, yBot, yTop, height } = opts;
   const dates = (seriesList[0] && seriesList[0].points) || [];
   if (!dates.length) return '';
-  const W = 1100, H = height, L = 44, R = 28, T = 10, B = 34;
+  const W = 1100, H = height, L = 0, R = 0, T = 10, B = 34;
   const { first, t0, t1 } = range;
   const x = t => L + (W - L - R) * (t - t0) / Math.max(1, t1 - t0);
   const yFn = v => T + (H - T - B) * (1 - (v - yBot) / (yTop - yBot));
@@ -282,8 +282,9 @@ function oneSeasonPlot(seriesList, range, opts) {
   ticks.forEach(v => {
     const yy = yFn(v).toFixed(1);
     art += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="#EEE" stroke-width="1"/>`;
-    art += `<text x="${L - 8}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${Math.round(v)}</text>`;
   });
+  const yLabel = v => kind === 'water' ? `${Math.round(v)}%` : `${Math.round(v)}`;
+  const yTicks = ticks.map(v => `<li style="top:${((yTop - v) / (yTop - yBot) * 100).toFixed(3)}%">${yLabel(v)}</li>`).join('');
 
   const labelMonth = ymd => {
     const dt = new Date(parseYmd(ymd));
@@ -314,7 +315,7 @@ function oneSeasonPlot(seriesList, range, opts) {
         bottom.push(`${xx},${yFn(pt.low).toFixed(1)}`);
       });
       if (top && bottom.length) {
-        plots += `<path d="${top}L${bottom.reverse().join('L')}Z" fill="${TEMP_BAND}" fill-opacity="0.18" stroke="none"/>`;
+        plots += `<path d="${top}L${bottom.reverse().join('L')}Z" fill="${TEMP_BAND}" fill-opacity="0.15" stroke="none"/>`;
       }
       let path = '', pen = false;
       s.points.forEach(pt => {
@@ -346,11 +347,12 @@ function oneSeasonPlot(seriesList, range, opts) {
   const legend = seriesList.map(s => `<li><i style="background:${s.color}"></i>${esc(displayDepth(s.depth))}&Prime;</li>`).join('');
   return `
     <div class="season-plot" data-kind="${kind}">
-      <div class="season-head">
-        <p class="chart-label">${title}</p>
-        <ul class="legend" aria-label="Depths">${legend}</ul>
+      <p class="chart-label">${title}</p>
+      <ul class="legend" aria-label="Depths">${legend}</ul>
+      <div class="season-frame">
+        <ul class="season-y" style="top:${(T / H * 100).toFixed(3)}%;height:${((H - T - B) / H * 100).toFixed(3)}%">${yTicks}</ul>
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${title}">${art}${plots}${hits}${hair}</svg>
       </div>
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${title}">${art}${plots}${hits}${hair}</svg>
       <div class="season-tip"></div>
     </div>`;
 }
