@@ -26,57 +26,61 @@
 .site { margin-top:28px; }
 .site-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px 24px; flex-wrap:wrap; }
 .site-head h2 { font-size:32px; line-height:1.2; color:#222; }
-.site-meta { font-size:16px; color:var(--gray-2); }
+.site-meta { font-size:16px; color:var(--gray-2); font-weight:400; font-synthesis:none; }
 .site-meta .when { white-space:nowrap; }
 
 /* Wide dashboard: compact hero, side-by-side charts, full-width depth strip. */
-.soil-summary { padding-top:22px; display:grid; grid-template-columns:auto auto; grid-template-rows:auto auto auto; justify-content:start; align-items:end; column-gap:56px; row-gap:2px; }
+.site-head { padding-bottom:16px; border-bottom:1px solid var(--line); }
+.soil-summary { padding-top:20px; padding-bottom:22px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:auto auto; grid-template-rows:auto auto auto; justify-content:start; align-items:end; column-gap:56px; row-gap:2px; }
 .summary-now,.summary-today { display:contents; }
-.soil-summary p.summary-label { grid-row:1; grid-column:1; color:var(--sage); font-size:16px; }
-.soil-summary p.today-label { grid-row:1; grid-column:2; font-size:16px; color:var(--gray-2); margin:0; }
+.soil-summary p.summary-label { grid-row:1; grid-column:1; color:var(--sage); font-size:16px; font-weight:400; font-synthesis:none; }
+.soil-summary p.today-label { grid-row:1; grid-column:2; font-size:16px; color:var(--gray-2); margin:0; font-weight:400; font-synthesis:none; }
 .soil-summary p.summary-value { grid-row:2; grid-column:1; font-size:92px; line-height:1; color:var(--black); font-weight:300; letter-spacing:-.03em; margin:6px 0 0; font-variant-numeric:tabular-nums; display:flex; align-items:flex-end; gap:10px; }
-.soil-summary p.summary-unit { grid-row:3; grid-column:1; font-size:16px; color:var(--gray-2); margin:4px 0 0; }
+.soil-summary p.summary-unit { grid-row:3; grid-column:1; font-size:16px; color:var(--gray-2); margin:4px 0 0; font-weight:400; font-synthesis:none; }
 .summary-stats { grid-row:2 / 4; grid-column:2; display:grid; grid-template-columns:repeat(3,auto); grid-template-rows:auto auto; column-gap:32px; row-gap:2px; align-items:end; border:0; }
 .stat { display:contents; }
 .stat-v { grid-row:1; font-size:36px; line-height:1; color:var(--black); font-variant-numeric:tabular-nums; }
-.stat-l { grid-row:2; font-size:15px; color:var(--gray-2); }
+.stat-l { grid-row:2; font-size:15px; color:var(--gray-2); font-weight:400; font-synthesis:none; }
 .trend { display:inline-flex; align-items:center; width:28px; height:28px; margin:0 0 10px; flex-shrink:0; color:#222; }
 .trend svg { width:100%; height:100%; display:block; }
 
-.site-body { margin-top:32px; display:flex; flex-direction:column; gap:40px; }
+.site-body { margin-top:0; display:flex; flex-direction:column; gap:0; }
 .depths-phone { display:none; }
-table.depths { width:100%; table-layout:fixed; border-collapse:collapse; font-size:15px; color:#222; font-variant-numeric:tabular-nums; }
-table.depths-wide th,table.depths-wide td { font-weight:400; font-size:15px; color:#222; line-height:1.3; text-align:center; padding:10px 8px; }
+table.depths { width:100%; table-layout:fixed; border-collapse:collapse; font-size:15px; color:#222; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; font-kerning:none; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+table.depths-wide { margin-top:22px; }
+table.depths-wide th,table.depths-wide td { font-weight:400; font-synthesis:none; font-size:15px; color:#222; line-height:1.3; text-align:center; padding:10px 10px; border-left:1px solid var(--line); }
 table.depths-wide thead th { padding-top:0; padding-bottom:10px; border-bottom:1px solid var(--line); }
-table.depths-wide tbody tr { border-bottom:1px solid var(--gray-5); }
-table.depths-wide th:first-child,table.depths-wide td:first-child { text-align:left; padding-left:0; width:4.5rem; }
+table.depths-wide tbody tr { border-bottom:1px solid var(--line); }
+table.depths-wide th:first-child,table.depths-wide td:first-child { text-align:left; padding-left:0; width:4.5rem; border-left:0; }
 table.depths-wide th:last-child,table.depths-wide td:last-child { padding-right:0; }
+.unit { margin-left:.08em; font-weight:400; font-synthesis:none; }
 
-p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; }
+p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; font-weight:400; font-synthesis:none; }
 .chart-empty { font-size:15px; color:var(--gray-2); }
 .loading,.no-data { padding:26px 0 80px; color:var(--gray-2); border-top:1px solid var(--line); }
 .ct { padding-bottom:90px; }
-.season { overflow:visible; min-width:0; }
-.season-charts { display:grid; grid-template-columns:1fr 1fr; gap:28px 48px; align-items:start; }
+.season { overflow:visible; min-width:0; padding:28px 0; border-bottom:1px solid var(--line); }
+.season-charts { display:grid; grid-template-columns:1fr 1fr; gap:28px 48px; align-items:start; position:relative; }
+.season-charts::before { content:""; position:absolute; top:0; bottom:0; left:50%; width:1px; margin-left:-.5px; background:var(--line); pointer-events:none; }
 .season-plot { position:relative; overflow:visible; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto 1fr; column-gap:16px; align-items:baseline; }
 .season-plot .chart-label { grid-column:1; grid-row:1; }
 .season-plot .legend { grid-column:2; grid-row:1; margin:0; }
 .season-frame { grid-column:1 / -1; grid-row:2; position:relative; overflow:visible; padding-left:40px; padding-right:28px; margin-top:10px; }
 .season-y { position:absolute; left:40px; width:0; list-style:none; pointer-events:none; }
-.season-y li { position:absolute; right:8px; transform:translateY(-50%); text-align:right; font-size:13px; line-height:1; color:#666; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.season-y li { position:absolute; right:8px; transform:translateY(-50%); text-align:right; font-size:13px; line-height:1; color:#666; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; white-space:nowrap; }
 .season-x { position:absolute; left:40px; right:28px; bottom:0; height:34px; list-style:none; pointer-events:none; }
-.season-x li { position:absolute; top:24px; font-size:13px; line-height:1; color:#666; white-space:nowrap; }
-.season-ref { position:absolute; right:0; transform:translateY(-50%); font-size:13px; line-height:1; color:#666; font-variant-numeric:tabular-nums; white-space:nowrap; pointer-events:none; padding-left:6px; }
+.season-x li { position:absolute; top:24px; font-size:13px; line-height:1; color:#666; font-weight:400; font-synthesis:none; white-space:nowrap; }
+.season-ref { position:absolute; right:0; transform:translateY(-50%); font-size:13px; line-height:1; color:#666; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; white-space:nowrap; pointer-events:none; padding-left:6px; }
 .season-plot svg { display:block; width:100%; overflow:visible; height:340px; }
-.legend { display:flex; flex-wrap:wrap; gap:6px 16px; list-style:none; font-size:13px; color:#666; justify-content:flex-end; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 16px; list-style:none; font-size:13px; color:#666; font-weight:400; font-synthesis:none; justify-content:flex-end; }
 .legend i { display:inline-block; width:16px; height:2px; vertical-align:middle; margin-right:6px; }
 .season-tip { position:absolute; pointer-events:none; display:none; background:#fff; border:1px solid var(--line); padding:8px 10px; font-size:13px; color:var(--gray-1); font-variant-numeric:tabular-nums; white-space:nowrap; z-index:2; }
 
 /* Phone layout is unchanged from 3358f9d (stacked, table last). */
 @media(max-width:768px) {
   .site { display:flex; flex-direction:column; }
-  .site-head { order:1; flex-direction:column; align-items:flex-start; gap:4px; }
-  .soil-summary { order:2; display:flex; flex-direction:column; grid-template-columns:none; grid-template-rows:none; justify-content:stretch; align-items:stretch; gap:22px; column-gap:0; row-gap:0; width:100%; }
+  .site-head { order:1; flex-direction:column; align-items:flex-start; gap:4px; padding-bottom:0; border-bottom:0; }
+  .soil-summary { order:2; display:flex; flex-direction:column; grid-template-columns:none; grid-template-rows:none; justify-content:stretch; align-items:stretch; gap:22px; column-gap:0; row-gap:0; width:100%; padding-top:22px; padding-bottom:0; border-bottom:0; }
   .summary-now,.summary-today,.summary-stats { display:block; width:100%; }
   .soil-summary p.summary-label,.soil-summary p.today-label,.soil-summary p.summary-value,.soil-summary p.summary-unit,.summary-stats { grid-row:auto; grid-column:auto; }
   .soil-summary p.summary-value { font-size:80px; margin-top:10px; align-items:flex-start; }
@@ -88,21 +92,19 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; }
   .stat-v { display:block; font-size:26px; line-height:1.1; }
   .stat-l { display:block; font-size:13px; margin-top:4px; }
   .trend { margin-top:14px; margin-bottom:0; }
-  .site-body { order:3; display:flex; flex-direction:column; gap:32px; }
-  .site-body .season { order:1; }
+  .site-body { order:3; margin-top:32px; display:flex; flex-direction:column; gap:32px; }
+  .site-body .season { order:1; padding:0; border-bottom:0; }
   .site-body .depths { order:2; width:100%; max-width:none; }
-  .depths-phone { display:table; }
+  .depths-phone { display:table; width:100%; }
   .depths-wide { display:none; }
-  .depths col.c-d { width:76px; }
-  .depths col.c-t { width:80px; }
-  .depths col.c-w { width:92px; }
   .depths thead { border-bottom:1px solid var(--line); }
   .depths tbody tr { border-bottom:1px solid var(--gray-5); }
-  table.depths th,table.depths td { text-align:left; font-weight:400; font-size:15px; color:#222; line-height:1.3; padding:7px 16px 7px 0; }
+  table.depths th,table.depths td { text-align:left; font-weight:400; font-synthesis:none; font-size:15px; color:#222; line-height:1.3; padding:7px 16px 7px 0; border-left:0; }
   table.depths th { padding-top:0; padding-bottom:10px; line-height:1.2; }
   table.depths .n { text-align:right; }
   table.depths th:last-child,table.depths td:last-child { padding-right:0; }
   .season-charts { display:flex; flex-direction:column; gap:36px; }
+  .season-charts::before { display:none; }
   .season-plot { display:block; }
   .season-plot .chart-label { margin:0 0 8px; }
   .season-plot .legend { margin:0 0 10px; justify-content:flex-start; }
@@ -260,7 +262,7 @@ function summary(site) {
         <div class="summary-now">
           <p class="summary-label">Current</p>
           <p class="summary-value">${value}${arrow}</p>
-          <p class="summary-unit">2&Prime; soil temp &deg;F</p>
+          <p class="summary-unit">2<span class="unit">&Prime;</span> soil temp &deg;F</p>
         </div>
         ${stats}
       </section>`;
@@ -548,7 +550,7 @@ function oneSeasonPlot(seriesList, range, opts) {
     hits += `<rect class="hit" data-day="${encodeURIComponent(JSON.stringify(tip))}" data-x="${xx.toFixed(1)}" x="${(xx - hitW / 2).toFixed(1)}" y="${T}" width="${hitW.toFixed(1)}" height="${plotH}" fill="transparent"/>`;
   });
   const hair = `<line class="crosshair" x1="0" x2="0" y1="${T}" y2="${T + plotH}" stroke="#536154" stroke-width="1" stroke-opacity="0.55" display="none"/>`;
-  const legend = seriesList.map(s => `<li><i style="background:${s.color}"></i>${esc(s.depth)}&Prime;</li>`).join('');
+  const legend = seriesList.map(s => `<li><i style="background:${s.color}"></i>${inchLabel(s.depth)}</li>`).join('');
   return `
     <div class="season-plot" data-kind="${kind}">
       <p class="chart-label">${title}</p>
@@ -624,7 +626,7 @@ function tipText(d) {
   const unit = d.unit || '', digits = d.digits ?? 1;
   const lines = (d.items || []).map(it => {
     const range = (isNum(it.low) || isNum(it.high)) ? ` (${f(it.low, unit, digits)}&ndash;${f(it.high, unit, digits)})` : '';
-    return `${esc(it.depth)}&Prime; ${f(it.avg, unit, digits)}${range}`;
+    return `${inchLabel(it.depth)} ${f(it.avg, unit, digits)}${range}`;
   });
   return `<strong>${esc(head)}</strong>${lines.length ? '<br>' + lines.join('<br>') : ''}`;
 }
@@ -704,11 +706,13 @@ contentEl.addEventListener('mousemove', e => {
 });
 contentEl.addEventListener('mouseleave', hideSeasonHover);
 
+function inchLabel(d) { return esc(d) + '<span class="unit">&Prime;</span>'; }
+
 function siteCard(site, i) {
   const latest = site.latest || [];
   const rows = latest.map(r => `
-        <tr><td>${esc(r.depth_in)}&Prime;</td><td class="n">${isNum(r.temp_f) ? Math.round(r.temp_f) + '&deg;' : '&ndash;'}</td><td class="n">${pct(r.water_pct)}</td></tr>`).join('');
-  const wideHeads = latest.map(r => `<th scope="col">${esc(r.depth_in)}&Prime;</th>`).join('');
+        <tr><td>${inchLabel(r.depth_in)}</td><td class="n">${isNum(r.temp_f) ? Math.round(r.temp_f) + '&deg;' : '&ndash;'}</td><td class="n">${pct(r.water_pct)}</td></tr>`).join('');
+  const wideHeads = latest.map(r => `<th scope="col">${inchLabel(r.depth_in)}</th>`).join('');
   const wideTemp = latest.map(r => `<td>${isNum(r.temp_f) ? Math.round(r.temp_f) + '&deg;' : '&ndash;'}</td>`).join('');
   const wideWater = latest.map(r => `<td>${pct(r.water_pct)}</td>`).join('');
   return `
@@ -721,7 +725,6 @@ function siteCard(site, i) {
       <div class="site-body">
         ${seasonBlock(site, i)}
         <table class="depths depths-phone">
-          <colgroup><col class="c-d"><col class="c-t"><col class="c-w"><col></colgroup>
           <thead><tr><th scope="col">Depth</th><th scope="col" class="n">Temp</th><th scope="col" class="n">Water</th></tr></thead>
           <tbody>${rows}
           </tbody>
