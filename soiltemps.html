@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="/assets/site.css">
 <style>
 /* Soil Temps only. Everything else comes from /assets/site.css (the home page styles). */
-.ph,.ct { width:calc(100% - 64px); max-width:2000px; overflow:visible; }
+.ph,.ct { width:90%; max-width:none; overflow:visible; }
 .ph { padding-bottom:8px; }
 .ph h1 { color:#222; }
 .site { margin-top:28px; }
@@ -41,16 +41,16 @@
 .trend { display:inline-flex; align-items:center; width:28px; height:28px; margin-top:14px; flex-shrink:0; color:#222; }
 .trend svg { width:100%; height:100%; display:block; }
 .site-body { margin-top:32px; display:grid; grid-template-columns:380px minmax(0,1fr); gap:48px 56px; align-items:start; }
-.depths { width:100%; table-layout:fixed; border-collapse:collapse; font-size:15px; color:#222; font-variant-numeric:tabular-nums; }
+table.depths { width:100%; table-layout:fixed; border-collapse:collapse; font-size:15px; color:#222; font-variant-numeric:tabular-nums; }
 .depths col.c-d { width:76px; }
 .depths col.c-t { width:80px; }
 .depths col.c-w { width:92px; }
 .depths thead { border-bottom:1px solid var(--line); }
 .depths tbody tr { border-bottom:1px solid var(--gray-5); }
-.depths th { text-align:left; font-weight:400; font-size:15px; color:#222; line-height:1.2; padding:0 16px 10px 0; }
-.depths td { padding:7px 16px 7px 0; color:#222; white-space:nowrap; line-height:1.3; }
-.depths .n { text-align:right; }
-.depths th:last-child,.depths td:last-child { padding-right:0; }
+table.depths th,table.depths td { text-align:left; font-weight:400; font-size:15px; color:#222; line-height:1.3; padding:7px 16px 7px 0; }
+table.depths th { padding-top:0; padding-bottom:10px; line-height:1.2; }
+table.depths .n { text-align:right; }
+table.depths th:last-child,table.depths td:last-child { padding-right:0; }
 p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0 0 8px; }
 .chart-empty { font-size:15px; color:var(--gray-2); }
 .loading,.no-data { padding:26px 0 80px; color:var(--gray-2); border-top:1px solid var(--line); }
@@ -87,7 +87,7 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0 0 
   .legend li { display:flex; align-items:center; min-height:44px; padding:8px 8px 8px 0; }
 }
 @media(max-width:760px) {
-  .ph,.ct { width:calc(100% - 64px); padding-left:0; padding-right:0; }
+  .ph,.ct { width:calc(100% - 48px); padding-left:0; padding-right:0; }
   .site-meta { font-size:15px; }
   .site-head h2 { font-size:26px; }
   .soil-summary p.summary-value { font-size:76px; }
@@ -280,8 +280,73 @@ function niceStep(v, step) { return Math.ceil(v / step) * step; }
 function niceFloor(v, step) { return Math.floor(v / step) * step; }
 
 const YEAR_AXIS_DAYS = 30;
-const MIN_SPAN_DAYS = 14;
+const DAILY_AXIS_DAYS = 14;
 const AXIS_PAD_DAYS = 1;
+const fmtHour = new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' });
+const fmtDayHour = new Intl.DateTimeFormat('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+function pointAt(pt) { return isNum(pt.at) ? pt.at : parseYmd(pt.date); }
+
+function pointTemp(p, i) {
+  if (Array.isArray(p.t_f) && isNum(p.t_f[i])) return p.t_f[i];
+  if (Array.isArray(p.temp) && isNum(p.temp[i])) return p.temp[i];
+  return null;
+}
+
+function readingPoints(site) {
+  return (((site.water_series || {}).points) || []).filter(p => p.t && Number.isFinite(Date.parse(p.t)));
+}
+
+function historySpanDays(site) {
+  const pts = readingPoints(site);
+  const days = ((site.season || {}).days) || [];
+  const times = pts.map(p => Date.parse(p.t));
+  if (days.length) {
+    times.push(parseYmd(days[0].date));
+    times.push(parseYmd(days[days.length - 1].date));
+  }
+  if (site.last_read_at) times.push(Date.parse(site.last_read_at));
+  const valid = times.filter(Number.isFinite);
+  if (valid.length < 2) return days.length || (valid.length ? 0 : Infinity);
+  return (Math.max(...valid) - Math.min(...valid)) / 86400000;
+}
+
+function useReadings(site) {
+  return readingPoints(site).length >= 2 && historySpanDays(site) < DAILY_AXIS_DAYS;
+}
+
+function readingSeries(site, depths, colors, pick) {
+  const all = ((site.water_series || {}).depths_in) || [];
+  const pts = readingPoints(site);
+  return depths.map((depth, s) => {
+    const i = all.indexOf(depth);
+    return {
+      depth,
+      color: colors[s % colors.length],
+      points: pts.map(p => ({
+        t: p.t,
+        at: Date.parse(p.t),
+        date: fmtDayKey.format(new Date(p.t)),
+        avg: i >= 0 ? pick(p, i) : null,
+        high: null,
+        low: null,
+      })),
+    };
+  }).filter(s => s.points.some(p => isNum(p.avg)));
+}
+
+function readingsRange(seriesList, lastReadAt) {
+  const ats = [];
+  seriesList.forEach(s => s.points.forEach(pt => { if (isNum(pt.avg) && isNum(pt.at)) ats.push(pt.at); }));
+  if (!ats.length) return null;
+  let t0 = Math.min(...ats), t1 = Math.max(...ats);
+  if (lastReadAt) {
+    const last = Date.parse(lastReadAt);
+    if (Number.isFinite(last) && last > t1) t1 = last;
+  }
+  const pad = Math.max(10 * 60000, (t1 - t0) * 0.05);
+  return { t0: t0 - pad, t1: t1 + pad, dataStart: t0, dataEnd: t1, zoomed: true, mode: 'readings' };
+}
 
 function seasonRange(days) {
   const firstData = days[0].date;
@@ -294,13 +359,11 @@ function seasonRange(days) {
     const endYear = +last.slice(0, 4);
     const first = startYear + '-01-01';
     const end = (endYear + 1) + '-01-01';
-    return { first, end, t0: parseYmd(first), t1: parseYmd(end), lastTick: end, zoomed: false };
+    return { first, end, t0: parseYmd(first), t1: parseYmd(end), lastTick: end, zoomed: false, mode: 'year' };
   }
-  let t0 = parseYmd(firstData) - AXIS_PAD_DAYS * 86400000;
-  let t1 = parseYmd(last) + (AXIS_PAD_DAYS + 1) * 86400000;
-  const minMs = MIN_SPAN_DAYS * 86400000;
-  if (t1 - t0 < minMs) t0 = t1 - minMs;
-  return { first: ymdFromUtc(t0), end: ymdFromUtc(t1), t0, t1, lastTick: last, zoomed: true };
+  const t0 = parseYmd(firstData) - AXIS_PAD_DAYS * 86400000;
+  const t1 = parseYmd(last) + (AXIS_PAD_DAYS + 1) * 86400000;
+  return { first: ymdFromUtc(t0), end: ymdFromUtc(t1), t0, t1, lastTick: last, zoomed: true, mode: 'daily' };
 }
 
 function xAxisDates(range, narrow) {
@@ -322,21 +385,42 @@ function xAxisDates(range, narrow) {
   return dates.filter(ymd => parseYmd(ymd) <= endMs);
 }
 
-function placeXTicks(dates, range, x, L, W, R, plotW, labelFn) {
-  const items = dates.map(ymd => {
-    const xx = x(parseYmd(ymd));
-    return { ymd, xx, label: labelFn(ymd), pct: (xx - L) / Math.max(1, plotW) * 100 };
+function xAxisTimes(range, narrow, seriesList) {
+  const ats = [];
+  seriesList.forEach(s => s.points.forEach(pt => { if (isNum(pt.avg) && isNum(pt.at)) ats.push(pt.at); }));
+  if (isNum(range.dataStart)) ats.push(range.dataStart);
+  if (isNum(range.dataEnd)) ats.push(range.dataEnd);
+  ats.sort((a, b) => a - b);
+  if (!ats.length) return [];
+  const start = ats[0], end = ats[ats.length - 1];
+  const sameDay = fmtDayKey.format(new Date(start)) === fmtDayKey.format(new Date(end));
+  const target = narrow ? 3 : 4;
+  const ticks = [];
+  if (end === start) ticks.push(start);
+  else {
+    for (let i = 0; i < target; i++) ticks.push(Math.round(start + (end - start) * i / (target - 1)));
+  }
+  const uniq = [];
+  ticks.forEach(t => { if (!uniq.some(u => Math.abs(u - t) < 60 * 1000)) uniq.push(t); });
+  return uniq.map(t => ({ at: t, label: sameDay ? fmtHour.format(new Date(t)) : fmtDayHour.format(new Date(t)) }));
+}
+
+function placeXTicks(items, x, L, W, R, plotW) {
+  const mapped = items.map(it => {
+    const at = isNum(it.at) ? it.at : parseYmd(it.ymd || it);
+    const xx = x(at);
+    return { xx, label: it.label, pct: (xx - L) / Math.max(1, plotW) * 100 };
   }).filter(it => it.xx >= L - 1 && it.xx <= W - R + 1);
-  if (!items.length) return [];
+  if (!mapped.length) return [];
   const minPct = 10;
   const chosen = [];
   const tryAdd = it => {
     if (chosen.some(c => Math.abs(c.pct - it.pct) < minPct)) return;
     chosen.push(it);
   };
-  tryAdd(items[0]);
-  if (items.length > 1) tryAdd(items[items.length - 1]);
-  items.slice(1, -1).forEach(tryAdd);
+  tryAdd(mapped[0]);
+  if (mapped.length > 1) tryAdd(mapped[mapped.length - 1]);
+  mapped.slice(1, -1).forEach(tryAdd);
   chosen.sort((a, b) => a.xx - b.xx);
   return chosen.map(it => {
     let xf = 'translate(-50%,0)';
@@ -351,17 +435,17 @@ function oneSeasonPlot(seriesList, range, opts) {
   const dates = (seriesList[0] && seriesList[0].points) || [];
   if (!dates.length) return '';
   const W = 1100, H = height, L = 0, R = 0, T = 10, B = 34;
-  const { first, t0, t1, zoomed } = range;
+  const { t0, t1, zoomed, mode } = range;
   const x = t => L + (W - L - R) * (t - t0) / Math.max(1, t1 - t0);
   const yFn = v => T + (H - T - B) * (1 - (v - yBot) / (yTop - yBot));
   const plotW = W - L - R, plotH = H - T - B;
   const narrow = window.matchMedia('(max-width:960px)').matches;
 
-  let lastData = first;
-  seriesList.forEach(s => s.points.forEach(pt => { if (isNum(pt.avg) || isNum(pt.high) || isNum(pt.low)) lastData = pt.date; }));
+  let lastAt = t0;
+  seriesList.forEach(s => s.points.forEach(pt => { if (isNum(pt.avg) || isNum(pt.high) || isNum(pt.low)) lastAt = pointAt(pt); }));
   let art = '';
   if (!zoomed) {
-    const futureX = Math.min(W - R, Math.max(L, x(parseYmd(lastData))));
+    const futureX = Math.min(W - R, Math.max(L, x(lastAt)));
     if (futureX < W - R) {
       art += `<rect class="season-future" x="${futureX.toFixed(1)}" y="${T}" width="${(W - R - futureX).toFixed(1)}" height="${plotH}" fill="#F6F7F5"/>`;
     }
@@ -388,19 +472,22 @@ function oneSeasonPlot(seriesList, range, opts) {
     const dt = new Date(parseYmd(ymd));
     const mon = fmtMonth.format(dt);
     const year = dt.getUTCFullYear();
-    return (ymd === first || dt.getUTCMonth() === 0) ? `${mon} ${year}` : mon;
+    return (ymd === range.first || dt.getUTCMonth() === 0) ? `${mon} ${year}` : mon;
   };
   const labelDay = ymd => fmtTickDay.format(new Date(parseYmd(ymd)));
-  const xTicks = placeXTicks(xAxisDates(range, narrow), range, x, L, W, R, plotW, zoomed ? labelDay : labelMonth);
+  const xItems = mode === 'readings'
+    ? xAxisTimes(range, narrow, seriesList)
+    : xAxisDates(range, narrow).map(ymd => ({ ymd, label: zoomed ? labelDay(ymd) : labelMonth(ymd) }));
+  const xTicks = placeXTicks(xItems, x, L, W, R, plotW);
 
   let plots = '';
-  if (kind === 'temp') {
+  if (kind === 'temp' && mode !== 'readings') {
     const shallow = seriesList.find(s => s.depth === 2);
     if (shallow) {
       let top = '', bottom = [];
       shallow.points.forEach(pt => {
         if (!isNum(pt.high) || !isNum(pt.low)) return;
-        const xx = x(parseYmd(pt.date)).toFixed(1);
+        const xx = x(pointAt(pt)).toFixed(1);
         top += `${top ? 'L' : 'M'}${xx},${yFn(pt.high).toFixed(1)}`;
         bottom.push(`${xx},${yFn(pt.low).toFixed(1)}`);
       });
@@ -415,23 +502,23 @@ function oneSeasonPlot(seriesList, range, opts) {
     let path = '', pen = false;
     s.points.forEach(pt => {
       if (!isNum(pt.avg)) { pen = false; return; }
-      path += `${pen ? 'L' : 'M'}${x(parseYmd(pt.date)).toFixed(1)},${yFn(pt.avg).toFixed(1)}`;
+      path += `${pen ? 'L' : 'M'}${x(pointAt(pt)).toFixed(1)},${yFn(pt.avg).toFixed(1)}`;
       pen = true;
     });
     const sw = kind === 'temp' ? 2 : 1.75;
     if (path) plots += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
     s.points.forEach(pt => {
       if (!isNum(pt.avg)) return;
-      plots += `<circle cx="${x(parseYmd(pt.date)).toFixed(1)}" cy="${yFn(pt.avg).toFixed(1)}" r="${r}" fill="${s.color}"/>`;
+      plots += `<circle cx="${x(pointAt(pt)).toFixed(1)}" cy="${yFn(pt.avg).toFixed(1)}" r="${r}" fill="${s.color}"/>`;
     });
   });
 
-  const daySpan = Math.max(1, (t1 - t0) / 86400000);
-  const hitW = Math.max(narrow ? 32 : 8, Math.min(44, plotW / daySpan));
+  const nHits = Math.max(dates.length, 1);
+  const hitW = Math.max(narrow ? 32 : 8, Math.min(44, plotW / nHits));
   let hits = '';
   dates.forEach((pt, di) => {
-    const xx = x(parseYmd(pt.date));
-    const tip = { date: pt.date, unit, digits, items: seriesList.map(s => ({ depth: s.depth, avg: s.points[di].avg, high: s.points[di].high, low: s.points[di].low })) };
+    const xx = x(pointAt(pt));
+    const tip = { date: pt.date, t: pt.t || null, unit, digits, items: seriesList.map(s => ({ depth: s.depth, avg: s.points[di] && s.points[di].avg, high: s.points[di] && s.points[di].high, low: s.points[di] && s.points[di].low })) };
     hits += `<rect class="hit" data-day="${encodeURIComponent(JSON.stringify(tip))}" data-x="${xx.toFixed(1)}" x="${(xx - hitW / 2).toFixed(1)}" y="${T}" width="${hitW.toFixed(1)}" height="${plotH}" fill="transparent"/>`;
   });
   const hair = `<line class="crosshair" x1="0" x2="0" y1="${T}" y2="${T + plotH}" stroke="#536154" stroke-width="1" stroke-opacity="0.55" display="none"/>`;
@@ -450,36 +537,70 @@ function oneSeasonPlot(seriesList, range, opts) {
     </div>`;
 }
 
-function seasonChart(season) {
-  const days = season.days || [];
-  if (!days.length) return '';
-  const water = depthSeries(season, WATER_DEPTHS, 'w_avg', 'w_high', 'w_low', WATER_DEPTHS.map(colorForDepth));
-  const temp = depthSeries(season, TEMP_DEPTHS, 't_avg', 't_high', 't_low', TEMP_DEPTHS.map(colorForTemp));
-  const range = seasonRange(days);
+function waterTopOf(seriesList) {
   let waterTop = 50;
-  water.forEach(s => s.points.forEach(pt => {
+  seriesList.forEach(s => s.points.forEach(pt => {
     [pt.avg, pt.high].forEach(v => { if (isNum(v) && v > waterTop) waterTop = niceStep(v, 10); });
   }));
+  return waterTop;
+}
+
+function latestTempSeries(site) {
+  if (!site.last_read_at) return [];
+  const at = Date.parse(site.last_read_at);
+  if (!Number.isFinite(at)) return [];
+  return TEMP_DEPTHS.map(depth => {
+    const row = (site.latest || []).find(r => r.depth_in === depth && isNum(r.temp_f));
+    if (!row) return null;
+    return {
+      depth,
+      color: colorForTemp(depth),
+      points: [{ t: site.last_read_at, at, date: fmtDayKey.format(new Date(at)), avg: row.temp_f, high: null, low: null }],
+    };
+  }).filter(Boolean);
+}
+
+function seasonChart(site) {
+  const season = site.season || {};
+  const days = season.days || [];
+  let water = [], temp = [], range = null;
+  if (useReadings(site)) {
+    water = readingSeries(site, WATER_DEPTHS, WATER_DEPTHS.map(colorForDepth), (p, i) => (p.w || [])[i]);
+    temp = readingSeries(site, TEMP_DEPTHS, TEMP_DEPTHS.map(colorForTemp), pointTemp);
+    if (!temp.length) temp = latestTempSeries(site);
+    range = readingsRange(water.concat(temp), site.last_read_at);
+  }
+  if (!range) {
+    water = depthSeries(season, WATER_DEPTHS, 'w_avg', 'w_high', 'w_low', WATER_DEPTHS.map(colorForDepth));
+    temp = depthSeries(season, TEMP_DEPTHS, 't_avg', 't_high', 't_low', TEMP_DEPTHS.map(colorForTemp));
+    if (!days.length) return '';
+    range = seasonRange(days);
+  }
+  if (!range || (!water.length && !temp.length)) return '';
   return `<div class="season-charts">
-      ${water.length ? oneSeasonPlot(water, range, { kind: 'water', unit: '%', digits: 1, title: 'Soil water, season', yBot: 0, yTop: waterTop, height: 300 }) : ''}
       ${temp.length ? oneSeasonPlot(temp, range, { kind: 'temp', unit: '&deg;', digits: 0, title: 'Soil temp, season', yBot: 30, yTop: 90, height: 300 }) : ''}
+      ${water.length ? oneSeasonPlot(water, range, { kind: 'water', unit: '%', digits: 1, title: 'Soil water, season', yBot: 0, yTop: waterTopOf(water), height: 300 }) : ''}
     </div>`;
 }
 
 function seasonBlock(site, i) {
-  if (!site.season || !site.season.days || !site.season.days.length) return '';
+  const charts = seasonChart(site);
+  if (!charts) return '';
   return `
     <div class="season" data-site="${i}">
-      ${seasonChart(site.season)}
+      ${charts}
     </div>`;
 }
 
 function tipText(d) {
   const f = (v, unit, digits) => isNum(v) ? v.toFixed(digits) + unit : '&ndash;';
-  const day = fmtTipDay.format(new Date(parseYmd(d.date)));
+  const head = d.t ? fmtTime.format(new Date(d.t)) + ' CT' : fmtTipDay.format(new Date(parseYmd(d.date)));
   const unit = d.unit || '', digits = d.digits ?? 1;
-  const lines = (d.items || []).map(it => `${esc(it.depth)}&Prime; ${f(it.avg, unit, digits)} (${f(it.low, unit, digits)}&ndash;${f(it.high, unit, digits)})`);
-  return `<strong>${esc(day)}</strong>${lines.length ? '<br>' + lines.join('<br>') : ''}`;
+  const lines = (d.items || []).map(it => {
+    const range = (isNum(it.low) || isNum(it.high)) ? ` (${f(it.low, unit, digits)}&ndash;${f(it.high, unit, digits)})` : '';
+    return `${esc(it.depth)}&Prime; ${f(it.avg, unit, digits)}${range}`;
+  });
+  return `<strong>${esc(head)}</strong>${lines.length ? '<br>' + lines.join('<br>') : ''}`;
 }
 
 function placeTip(plot, event, hit, atX) {

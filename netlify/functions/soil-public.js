@@ -9,7 +9,7 @@
 // browser. Responses are cached for 10 minutes.
 
 const DEFAULT_SUPABASE_URL = "https://junawlttpyztjlnbmvcb.supabase.co";
-const DAYS = 7;
+const DAYS = 14;
 const SEASON_DAYS = 400;
 
 const baseHeaders = {
@@ -84,7 +84,12 @@ function cleanSite(site, season) {
     } : null,
     water_series: {
       depths_in: list(series.depths_in).map(num),
-      points: list(series.points).map((p) => ({ t: time(p.t), w: list(p.w).map(num) })).filter((p) => p.t),
+      points: list(series.points).map((p) => {
+        const out = { t: time(p.t), w: list(p.w).map(num) };
+        const tf = p.t_f || p.temp || p.temps;
+        if (tf != null) out.t_f = list(tf).map(num);
+        return out;
+      }).filter((p) => p.t),
     },
   };
   if (season) out.season = season;

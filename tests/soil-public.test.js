@@ -14,7 +14,7 @@ const UPSTREAM = {
     last_read_at: "2026-11-23T20:00:00+00:00",
     latest: [{ depth_in: 2, temp_f: 51, water_pct: 18.4, raw_moisture: 0.4 }],
     surface_day: { date: "2026-11-22", avg_f: 51.2, high_f: 54.9, low_f: 49, readings: 48, avg_7day_f: 54.5 },
-    water_series: { depths_in: [2], points: [{ t: "2026-11-23T19:30:00+00:00", w: [18.3] }, { t: "2026-11-23T20:00:00+00:00", w: [18.4] }] },
+    water_series: { depths_in: [2], points: [{ t: "2026-11-23T19:30:00+00:00", w: [18.3], t_f: [51.1], raw: 1 }, { t: "2026-11-23T20:00:00+00:00", w: [18.4], t_f: [51.0] }] },
   }, { id: 2, name: "No readings yet", last_read_at: null }],
 };
 
@@ -70,6 +70,7 @@ test("reads the public-only RPC with the env key and returns display fields only
     assert.equal(calls.length, 2);
     assert.match(calls[0].url, /\/rest\/v1\/rpc\/soil_public_sites$/);
     assert.match(calls[1].url, /\/rest\/v1\/rpc\/soil_public_season$/);
+    assert.equal(JSON.parse(calls[0].options.body).p_days, 14);
     assert.equal(JSON.parse(calls[1].options.body).p_days, 400);
     assert.equal(calls[0].options.headers.apikey, "publishable-key-for-tests");
     assert.match(r.headers["Cache-Control"], /public, max-age=600/);
@@ -78,6 +79,10 @@ test("reads the public-only RPC with the env key and returns display fields only
     const site = body.sites[0];
     assert.deepEqual(Object.keys(site).sort(), ["last_read_at", "latest", "location", "name", "season", "surface_day", "water_series"]);
     assert.deepEqual(site.latest, [{ depth_in: 2, temp_f: 51, water_pct: 18.4 }]);
+    assert.deepEqual(site.water_series.points, [
+      { t: "2026-11-23T19:30:00.000Z", w: [18.3], t_f: [51.1] },
+      { t: "2026-11-23T20:00:00.000Z", w: [18.4], t_f: [51.0] },
+    ]);
     assert.deepEqual(Object.keys(site.surface_day).sort(), ["avg_7day_f", "avg_f", "date", "high_f", "low_f"]);
     assert.deepEqual(site.season.depths_in, [2, 6]);
     assert.deepEqual(site.season.days, [{
@@ -139,6 +144,8 @@ test("/soiltemps reads /api/soil, not soil_temp.json, and carries no database ke
   assert.match(html, /2&Prime; soil temp &deg;F/);
   assert.equal((html.match(/&deg;F/g) || []).length, 1);
   assert.match(html, /YEAR_AXIS_DAYS = 30/);
+  assert.match(html, /DAILY_AXIS_DAYS = 14/);
+  assert.match(html, /useReadings/);
   assert.match(html, /zoomed: true/);
   assert.match(html, /today-label">Today/);
   assert.match(html, /Math\.round/);
