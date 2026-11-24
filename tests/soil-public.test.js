@@ -125,6 +125,12 @@ test("/soiltemps reads /api/soil, not soil_temp.json, and carries no database ke
   assert.match(html, /seasonChart/);
   assert.match(html, /WATER_DEPTHS = \[2, 10, 30\]/);
   assert.match(html, /TEMP_DEPTH = 2/);
+  assert.match(html, /Soil water, season/);
+  assert.match(html, /Soil temp at 1&Prime;, season/);
+  assert.match(html, /#C9A227/);
+  assert.match(html, /#5E7F3A/);
+  assert.match(html, /#2F3B45/);
+  assert.match(html, /syncSeasonHover/);
   assert.match(html, /displayDepth/);
   assert.doesNotMatch(html, /depth-toggle|depthToggle|1&ndash;17&Prime;/);
   assert.doesNotMatch(read("netlify/functions/soil-public.js"), /displayDepth/);
