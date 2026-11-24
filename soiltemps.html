@@ -45,6 +45,19 @@
 .legend i { display:inline-block; width:16px; height:2px; vertical-align:middle; margin-right:6px; }
 .chart-empty { font-size:15px; color:var(--gray-2); }
 .loading,.no-data { padding:40px 0; color:var(--gray-2); border-top:1px solid var(--line); }
+
+.ph,.ct { max-width:1240px; }
+.season { margin-top:36px; }
+.depth-toggle { display:flex; flex-wrap:wrap; gap:2px 0; margin-bottom:14px; }
+.depth-toggle button { font:inherit; font-size:15px; color:var(--gray-2); background:none; border:0; border-bottom:1px solid transparent; padding:4px 10px; cursor:pointer; }
+.depth-toggle button[aria-pressed="true"] { color:var(--black); border-bottom-color:var(--black); border-bottom-width:2px; }
+.season-plot { position:relative; }
+.season-plot svg { display:block; width:100%; height:auto; overflow:visible; }
+.season-plot text { font-size:12px; fill:var(--gray-2); font-family:inherit; }
+.season-tip { position:absolute; pointer-events:none; display:none; background:#fff; border:1px solid var(--line); padding:8px 10px; font-size:13px; color:var(--gray-1); font-variant-numeric:tabular-nums; white-space:nowrap; z-index:2; }
+@media(max-width:760px) {
+  .depth-toggle button { padding:6px 8px; font-size:14px; }
+}
 @media(max-width:760px) {
   .soil-summary,.site-body { grid-template-columns:1fr; gap:26px; }
   .summary-value { font-size:68px; }
@@ -188,7 +201,200 @@ function chart(series) {
     <ul class="legend" aria-label="Depths">${legend}</ul>`;
 }
 
-function siteCard(site) {
+
+const ROOT_ZONE = [2, 6, 10, 14, 18];
+const WATER = '#3e6a85';
+const TEMP = '#c39a2b';
+const mean = xs => xs.reduce((a, b) => a + b, 0) / xs.length;
+const fmtMonth = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short' });
+const fmtTipDay = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
+
+function parseYmd(ymd) {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return Date.UTC(y, m - 1, d);
+}
+function ymdFromUtc(ms) { return new Date(ms).toISOString().slice(0, 10); }
+function addDays(ymd, n) { return ymdFromUtc(parseYmd(ymd) + n * 86400000); }
+function nextMonth(ymd) {
+  const [y, m] = ymd.split('-').map(Number);
+  return ymdFromUtc(Date.UTC(y, m, 1));
+}
+
+function seasonDays(season, mode) {
+  const depths = season.depths_in || [];
+  const idx = depths.map((d, i) => {
+    if (mode === 'root') return ROOT_ZONE.includes(d) ? i : -1;
+    if (mode === 'all') return i;
+    return d === Number(mode) ? i : -1;
+  }).filter(i => i >= 0);
+  const pick = arr => {
+    const vals = idx.map(i => (arr || [])[i]).filter(isNum);
+    return vals.length ? mean(vals) : null;
+  };
+  return (season.days || []).map(day => ({
+    date: day.date,
+    w_avg: pick(day.w_avg),
+    w_high: pick(day.w_high),
+    w_low: pick(day.w_low),
+    t_avg: pick(day.t_avg),
+    t_high: pick(day.t_high),
+    t_low: pick(day.t_low),
+  }));
+}
+
+function niceStep(v, step) { return Math.ceil(v / step) * step; }
+function niceFloor(v, step) { return Math.floor(v / step) * step; }
+
+function seasonChart(season, mode) {
+  const days = seasonDays(season, mode);
+  if (!days.length) return '';
+  const first = days[0].date;
+  const last = days[days.length - 1].date;
+  let end = addDays(first, 365);
+  if (parseYmd(last) > parseYmd(end)) end = last;
+  const W = 1100, H = 300, L = 44, R = 44, T = 16, B = 36;
+  const t0 = parseYmd(first), t1 = parseYmd(end);
+  const x = t => L + (W - L - R) * (t - t0) / Math.max(1, t1 - t0);
+  const waters = days.flatMap(d => [d.w_avg, d.w_high, d.w_low]).filter(isNum);
+  const temps = days.flatMap(d => [d.t_avg, d.t_high, d.t_low]).filter(isNum);
+  const wTop = Math.max(10, niceStep(Math.max(0, ...waters, 0), 10));
+  let tBot = temps.length ? niceFloor(Math.min(...temps) - 4, 10) : 0;
+  let tTop = temps.length ? niceStep(Math.max(...temps) + 4, 10) : 80;
+  if (tTop <= tBot) tTop = tBot + 20;
+  const yW = v => T + (H - T - B) * (1 - v / wTop);
+  const yT = v => T + (H - T - B) * (1 - (v - tBot) / (tTop - tBot));
+
+  let grid = '';
+  for (let i = 0; i <= 5; i++) {
+    const wv = wTop * i / 5, yy = yW(wv).toFixed(1);
+    grid += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="${i ? '#edf1e9' : '#cbd3c7'}"/>`;
+    grid += `<text x="${L - 8}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${Math.round(wv)}</text>`;
+    const tv = tBot + (tTop - tBot) * i / 5;
+    grid += `<text x="${W - R + 8}" y="${(+yy + 4).toFixed(1)}">${Math.round(tv)}</text>`;
+  }
+  grid += `<text x="${L}" y="12">%</text>`;
+  grid += `<text x="${W - R}" y="12" text-anchor="end">&deg;F</text>`;
+
+  const labelMonth = ymd => {
+    const dt = new Date(parseYmd(ymd));
+    const mon = fmtMonth.format(dt);
+    const year = dt.getUTCFullYear();
+    return (dt.getUTCMonth() === 0 || ymd === first || ymd.slice(5, 7) === first.slice(5, 7)) ? `${mon} ${year}` : mon;
+  };
+  const addMonth = ymd => {
+    if (parseYmd(ymd) < t0 || parseYmd(ymd) > t1) return;
+    if (ymd !== first && parseYmd(ymd) - t0 < 12 * 86400000) return;
+    const xx = x(parseYmd(ymd)).toFixed(1);
+    grid += `<line x1="${xx}" x2="${xx}" y1="${T}" y2="${H - B}" stroke="#edf1e9"/>`;
+    grid += `<text x="${xx}" y="${H - 10}" text-anchor="middle">${esc(labelMonth(ymd))}</text>`;
+  };
+  addMonth(first);
+  for (let month = nextMonth(first); parseYmd(month) <= t1; month = nextMonth(month)) addMonth(month);
+
+  function series(color, yFn, avgKey, highKey, lowKey, dx) {
+    let bars = '', path = '', dots = '', pen = false;
+    days.forEach(d => {
+      const xx = x(parseYmd(d.date)) + dx;
+      const hi = d[highKey], lo = d[lowKey], avg = d[avgKey];
+      if (isNum(hi) && isNum(lo)) {
+        bars += `<line x1="${xx.toFixed(1)}" x2="${xx.toFixed(1)}" y1="${yFn(lo).toFixed(1)}" y2="${yFn(hi).toFixed(1)}" stroke="${color}" stroke-width="2" stroke-opacity="0.28"/>`;
+        bars += `<line x1="${(xx - 3).toFixed(1)}" x2="${(xx + 3).toFixed(1)}" y1="${yFn(hi).toFixed(1)}" y2="${yFn(hi).toFixed(1)}" stroke="${color}" stroke-width="1.2" stroke-opacity="0.55"/>`;
+        bars += `<line x1="${(xx - 3).toFixed(1)}" x2="${(xx + 3).toFixed(1)}" y1="${yFn(lo).toFixed(1)}" y2="${yFn(lo).toFixed(1)}" stroke="${color}" stroke-width="1.2" stroke-opacity="0.55"/>`;
+      }
+      if (isNum(avg)) {
+        path += `${pen ? 'L' : 'M'}${xx.toFixed(1)},${yFn(avg).toFixed(1)}`;
+        pen = true;
+        const r = days.length > 80 ? 2.2 : 3.2;
+        dots += `<circle cx="${xx.toFixed(1)}" cy="${yFn(avg).toFixed(1)}" r="${r}" fill="${color}"/>`;
+      } else {
+        pen = false;
+      }
+    });
+    const line = path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="1.2" stroke-linejoin="round"/>` : '';
+    return bars + line + dots;
+  }
+
+  const plots = series(WATER, yW, 'w_avg', 'w_high', 'w_low', -3) + series(TEMP, yT, 't_avg', 't_high', 't_low', 3);
+  const daySpan = Math.max(1, (t1 - t0) / 86400000);
+  const hitW = Math.max(6, Math.min(18, (W - L - R) / daySpan));
+  let hits = '';
+  days.forEach(d => {
+    const xx = x(parseYmd(d.date));
+    hits += `<rect class="hit" data-day="${encodeURIComponent(JSON.stringify(d))}" x="${(xx - hitW / 2).toFixed(1)}" y="${T}" width="${hitW.toFixed(1)}" height="${(H - T - B).toFixed(1)}" fill="transparent"/>`;
+  });
+  return `
+    <div class="season-plot">
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Daily soil water and soil temperature">${grid}${plots}${hits}</svg>
+      <div class="season-tip"></div>
+      <ul class="legend" aria-label="Series"><li><i style="background:${WATER}"></i>Water %</li><li><i style="background:${TEMP}"></i>Temp &deg;F</li></ul>
+    </div>`;
+}
+
+function depthToggle(season, mode) {
+  const btn = (value, label) => `<button type="button" data-season-depth="${esc(String(value))}" aria-pressed="${value === mode ? 'true' : 'false'}">${label}</button>`;
+  const depths = (season.depths_in || []).map(d => btn(d, `${esc(d)}&Prime;`));
+  return `<div class="depth-toggle" role="group" aria-label="Depth">${btn('root', '2&ndash;18&Prime;')}${btn('all', 'All')}${depths.join('')}</div>`;
+}
+
+function seasonBlock(site, i) {
+  if (!site.season || !site.season.days || !site.season.days.length) return '';
+  return `
+    <div class="season" data-site="${i}">
+      ${depthToggle(site.season, 'root')}
+      ${seasonChart(site.season, 'root')}
+    </div>`;
+}
+
+function tipText(d) {
+  const f = (v, unit, digits) => isNum(v) ? v.toFixed(digits) + unit : '&ndash;';
+  const day = fmtTipDay.format(new Date(parseYmd(d.date)));
+  return `<strong>${esc(day)}</strong><br>Water ${f(d.w_avg, '%', 1)} (${f(d.w_low, '%', 1)}&ndash;${f(d.w_high, '%', 1)})<br>Temp ${f(d.t_avg, '&deg;', 0)} (${f(d.t_low, '&deg;', 0)}&ndash;${f(d.t_high, '&deg;', 0)})`;
+}
+
+function placeTip(plot, event, hit) {
+  const tip = plot.querySelector('.season-tip');
+  if (!tip) return;
+  if (!hit) { tip.style.display = 'none'; return; }
+  const d = JSON.parse(decodeURIComponent(hit.getAttribute('data-day')));
+  tip.innerHTML = tipText(d);
+  tip.style.display = 'block';
+  const rect = plot.getBoundingClientRect();
+  const left = event.clientX - rect.left + 12;
+  const top = event.clientY - rect.top - 8;
+  tip.style.left = Math.min(Math.max(0, left), Math.max(0, rect.width - tip.offsetWidth - 8)) + 'px';
+  tip.style.top = Math.max(0, top - tip.offsetHeight) + 'px';
+}
+
+let sitesCache = [];
+const contentEl = document.getElementById('content');
+contentEl.addEventListener('click', e => {
+  const btn = e.target.closest('[data-season-depth]');
+  if (btn) {
+    const wrap = btn.closest('.season');
+    const site = sitesCache[+wrap.dataset.site];
+    if (!site || !site.season) return;
+    const mode = btn.getAttribute('data-season-depth');
+    wrap.querySelectorAll('[data-season-depth]').forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+    const plot = wrap.querySelector('.season-plot');
+    const tmp = document.createElement('div');
+    tmp.innerHTML = seasonChart(site.season, mode);
+    plot.replaceWith(tmp.firstElementChild);
+    return;
+  }
+  const hit = e.target.closest('rect.hit');
+  const plot = e.target.closest('.season-plot');
+  if (plot) placeTip(plot, e, hit);
+});
+contentEl.addEventListener('mousemove', e => {
+  const plot = e.target.closest('.season-plot');
+  if (!plot) return;
+  placeTip(plot, e, e.target.closest('rect.hit'));
+});
+contentEl.addEventListener('mouseleave', () => {
+  contentEl.querySelectorAll('.season-tip').forEach(t => { t.style.display = 'none'; });
+});
+
+function siteCard(site, i) {
   const rows = (site.latest || []).map(r => `
         <tr><td>${esc(r.depth_in)}&Prime;</td><td class="n">${isNum(r.temp_f) ? Math.round(r.temp_f) + '&deg;F' : '&ndash;'}</td><td class="n">${pct(r.water_pct)}</td></tr>`).join('');
   return `
@@ -208,19 +414,22 @@ function siteCard(site) {
           ${chart(site.water_series)}
         </div>
       </div>
+      ${seasonBlock(site, i)}
     </section>`;
 }
 
 async function loadData() {
-  const content = document.getElementById('content');
+  const content = contentEl;
   try {
     const resp = await fetch('/api/soil');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     const sites = (data.sites || []).filter(s => s.last_read_at);
     if (!sites.length) throw new Error('No sites');
+    sitesCache = sites;
     content.innerHTML = summary(sites[0]) + sites.map(siteCard).join('');
   } catch (e) {
+    sitesCache = [];
     content.innerHTML = '<div class="no-data">Coming soon</div>';
   }
 }

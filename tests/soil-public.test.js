@@ -18,10 +18,30 @@ const UPSTREAM = {
   }, { id: 2, name: "No readings yet", last_read_at: null }],
 };
 
-async function withFetch(response, fn2) {
+const SEASON = {
+  sites: [{
+    id: 1, name: "Grass corner", logger_name: "ai_shop_test", latitude: 40.5,
+    depths_in: [2, 6],
+    days: [{
+      date: "2026-11-22",
+      w_avg: [18.1, 22.4], w_high: [19.0, 22.8], w_low: [17.2, 22.0],
+      t_avg: [51.2, 50.8], t_high: [54.9, 51.5], t_low: [49.0, 50.1],
+      readings: 48,
+    }],
+  }],
+};
+
+async function withFetch(router, fn2) {
   const before = global.fetch, calls = [];
-  global.fetch = async (url, options) => { calls.push({ url: String(url), options }); return response(); };
+  global.fetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    return router(String(url), options, calls.length);
+  };
   try { await fn2(calls); } finally { global.fetch = before; }
+}
+
+function jsonOk(value) {
+  return new Response(JSON.stringify(value), { status: 200 });
 }
 
 test("only GET and HEAD are allowed", async () => {
@@ -41,20 +61,47 @@ test("without the key it refuses before calling Supabase and is not cached", asy
 
 test("reads the public-only RPC with the env key and returns display fields only, cached 10 minutes", async () => {
   process.env.SOIL_SUPABASE_KEY = "publishable-key-for-tests";
-  await withFetch(() => new Response(JSON.stringify(UPSTREAM), { status: 200 }), async (calls) => {
+  await withFetch((url) => {
+    if (url.includes("soil_public_season")) return jsonOk(SEASON);
+    return jsonOk(UPSTREAM);
+  }, async (calls) => {
     const r = await fn.handler({ httpMethod: "GET" });
     assert.equal(r.statusCode, 200);
-    assert.equal(calls.length, 1);
+    assert.equal(calls.length, 2);
     assert.match(calls[0].url, /\/rest\/v1\/rpc\/soil_public_sites$/);
+    assert.match(calls[1].url, /\/rest\/v1\/rpc\/soil_public_season$/);
+    assert.equal(JSON.parse(calls[1].options.body).p_days, 400);
     assert.equal(calls[0].options.headers.apikey, "publishable-key-for-tests");
     assert.match(r.headers["Cache-Control"], /public, max-age=600/);
     const body = JSON.parse(r.body);
     assert.equal(body.sites.length, 1, "sites without readings are dropped");
     const site = body.sites[0];
-    assert.deepEqual(Object.keys(site).sort(), ["last_read_at", "latest", "location", "name", "surface_day", "water_series"]);
+    assert.deepEqual(Object.keys(site).sort(), ["last_read_at", "latest", "location", "name", "season", "surface_day", "water_series"]);
     assert.deepEqual(site.latest, [{ depth_in: 2, temp_f: 51, water_pct: 18.4 }]);
     assert.deepEqual(Object.keys(site.surface_day).sort(), ["avg_7day_f", "avg_f", "date", "high_f", "low_f"]);
-    assert.doesNotMatch(r.body, /latitude|longitude|logger_name|raw_moisture|publishable-key/);
+    assert.deepEqual(site.season.depths_in, [2, 6]);
+    assert.deepEqual(site.season.days, [{
+      date: "2026-11-22",
+      w_avg: [18.1, 22.4], w_high: [19.0, 22.8], w_low: [17.2, 22.0],
+      t_avg: [51.2, 50.8], t_high: [54.9, 51.5], t_low: [49.0, 50.1],
+    }]);
+    assert.doesNotMatch(r.body, /latitude|longitude|logger_name|raw_moisture|publishable-key|"readings"/);
+  });
+});
+
+test("a missing season RPC still returns the rest of the payload", async () => {
+  process.env.SOIL_SUPABASE_KEY = "publishable-key-for-tests";
+  await withFetch((url) => {
+    if (url.includes("soil_public_season")) return new Response("nope", { status: 404 });
+    return jsonOk(UPSTREAM);
+  }, async (calls) => {
+    const r = await fn.handler({ httpMethod: "GET" });
+    assert.equal(r.statusCode, 200);
+    assert.equal(calls.length, 2);
+    const site = JSON.parse(r.body).sites[0];
+    assert.equal(site.season, undefined);
+    assert.equal(site.name, "Grass corner");
+    assert.match(r.headers["Cache-Control"], /public, max-age=600/);
   });
 });
 
@@ -75,6 +122,8 @@ test("/soiltemps reads /api/soil, not soil_temp.json, and carries no database ke
   assert.doesNotMatch(html, /uncalibrated|Learn more|Last updated|Readings come from/);
   assert.match(html, /2&Prime;&ndash;6&Prime; avg/);
   assert.match(html, /<div class="no-data">Coming soon<\/div>/);
+  assert.match(html, /seasonChart/);
+  assert.match(html, /2&ndash;18&Prime;/);
   assert.match(read("_redirects"), /^\/api\/soil\s+\/\.netlify\/functions\/soil-public\s+200$/m);
 });
 
@@ -92,4 +141,13 @@ test("/soiltemps and /updates use the home page stylesheet, nav and footer", () 
     assert.match(html, /<script src="\/assets\/nav\.js" defer><\/script>/, file);
     assert.doesNotMatch(html, /fonts\.googleapis|gradient/i, file);
   }
+});
+
+test("season SQL is a new public read function and does not change ingest", () => {
+  const sql = read("sentek/acre-ops-migrations/20261124140000_soil_public_season.sql");
+  const body = sql.replace(/--[^\n]*/g, "");
+  assert.match(sql, /create function public\.soil_public_season/);
+  assert.match(sql, /grant execute on function public\.soil_public_season\(integer\) to anon/);
+  assert.doesNotMatch(body, /create or replace function public\.soil_ingest|create table|alter table|insert into public\.soil_loggers/i);
+  assert.match(sql, /active and l\.public/);
 });
