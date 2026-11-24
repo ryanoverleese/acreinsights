@@ -35,12 +35,17 @@
 .site-head h2 { font-size:34px; line-height:1.2; color:var(--sage); }
 .site-meta { font-size:16px; color:var(--gray-2); }
 .site-meta .when { white-space:nowrap; }
-.site-body { margin-top:26px; }
-.depths { width:100%; table-layout:fixed; border-collapse:collapse; font-size:17px; font-variant-numeric:tabular-nums; }
-.depths th,.depths td { width:33.33%; }
-.depths th { text-align:left; font-weight:400; font-size:16px; color:var(--black); padding:0 0 10px; border-bottom:1px solid var(--line); }
-.depths td { padding:7px 0; border-bottom:1px solid var(--gray-5); color:var(--gray-1); }
+.site-body { margin-top:26px; display:grid; grid-template-columns:380px minmax(0,1fr); gap:48px 56px; align-items:start; }
+.depths { width:100%; max-width:420px; table-layout:fixed; border-collapse:collapse; font-size:17px; font-variant-numeric:tabular-nums; }
+.depths col.c-d { width:76px; }
+.depths col.c-t { width:80px; }
+.depths col.c-w { width:92px; }
+.depths thead { border-bottom:1px solid var(--line); }
+.depths tbody tr { border-bottom:1px solid var(--gray-5); }
+.depths th { text-align:left; font-weight:400; font-size:16px; color:var(--black); padding:0 16px 10px 0; }
+.depths td { padding:7px 16px 7px 0; color:var(--gray-1); white-space:nowrap; }
 .depths .n { text-align:right; }
+.depths th:last-child,.depths td:last-child { padding-right:0; }
 .chart-label { font-size:16px; color:var(--black); margin-bottom:10px; }
 .chart .chart-label { margin-bottom:6px; }
 .chart .legend { margin-top:0; margin-bottom:10px; }
@@ -52,7 +57,7 @@
 .loading,.no-data { padding:26px 0 80px; color:var(--gray-2); border-top:1px solid var(--line); }
 
 .ph,.ct { max-width:1240px; overflow:visible; }
-.season { margin-top:40px; padding-top:40px; border-top:1px solid var(--line); overflow:visible; }
+.season { overflow:visible; }
 .season-charts { display:flex; flex-direction:column; gap:32px; }
 .season-plot { position:relative; overflow:visible; }
 .season-plot .chart-label { margin-bottom:6px; }
@@ -66,6 +71,10 @@
 .season-plot[data-kind="water"] svg { height:300px; }
 .season-plot[data-kind="temp"] svg { height:260px; }
 .season-tip { position:absolute; pointer-events:none; display:none; background:#fff; border:1px solid var(--line); padding:8px 10px; font-size:13px; color:var(--gray-1); font-variant-numeric:tabular-nums; white-space:nowrap; z-index:2; }
+@media(max-width:960px) {
+  .site-body { grid-template-columns:1fr; gap:36px; }
+  .depths { max-width:none; }
+}
 @media(max-width:760px) {
   .ph,.ct { width:calc(100% - 64px); padding-left:0; padding-right:0; }
   .site-meta { font-size:15px; }
@@ -74,6 +83,8 @@
   .season-plot[data-kind="water"] svg { height:240px; }
   .season-plot[data-kind="temp"] svg { height:220px; }
   .soil-summary { grid-template-columns:1fr; gap:26px; }
+  .site-body { grid-template-columns:1fr; gap:32px; }
+  .depths { max-width:none; }
   .summary-value { font-size:68px; }
   .stat-v { font-size:28px; }
   .stat + .stat { padding-left:14px; }
@@ -447,12 +458,13 @@ function siteCard(site, i) {
       </div>
       <div class="site-body">
         <table class="depths">
+          <colgroup><col class="c-d"><col class="c-t"><col class="c-w"><col></colgroup>
           <thead><tr><th scope="col">Depth</th><th scope="col" class="n">Temp</th><th scope="col" class="n">Water</th></tr></thead>
           <tbody>${rows}
           </tbody>
         </table>
+        ${seasonBlock(site, i)}
       </div>
-      ${seasonBlock(site, i)}
     </section>`;
 }
 
