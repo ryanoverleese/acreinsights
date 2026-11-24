@@ -123,8 +123,10 @@ test("/soiltemps reads /api/soil, not soil_temp.json, and carries no database ke
   assert.match(html, /1&Prime;&ndash;5&Prime; avg/);
   assert.match(html, /<div class="no-data">Coming soon<\/div>/);
   assert.match(html, /seasonChart/);
-  assert.match(html, /1&ndash;17&Prime;/);
+  assert.match(html, /WATER_DEPTHS = \[2, 10, 30\]/);
+  assert.match(html, /TEMP_DEPTH = 2/);
   assert.match(html, /displayDepth/);
+  assert.doesNotMatch(html, /depth-toggle|depthToggle|1&ndash;17&Prime;/);
   assert.doesNotMatch(read("netlify/functions/soil-public.js"), /displayDepth/);
   assert.match(read("_redirects"), /^\/api\/soil\s+\/\.netlify\/functions\/soil-public\s+200$/m);
 });
