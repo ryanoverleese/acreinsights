@@ -138,30 +138,43 @@ function dayLabel(ymd) {
   return new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
 }
 
+function dayAtDepth(season, depth) {
+  const i = ((season && season.depths_in) || []).indexOf(depth);
+  if (i < 0) return null;
+  const today = fmtDayKey.format(new Date());
+  const days = (season.days || []).filter(d => d.date < today);
+  const pool = days.length ? days : (season.days || []);
+  for (let n = pool.length - 1; n >= 0; n--) {
+    const d = pool[n];
+    const avg = (d.t_avg || [])[i], high = (d.t_high || [])[i], low = (d.t_low || [])[i];
+    if (isNum(avg) || isNum(high) || isNum(low)) return { date: d.date, avg_f: avg, high_f: high, low_f: low };
+  }
+  return null;
+}
+
 function summary(site) {
-  const day = site.surface_day;
-  if (day && isNum(day.avg_f)) {
+  const day = dayAtDepth(site.season, 2);
+  if (day && (isNum(day.avg_f) || isNum(day.high_f) || isNum(day.low_f))) {
     return `
-      <section class="soil-summary" aria-label="Daily soil temperature">
+      <section class="soil-summary" aria-label="Daily soil temperature at 2 inches">
         <div>
-          <p class="summary-label">${esc(dayLabel(day.date))} &middot; 2&Prime;&ndash;6&Prime; avg</p>
+          <p class="summary-label">${esc(dayLabel(day.date))} &middot; 2&Prime;</p>
           <p class="summary-value">${deg(day.avg_f)}</p>
         </div>
         <div class="summary-stats">
           <div class="stat"><span class="stat-v">${deg(day.high_f)}</span><span class="stat-l">High</span></div>
+          <div class="stat"><span class="stat-v">${deg(day.avg_f)}</span><span class="stat-l">Average</span></div>
           <div class="stat"><span class="stat-v">${deg(day.low_f)}</span><span class="stat-l">Low</span></div>
-          <div class="stat"><span class="stat-v">${deg(day.avg_7day_f)}</span><span class="stat-l">7-day average</span></div>
         </div>
       </section>`;
   }
-  const near = (site.latest || []).filter(r => (r.depth_in === 2 || r.depth_in === 6) && isNum(r.temp_f));
-  if (near.length !== 2) return '';
-  const avg = (near[0].temp_f + near[1].temp_f) / 2;
+  const latest = (site.latest || []).find(r => r.depth_in === 2 && isNum(r.temp_f));
+  if (!latest) return '';
   return `
-    <section class="soil-summary" aria-label="Latest soil temperature">
+    <section class="soil-summary" aria-label="Latest soil temperature at 2 inches">
       <div>
-        <p class="summary-label">${esc(ct(site.last_read_at))} &middot; 2&Prime;&ndash;6&Prime; avg</p>
-        <p class="summary-value">${deg(avg)}</p>
+        <p class="summary-label">${site.last_read_at ? esc(ct(site.last_read_at)) + ' &middot; ' : ''}2&Prime;</p>
+        <p class="summary-value">${deg(latest.temp_f)}</p>
       </div>
     </section>`;
 }

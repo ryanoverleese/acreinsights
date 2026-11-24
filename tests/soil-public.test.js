@@ -120,7 +120,11 @@ test("/soiltemps reads /api/soil, not soil_temp.json, and carries no database ke
   assert.doesNotMatch(html, /soil_temp\.json/);
   assert.doesNotMatch(html, /supabase|sb_publishable|apikey/i);
   assert.doesNotMatch(html, /uncalibrated|Learn more|Last updated|Readings come from/);
-  assert.match(html, /2&Prime;&ndash;6&Prime; avg/);
+  assert.match(html, /2&Prime;/);
+  assert.match(html, /stat-l">Average/);
+  assert.match(html, /stat-l">High/);
+  assert.match(html, /stat-l">Low/);
+  assert.doesNotMatch(html, /7-day average|2&Prime;&ndash;6&Prime;/);
   assert.match(html, /<div class="no-data">Coming soon<\/div>/);
   assert.match(html, /seasonChart/);
   assert.match(html, /WATER_DEPTHS = \[2, 10, 30\]/);
