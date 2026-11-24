@@ -47,11 +47,11 @@
 .site-body { margin-top:0; display:flex; flex-direction:column; gap:0; }
 .depths-phone { display:none; }
 table.depths { width:100%; table-layout:fixed; border-collapse:collapse; font-size:15px; color:#222; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; font-kerning:none; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-table.depths-wide { margin-top:22px; }
+table.depths-wide { margin-top:48px; }
 table.depths-wide th,table.depths-wide td { font-weight:400; font-synthesis:none; font-size:15px; color:#222; line-height:1.3; text-align:center; padding:10px 10px; border-left:1px solid var(--line); }
-table.depths-wide thead th { padding-top:0; padding-bottom:10px; border-bottom:1px solid var(--line); }
+table.depths-wide thead th { padding-top:10px; padding-bottom:10px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--gray-5); }
 table.depths-wide tbody tr { border-bottom:1px solid var(--line); }
-table.depths-wide th:first-child,table.depths-wide td:first-child { text-align:left; padding-left:0; width:4.5rem; border-left:0; }
+table.depths-wide th:first-child,table.depths-wide td:first-child { text-align:left; padding-left:0; width:5rem; border-left:0; }
 table.depths-wide th:last-child,table.depths-wide td:last-child { padding-right:0; }
 .unit { margin-left:.08em; font-weight:400; font-synthesis:none; }
 
@@ -59,7 +59,7 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; f
 .chart-empty { font-size:15px; color:var(--gray-2); }
 .loading,.no-data { padding:26px 0 80px; color:var(--gray-2); border-top:1px solid var(--line); }
 .ct { padding-bottom:90px; }
-.season { overflow:visible; min-width:0; padding:28px 0; border-bottom:1px solid var(--line); }
+.season { overflow:visible; min-width:0; padding:28px 0 36px; border-bottom:1px solid var(--line); }
 .season-charts { display:grid; grid-template-columns:1fr 1fr; gap:28px 48px; align-items:start; position:relative; }
 .season-charts::before { content:""; position:absolute; top:0; bottom:0; left:50%; width:1px; margin-left:-.5px; background:var(--line); pointer-events:none; }
 .season-plot { position:relative; overflow:visible; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto 1fr; column-gap:16px; align-items:baseline; }
@@ -730,7 +730,7 @@ function siteCard(site, i) {
           </tbody>
         </table>
         <table class="depths depths-wide">
-          <thead><tr><th scope="col"></th>${wideHeads}</tr></thead>
+          <thead><tr><th scope="col">Depth</th>${wideHeads}</tr></thead>
           <tbody>
             <tr><th scope="row">Temp</th>${wideTemp}</tr>
             <tr><th scope="row">Water</th>${wideWater}</tr>
