@@ -36,7 +36,8 @@
 .site-meta { font-size:16px; color:var(--gray-2); }
 .site-meta .when { white-space:nowrap; }
 .site-body { margin-top:26px; }
-.depths { width:100%; max-width:560px; border-collapse:collapse; font-size:17px; font-variant-numeric:tabular-nums; }
+.depths { width:100%; table-layout:fixed; border-collapse:collapse; font-size:17px; font-variant-numeric:tabular-nums; }
+.depths th,.depths td { width:33.33%; }
 .depths th { text-align:left; font-weight:400; font-size:16px; color:var(--black); padding:0 0 10px; border-bottom:1px solid var(--line); }
 .depths td { padding:7px 0; border-bottom:1px solid var(--gray-5); color:var(--gray-1); }
 .depths .n { text-align:right; }
@@ -137,11 +138,6 @@ const isNum = v => typeof v === 'number' && Number.isFinite(v);
 const deg = v => isNum(v) ? Math.round(v) + '&deg;' : '&ndash;';
 const pct = v => isNum(v) ? v.toFixed(1) + '%' : '&ndash;';
 const ct = iso => fmtTime.format(new Date(iso)) + ' CT';
-function dayLabel(ymd) {
-  const [y, m, d] = ymd.split('-').map(Number);
-  return new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
-}
-
 function dayAtDepth(season, depth) {
   const i = ((season && season.depths_in) || []).indexOf(depth);
   if (i < 0) return null;
@@ -162,7 +158,7 @@ function summary(site) {
     return `
       <section class="soil-summary" aria-label="Daily soil temperature at 2 inches">
         <div>
-          <p class="summary-label">${esc(dayLabel(day.date))} &middot; 2&Prime;</p>
+          <p class="summary-label">Current</p>
           <p class="summary-value">${deg(day.avg_f)}</p>
         </div>
         <div class="summary-stats">
@@ -177,7 +173,7 @@ function summary(site) {
   return `
     <section class="soil-summary" aria-label="Latest soil temperature at 2 inches">
       <div>
-        <p class="summary-label">${site.last_read_at ? esc(ct(site.last_read_at)) + ' &middot; ' : ''}2&Prime;</p>
+        <p class="summary-label">Current</p>
         <p class="summary-value">${deg(latest.temp_f)}</p>
       </div>
     </section>`;
