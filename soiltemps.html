@@ -76,6 +76,21 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; f
 .legend i { display:inline-block; width:16px; height:2px; vertical-align:middle; margin-right:6px; }
 .season-tip { position:absolute; pointer-events:none; display:none; background:#fff; border:1px solid var(--line); padding:8px 10px; font-size:13px; color:var(--gray-1); font-variant-numeric:tabular-nums; white-space:nowrap; z-index:2; }
 
+/* Daily block grid: one solid block per depth per day, newest on the right. */
+.blocks { padding:28px 0 36px; border-bottom:1px solid var(--line); }
+.blocks-head { display:flex; justify-content:space-between; align-items:baseline; margin:0 0 12px; }
+.blocks-grid { --n:60; display:grid; grid-template-columns:44px repeat(var(--n),minmax(0,1fr)) 52px; grid-auto-rows:22px; gap:3px; align-items:stretch; }
+.blocks-grid .bd { font-size:13px; color:#666; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; align-self:center; text-align:right; padding-right:8px; white-space:nowrap; }
+.blocks-grid .bc { background:#f1f2f4; border-radius:1px; }
+.blocks-grid .bv { font-size:15px; color:#222; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; align-self:center; padding-left:10px; white-space:nowrap; }
+.blocks-grid .bx { position:relative; font-size:13px; color:#666; font-weight:400; font-synthesis:none; white-space:nowrap; overflow:visible; }
+.blocks-grid .bx span { position:absolute; top:6px; right:0; }
+.blocks-grid .bh { font-size:13px; color:#666; font-weight:400; font-synthesis:none; align-self:end; padding-left:10px; white-space:nowrap; }
+.blocks-key { display:flex; align-items:center; gap:0; margin-top:22px; margin-left:47px; width:240px; flex-direction:column; align-items:stretch; }
+.blocks-key .bar { height:6px; border-radius:1px; }
+.blocks-key ol { position:relative; list-style:none; height:16px; margin:4px 0 0; padding:0; }
+.blocks-key li { position:absolute; transform:translateX(-50%); font-size:12px; color:#666; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; }
+
 /* Phone: stacked layout with the same hairline rhythm as the wide dashboard. */
 @media(max-width:768px) {
   .site { display:flex; flex-direction:column; }
@@ -96,7 +111,13 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; f
   .trend { margin-top:14px; margin-bottom:0; }
   .site-body { order:3; margin-top:0; display:flex; flex-direction:column; gap:0; }
   .site-body .season { order:1; padding:0; border-bottom:0; }
-  .site-body .depths { order:2; width:100%; max-width:none; }
+  .site-body .blocks { order:2; padding:20px 0; border-bottom:0; border-top:1px solid var(--line); }
+  .site-body .depths { order:3; width:100%; max-width:none; }
+  .blocks-grid { --n:14; grid-template-columns:36px repeat(var(--n),minmax(0,1fr)) 44px; grid-auto-rows:24px; gap:3px; }
+  .blocks-grid .o { display:none; }
+  .blocks-grid .bd { padding-right:6px; }
+  .blocks-grid .bv { padding-left:8px; }
+  .blocks-key { margin-left:39px; width:200px; }
   .depths-phone { display:table; width:100%; border-top:1px solid var(--line); }
   .depths-wide { display:none; }
   .depths thead { border-bottom:1px solid var(--line); }
@@ -711,6 +732,65 @@ contentEl.addEventListener('mouseleave', hideSeasonHover);
 
 function inchLabel(d) { return esc(d) + '<span class="unit">&Prime;</span>'; }
 
+const BLOCK_DAYS = 60, BLOCK_DAYS_PHONE = 14;
+const BLOCK_STOPS = [[20,[13,43,87]],[32,[42,95,158]],[42.2,[127,169,209]],[50,[230,226,214]],[59,[239,184,119]],[69.2,[208,97,58]],[80,[160,31,31]]];
+function blockColor(v) {
+  const t = Math.max(20, Math.min(80, v));
+  for (let k = 1; k < BLOCK_STOPS.length; k++) {
+    const [t1, c1] = BLOCK_STOPS[k], [t0, c0] = BLOCK_STOPS[k - 1];
+    if (t <= t1) {
+      const f = (t - t0) / (t1 - t0);
+      return 'rgb(' + c0.map((c, j) => Math.round(c + (c1[j] - c) * f)).join(',') + ')';
+    }
+  }
+  return 'rgb(160,31,31)';
+}
+const fmtBlockDay = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
+function blockDayLabel(key) { return fmtBlockDay.format(new Date(key + 'T12:00:00Z')); }
+function blockKeys(endKey, n) {
+  const end = Date.parse(endKey + 'T12:00:00Z'), out = [];
+  for (let k = n - 1; k >= 0; k--) out.push(new Date(end - k * 86400000).toISOString().slice(0, 10));
+  return out;
+}
+function blockGrid(site) {
+  const season = site.season || {};
+  const depths = season.depths_in || [];
+  const days = season.days || [];
+  if (!depths.length || !days.length) return '';
+  const byDate = new Map(days.map(d => [d.date, d]));
+  const todayKey = fmtDayKey.format(new Date());
+  const lastKey = days[days.length - 1].date > todayKey ? days[days.length - 1].date : todayKey;
+  const keys = blockKeys(lastKey, BLOCK_DAYS);
+  const ageOf = j => BLOCK_DAYS - 1 - j;
+  const old = j => ageOf(j) >= BLOCK_DAYS_PHONE ? ' o' : '';
+  const newest = byDate.get(lastKey);
+  let cells = `<div class="bd"></div>${keys.map((k, j) => `<div class="${old(j).trim()}"></div>`).join('')}<div class="bh">${esc(blockDayLabel(lastKey))}</div>`;
+  depths.forEach((depth, i) => {
+    cells += `<div class="bd">${inchLabel(depth)}</div>`;
+    keys.forEach((k, j) => {
+      const d = byDate.get(k);
+      const v = d && (d.t_avg || [])[i];
+      const style = isNum(v) ? ` style="background:${blockColor(v)}"` : '';
+      const title = isNum(v) ? ` title="${esc(blockDayLabel(k))} · ${esc(depth)}″ · ${Math.round(v)}°"` : '';
+      cells += `<div class="bc${old(j)}"${style}${title}></div>`;
+    });
+    const nv = newest && (newest.t_avg || [])[i];
+    cells += `<div class="bv">${deg(nv)}</div>`;
+  });
+  cells += `<div class="bd"></div>${keys.map((k, j) => {
+    const a = ageOf(j);
+    return `<div class="bx${old(j)}">${a % 7 === 0 ? `<span>${esc(blockDayLabel(k))}</span>` : ''}</div>`;
+  }).join('')}<div></div>`;
+  const grad = 'linear-gradient(90deg,' + BLOCK_STOPS.map(([t, c]) => `rgb(${c.join(',')}) ${((t - 20) / 60 * 100).toFixed(1)}%`).join(',') + ')';
+  const ticks = [20, 32, 50, 65, 80].map(t => `<li style="left:${((t - 20) / 60 * 100).toFixed(1)}%">${t}&deg;</li>`).join('');
+  return `
+        <div class="blocks">
+          <div class="blocks-head"><p class="chart-label">Soil temp, daily</p></div>
+          <div class="blocks-grid" role="img" aria-label="Daily average soil temperature by depth">${cells}</div>
+          <div class="blocks-key"><div class="bar" style="background:${grad}"></div><ol>${ticks}</ol></div>
+        </div>`;
+}
+
 function siteCard(site, i) {
   const latest = site.latest || [];
   const rows = latest.map(r => `
@@ -727,6 +807,7 @@ function siteCard(site, i) {
       ${summary(site)}
       <div class="site-body">
         ${seasonBlock(site, i)}
+        ${blockGrid(site)}
         <table class="depths depths-phone">
           <thead><tr><th scope="col">Depth</th><th scope="col" class="n">Temp</th><th scope="col" class="n">Water</th></tr></thead>
           <tbody>${rows}
