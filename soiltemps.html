@@ -78,8 +78,15 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; f
 
 /* Daily block grid: one solid block per depth per day, newest on the right. */
 .blocks { padding:28px 0 36px; border-bottom:1px solid var(--line); }
-.blocks-head { display:flex; justify-content:space-between; align-items:baseline; margin:0 0 12px; }
-.blocks-grid { --n:60; display:grid; grid-template-columns:44px repeat(var(--n),minmax(0,1fr)) 52px; grid-auto-rows:22px; gap:3px; align-items:stretch; }
+.blocks-head { display:flex; justify-content:space-between; align-items:baseline; margin:0 0 16px; }
+.season-charts.one { grid-template-columns:1fr; }
+.season-charts.one::before { display:none; }
+.blocks-grid { --n1:59; --rh:22px; display:grid; grid-template-columns:44px repeat(var(--n1),minmax(0,1fr)) minmax(0,2fr) 56px; grid-auto-rows:var(--rh); gap:3px; align-items:stretch; }
+.blocks-grid .bc.bt { position:relative; border-radius:1px; }
+.blocks-grid .bc.bt.b0::after { content:""; position:absolute; left:-4px; right:-4px; top:-4px; height:calc(9 * var(--rh) + 8 * 3px + 8px); border:1.5px solid #222; border-radius:2px; pointer-events:none; }
+.blocks-grid .btl { position:relative; overflow:visible; }
+.blocks-grid .btl span { position:absolute; left:50%; bottom:6px; transform:translateX(-50%); font-size:13px; line-height:1; color:#111; font-weight:600; font-synthesis:weight; white-space:nowrap; }
+.blocks-grid .bv.now { color:#111; font-weight:600; font-synthesis:weight; }
 .blocks-grid .bd { font-size:13px; color:#666; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; align-self:center; text-align:right; padding-right:8px; white-space:nowrap; }
 .blocks-grid .bc { background:#f1f2f4; border-radius:1px; }
 .blocks-grid .bv { font-size:15px; color:#222; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; align-self:center; padding-left:10px; white-space:nowrap; }
@@ -111,9 +118,10 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; f
   .trend { margin-top:14px; margin-bottom:0; }
   .site-body { order:3; margin-top:0; display:flex; flex-direction:column; gap:0; }
   .site-body .season { order:1; padding:0; border-bottom:0; }
-  .site-body .blocks { order:2; padding:20px 0; border-bottom:0; border-top:1px solid var(--line); }
+  .site-body .blocks { order:1; padding:20px 0; border-bottom:0; border-top:1px solid var(--line); }
+  .site-body .season { order:2; }
   .site-body .depths { order:3; width:100%; max-width:none; }
-  .blocks-grid { --n:14; grid-template-columns:36px repeat(var(--n),minmax(0,1fr)) 50px; grid-auto-rows:24px; gap:3px; }
+  .blocks-grid { --n1:13; --rh:24px; grid-template-columns:36px repeat(var(--n1),minmax(0,1fr)) minmax(0,1.8fr) 50px; gap:3px; }
   .blocks-grid .o { display:none; }
   .blocks-grid .bd { padding-right:6px; }
   .blocks-grid .bv,.blocks-grid .bh { padding-left:8px; }
@@ -628,9 +636,9 @@ function seasonChart(site) {
     if (!days.length) return '';
     range = seasonRange(days);
   }
-  if (!range || (!water.length && !temp.length)) return '';
-  return `<div class="season-charts">
-      ${temp.length ? oneSeasonPlot(temp, range, { kind: 'temp', unit: '&deg;', digits: 0, title: 'Soil temp, season', yBot: 30, yTop: 90, height: 300 }) : ''}
+  if (!range || !water.length) return '';
+  if (!water.length) return '';
+  return `<div class="season-charts one">
       ${water.length ? oneSeasonPlot(water, range, { kind: 'water', unit: '%', digits: 1, title: 'Soil water, season', yBot: 0, yTop: waterTopOf(water), height: 300 }) : ''}
     </div>`;
 }
@@ -764,7 +772,7 @@ function blockGrid(site) {
   const ageOf = j => BLOCK_DAYS - 1 - j;
   const old = j => ageOf(j) >= BLOCK_DAYS_PHONE ? ' o' : '';
   const newest = byDate.get(lastKey);
-  let cells = `<div class="bd"></div>${keys.map((k, j) => `<div class="${old(j).trim()}"></div>`).join('')}<div class="bh">${esc(blockDayLabel(lastKey))}</div>`;
+  let cells = `<div class="bd"></div>${keys.map((k, j) => ageOf(j) === 0 ? '<div class="btl"><span>Today</span></div>' : `<div class="${old(j).trim()}"></div>`).join('')}<div class="bh">${esc(blockDayLabel(lastKey))}</div>`;
   depths.forEach((depth, i) => {
     cells += `<div class="bd">${inchLabel(depth)}</div>`;
     keys.forEach((k, j) => {
@@ -772,10 +780,11 @@ function blockGrid(site) {
       const v = d && (d.t_avg || [])[i];
       const style = isNum(v) ? ` style="background:${blockColor(v)}"` : '';
       const title = isNum(v) ? ` title="${esc(blockDayLabel(k))} · ${esc(depth)}″ · ${Math.round(v)}°"` : '';
-      cells += `<div class="bc${old(j)}"${style}${title}></div>`;
+      const now = ageOf(j) === 0 ? ` bt${i === 0 ? ' b0' : ''}` : '';
+      cells += `<div class="bc${old(j)}${now}"${style}${title}></div>`;
     });
     const nv = newest && (newest.t_avg || [])[i];
-    cells += `<div class="bv">${deg(nv)}</div>`;
+    cells += `<div class="bv now">${deg(nv)}</div>`;
   });
   cells += `<div class="bd"></div>${keys.map((k, j) => {
     const a = ageOf(j);
@@ -806,8 +815,8 @@ function siteCard(site, i) {
       </div>
       ${summary(site)}
       <div class="site-body">
-        ${seasonBlock(site, i)}
         ${blockGrid(site)}
+        ${seasonBlock(site, i)}
         <table class="depths depths-phone">
           <thead><tr><th scope="col">Depth</th><th scope="col" class="n">Temp</th><th scope="col" class="n">Water</th></tr></thead>
           <tbody>${rows}
