@@ -81,7 +81,7 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; f
 .blocks-head { display:flex; justify-content:space-between; align-items:baseline; margin:0 0 16px; }
 .season-charts.one { grid-template-columns:1fr; }
 .season-charts.one::before { display:none; }
-.blocks-grid { --n1:59; --rh:22px; display:grid; grid-template-columns:44px repeat(var(--n1),minmax(0,1fr)) minmax(0,2fr) 56px; grid-auto-rows:var(--rh); gap:3px; align-items:stretch; }
+.blocks-grid { --n1:59; --rh:22px; display:grid; grid-template-columns:44px repeat(var(--n1),minmax(0,1fr)) minmax(0,2fr) 56px; grid-auto-rows:var(--rh); gap:3px; align-items:stretch; padding-bottom:18px; }
 .blocks-grid .bc.bt { position:relative; border-radius:1px; }
 .blocks-grid .bc.bt.b0::after { content:""; position:absolute; left:-4px; right:-4px; top:-4px; height:calc(9 * var(--rh) + 8 * 3px + 8px); border:1.5px solid #222; border-radius:2px; pointer-events:none; }
 .blocks-grid .btl { position:relative; overflow:visible; }
@@ -90,8 +90,12 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; f
 .blocks-grid .bd { font-size:13px; color:#666; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; align-self:center; text-align:right; padding-right:8px; white-space:nowrap; }
 .blocks-grid .bc { background:#f1f2f4; border-radius:1px; }
 .blocks-grid .bv { font-size:15px; color:#222; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; align-self:center; padding-left:10px; white-space:nowrap; }
-.blocks-grid .bx { position:relative; font-size:13px; color:#666; font-weight:400; font-synthesis:none; white-space:nowrap; overflow:visible; }
-.blocks-grid .bx span { position:absolute; top:6px; right:0; }
+.blocks-grid .bx { position:relative; font-size:12px; line-height:1.15; color:#666; font-weight:400; font-synthesis:none; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:visible; }
+.blocks-grid .bx i { position:absolute; top:0; left:50%; width:1px; height:4px; margin-left:-.5px; background:#9aa1a8; }
+.blocks-grid .bx span { position:absolute; top:7px; left:50%; transform:translateX(-50%); text-align:center; }
+.blocks-grid .bx b { display:block; font-weight:400; color:#888; }
+.blocks-grid .bx.bxt span { color:#111; font-weight:600; font-synthesis:weight; }
+.blocks-grid .bx.bxt b { color:#666; font-weight:400; font-synthesis:none; }
 .blocks-grid .bh { font-size:13px; color:#666; font-weight:400; font-synthesis:none; align-self:end; padding-left:10px; white-space:nowrap; }
 .blocks-key { display:flex; align-items:center; gap:0; margin-top:22px; margin-left:47px; width:240px; flex-direction:column; align-items:stretch; }
 .blocks-key .bar { height:6px; border-radius:1px; }
@@ -754,6 +758,7 @@ function blockColor(v) {
   return 'rgb(160,31,31)';
 }
 const fmtBlockDay = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
+const fmtBlockMonth = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short' });
 function blockDayLabel(key) { return fmtBlockDay.format(new Date(key + 'T12:00:00Z')); }
 function blockKeys(endKey, n) {
   const end = Date.parse(endKey + 'T12:00:00Z'), out = [];
@@ -788,7 +793,11 @@ function blockGrid(site) {
   });
   cells += `<div class="bd"></div>${keys.map((k, j) => {
     const a = ageOf(j);
-    return `<div class="bx${old(j)}">${a % 7 === 0 ? `<span>${esc(blockDayLabel(k))}</span>` : ''}</div>`;
+    const day = +k.slice(8, 10);
+    const mon = fmtBlockMonth.format(new Date(k + 'T12:00:00Z'));
+    if (a === 0) return `<div class="bx bxt"><i></i><span>${day}<b>${esc(mon)}</b></span></div>`;
+    if (a >= 2 && (day === 1 || (day % 5 === 0 && day <= 25))) return `<div class="bx${old(j)}"><i></i><span>${day}${day === 1 ? `<b>${esc(mon)}</b>` : ''}</span></div>`;
+    return `<div class="bx${old(j)}"></div>`;
   }).join('')}<div></div>`;
   const grad = 'linear-gradient(90deg,' + BLOCK_STOPS.map(([t, c]) => `rgb(${c.join(',')}) ${((t - 20) / 60 * 100).toFixed(1)}%`).join(',') + ')';
   const ticks = [20, 32, 50, 65, 80].map(t => `<li style="left:${((t - 20) / 60 * 100).toFixed(1)}%">${t}&deg;</li>`).join('');
