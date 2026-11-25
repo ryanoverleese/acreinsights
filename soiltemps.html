@@ -158,6 +158,42 @@ p.chart-label { font-size:16px; color:var(--black); line-height:1.2; margin:0; f
   .trend { width:24px; height:24px; margin-top:10px; }
   .site { margin-top:24px; }
 }
+/* Sections: each part of the page is its own card. Cards do the separating, so the old hairlines are off. */
+.site-head { border-bottom:0; padding-bottom:0; }
+.panels { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:24px; margin-top:24px; align-items:stretch; }
+.panel { border:1px solid var(--line); border-radius:10px; background:#fff; padding:22px 28px 26px; min-width:0; }
+.panel-days,.panel-water { grid-column:1 / -1; }
+h3.panel-title { font-size:18px; line-height:1.2; color:#222; font-weight:600; font-synthesis:weight; margin:0 0 18px; letter-spacing:0; }
+.panel .soil-summary { padding:0; border:0; }
+.panel .blocks { padding:0; border:0; }
+.panel .season { padding:0; border:0; }
+.panel .season-plot .chart-label { display:none; }
+.panel .season-plot .legend { grid-column:1 / -1; }
+.panel .season-frame { margin-top:6px; }
+table.depths-list { width:100%; table-layout:auto; border-collapse:collapse; }
+table.depths-list th,table.depths-list td { text-align:left; font-weight:400; font-synthesis:none; font-size:15px; color:#222; line-height:1.3; padding:7px 0; border:0; }
+table.depths-list thead th { color:var(--gray-2); padding-top:0; padding-bottom:10px; border-bottom:1px solid var(--line); }
+table.depths-list tbody tr + tr td { border-top:1px solid var(--gray-5); }
+table.depths-list .n { text-align:right; }
+table.depths-list td.n { width:30%; }
+@media(max-width:768px) {
+  .panels { order:3; display:flex; flex-direction:column; gap:16px; margin-top:20px; }
+  .panel .summary-now { border-bottom:0; }
+  .panel .summary-stats { border-top:0; }
+  .panel .stat { padding-top:6px; }
+  table.depths-list thead { border-bottom:0; }
+  table.depths-list tbody tr { border-bottom:0; }
+  .panel { padding:18px 16px 20px; border-radius:10px; }
+  .panel-now { order:1; } .panel-days { order:2; } .panel-water { order:3; } .panel-depths { order:4; }
+  h3.panel-title { font-size:17px; margin-bottom:14px; }
+  .site-head { padding-bottom:0; border-bottom:0; }
+  .panel .soil-summary { padding:0; }
+  .panel .summary-now { padding-bottom:18px; }
+  .panel .summary-today { padding-top:18px; }
+  .panel .site-body .blocks,.panel .blocks { padding:0; border:0; }
+  .panel .season-plot { padding:0; border-top:0; }
+  .panel .season-plot .legend { margin:0 0 6px; }
+}
 </style>
 </head>
 <body>
@@ -803,7 +839,6 @@ function blockGrid(site) {
   const ticks = [20, 32, 50, 65, 80].map(t => `<li style="left:${((t - 20) / 60 * 100).toFixed(1)}%">${t}&deg;</li>`).join('');
   return `
         <div class="blocks">
-          <div class="blocks-head"><p class="chart-label">Soil temp, daily</p></div>
           <div class="blocks-grid" role="img" aria-label="Daily average soil temperature by depth">${cells}</div>
           <div class="blocks-key"><div class="bar" style="background:${grad}"></div><ol>${ticks}</ol></div>
         </div>`;
@@ -822,22 +857,27 @@ function siteCard(site, i) {
         <h2>${esc(site.name)}</h2>
         <p class="site-meta">${site.location && String(site.location).trim().toLowerCase() !== String(site.name||'').trim().toLowerCase() ? esc(site.location) + ' &middot; ' : ''}Last reading <span class="when">${esc(ct(site.last_read_at))}</span></p>
       </div>
-      ${summary(site)}
-      <div class="site-body">
-        ${blockGrid(site)}
-        ${seasonBlock(site, i)}
-        <table class="depths depths-phone">
-          <thead><tr><th scope="col">Depth</th><th scope="col" class="n">Temp</th><th scope="col" class="n">Water</th></tr></thead>
-          <tbody>${rows}
-          </tbody>
-        </table>
-        <table class="depths depths-wide">
-          <thead><tr><th scope="col">Depth</th>${wideHeads}</tr></thead>
-          <tbody>
-            <tr><th scope="row">Temp</th>${wideTemp}</tr>
-            <tr><th scope="row">Water</th>${wideWater}</tr>
-          </tbody>
-        </table>
+      <div class="panels">
+        <section class="panel panel-now" aria-label="Right now">
+          <h3 class="panel-title">Right now</h3>
+          ${summary(site)}
+        </section>
+        <section class="panel panel-depths" aria-label="Each depth">
+          <h3 class="panel-title">Each depth</h3>
+          <table class="depths depths-list">
+            <thead><tr><th scope="col">Depth</th><th scope="col" class="n">Temp</th><th scope="col" class="n">Water</th></tr></thead>
+            <tbody>${rows}
+            </tbody>
+          </table>
+        </section>
+        <section class="panel panel-days" aria-label="Temperature by day">
+          <h3 class="panel-title">Temperature by day</h3>
+          ${blockGrid(site)}
+        </section>
+        <section class="panel panel-water" aria-label="Moisture">
+          <h3 class="panel-title">Moisture</h3>
+          ${seasonBlock(site, i)}
+        </section>
       </div>
     </section>`;
 }

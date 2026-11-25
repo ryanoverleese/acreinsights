@@ -1,0 +1,232 @@
+functionsDirectory = "/workspace/site-season-chart/netlify/functions"
+functionsDirectoryOrigin = "default"
+plugins = []
+
+[build]
+publish = "/workspace/site-season-chart"
+publishOrigin = "default"
+functions = "/workspace/site-season-chart/netlify/functions"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[functions]
+
+[functions."*"]
+
+[[headers]]
+for = "/capture"
+
+[headers.values]
+Cache-Control = "no-store"
+Referrer-Policy = "no-referrer"
+X-Content-Type-Options = "nosniff"
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/capture.html"
+
+[headers.values]
+Cache-Control = "no-store"
+Referrer-Policy = "no-referrer"
+X-Content-Type-Options = "nosniff"
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/api/capture*"
+
+[headers.values]
+Cache-Control = "no-store"
+Referrer-Policy = "no-referrer"
+X-Content-Type-Options = "nosniff"
+
+[[headers]]
+for = "/workweek"
+
+[headers.values]
+Cache-Control = "no-store"
+Referrer-Policy = "no-referrer"
+X-Content-Type-Options = "nosniff"
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/workweek.html"
+
+[headers.values]
+Cache-Control = "no-store"
+Referrer-Policy = "no-referrer"
+X-Content-Type-Options = "nosniff"
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/wire"
+
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/wire.html"
+
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/404"
+
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/404.html"
+
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/kasen-*"
+
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/reports-board-*"
+
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/stub-antenna-*"
+
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/csp-fields-*"
+
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+for = "/dogbone-*"
+
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+
+[[redirects]]
+from = "https://acreinsights.com/workweek"
+to = "https://acreinsights.netlify.app/workweek"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "https://www.acreinsights.com/workweek"
+to = "https://acreinsights.netlify.app/workweek"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/soil"
+to = "/.netlify/functions/soil-public"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/capture/workweek-login"
+to = "/.netlify/functions/workweek-login"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/capture/workweek"
+to = "/.netlify/functions/workweek-api"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/capture/pair"
+to = "/.netlify/functions/capture-pair"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/capture"
+to = "/.netlify/functions/capture-api"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/todos-a7k2x9"
+to = "/capture"
+status = 301.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/todos-a7k2x9.html"
+to = "/capture"
+status = 301.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
